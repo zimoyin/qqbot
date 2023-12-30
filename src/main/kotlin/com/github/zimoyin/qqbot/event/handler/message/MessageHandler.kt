@@ -1,0 +1,55 @@
+package com.github.zimoyin.qqbot.event.handler.message
+
+import com.github.zimoyin.qqbot.bot.BotInfo
+import com.github.zimoyin.qqbot.bot.contact.ChannelImpl
+import com.github.zimoyin.qqbot.bot.contact.Contact
+import com.github.zimoyin.qqbot.bot.contact.Sender
+import com.github.zimoyin.qqbot.bot.contact.User
+import com.github.zimoyin.qqbot.bot.message.MessageChain
+import com.github.zimoyin.qqbot.event.events.message.MessageEvent
+import com.github.zimoyin.qqbot.event.supporter.AbsEventHandler
+import com.github.zimoyin.qqbot.net.websocket.bean.Message
+
+import com.github.zimoyin.qqbot.utils.JSON
+import com.github.zimoyin.qqbot.net.websocket.bean.Payload
+/**
+ *
+ * @author : zimo
+ * @date : 2023/12/11
+ *
+ * 通用的消息处理器
+ */
+class MessageHandler : AbsEventHandler<MessageEvent>() {
+    override fun handle(payload: Payload): MessageEvent {
+        val message = JSON.toObject<Message>(payload.eventContent.toString())
+        val info = BotInfo.create(payload.appID!!)
+
+        return object : MessageEvent {
+            override val msgID: String = message.msgID!!
+            override val windows: Contact = getWindows(info, message)
+            override val messageChain: MessageChain = MessageChain.convert(message)
+            override val botInfo: BotInfo = info
+            override val sender: User = Sender.convert(botInfo,message)
+            override val metadata: String = payload.metadata
+            override val metadataType: String = payload.eventType!!
+        }
+    }
+
+    companion object{
+        fun getWindows(info: BotInfo, message: Message): Contact {
+            return if (message.groupID != null) {
+                //群聊
+                TODO()
+            } else if (message.srcGuildID != null) {
+                //频道私聊
+                TODO()
+            } else if (message.channelID != null) {
+                //频道
+                ChannelImpl.convert(info, message)
+            } else {
+                //朋友私聊
+                TODO()
+            }
+        }
+    }
+}
