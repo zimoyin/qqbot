@@ -392,3 +392,6 @@ m
 =src/main/kotlin/com/github/zimoyin/qqbot/utils/ex/BoolenEx.kt,0\1\01e89945af2eef51fe07d6112ee33bf1939b769e
 m
 =src/main/kotlin/com/github/zimoyin/qqbot/annotation/Events.kt,f\0\f00ee8114cb4c11f07029e6dee30e769bee0ca5f
+:
+
+token_file,6\1\61eee4ca582c968a7c8682cd8378e0bf7aa14bda

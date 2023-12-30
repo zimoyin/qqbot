@@ -10,7 +10,5 @@ import com.github.zimoyin.qqbot.net.Token
 
 
 fun main() {
-    Bot.createBot(Token("102077167", "uW58JrUXnPH6AhfJhBBlhOMXy2eEQgpu", "HVYNyKSM3WmndEcl")).apply {
-        login()
-    }
+
 }
