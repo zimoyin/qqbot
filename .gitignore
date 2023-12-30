@@ -184,3 +184,4 @@ nbdist/
 !.vscode/launch.json
 !.vscode/extensions.json
 /src/test/kotlin/io/github/zimoyin/qqbot/test/demo/ConfigA.kt
+/.idea/sonarlint/
