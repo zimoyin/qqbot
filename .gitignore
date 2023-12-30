@@ -185,4 +185,5 @@ nbdist/
 !.vscode/extensions.json
 /src/test/kotlin/io/github/zimoyin/qqbot/test/demo/ConfigA.kt
 /.idea/sonarlint/
+/.idea/sonarlint
 /token_file
