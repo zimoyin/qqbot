@@ -163,7 +163,7 @@ data class ChannelUser(
    * TODO 修改方法名称为加入某个频道身份组
    */
   @UntestedApi
-  fun addGuildRoleMember(role: Role): Future<RoleBean> {
+  fun addGuildRoleMember(role: Role): Future<Role> {
     return HttpAPIClient.addGuildRoleMember(channel, id, role.id)
   }
 
