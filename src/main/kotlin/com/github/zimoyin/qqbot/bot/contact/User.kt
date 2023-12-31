@@ -1,8 +1,13 @@
 package com.github.zimoyin.qqbot.bot.contact
 
+import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.message.MessageChain
+import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
+import com.github.zimoyin.qqbot.net.http.api.channel.MessageRevokeTimeRange
+import com.github.zimoyin.qqbot.net.http.api.channel.deleteSubChannelMember
 import com.github.zimoyin.qqbot.net.websocket.bean.Message
+import com.github.zimoyin.qqbot.net.websocket.bean.RoleBean
 import io.vertx.core.Future
 import java.io.Serializable
 import java.time.Instant
@@ -129,6 +134,47 @@ data class ChannelUser(
 
   override fun send(message: MessageChain): Future<MessageChain> {
     //TODO 等待实现
-    TODO("暂时无法向该用户发送私信")
+    TODO("无实现")
+  }
+
+  @JvmOverloads
+  fun mute(muteTimestamp: Long = 24 * 60 * 1000) {
+    mute(muteTimestamp, System.currentTimeMillis() + muteTimestamp)
+  }
+
+
+  override fun mute(muteTimestamp: Long, muteEndTimestamp: Long) {
+    //TODO 等待实现
+    TODO("无实现")
+  }
+
+
+  /**
+   * 创建频道身份组成员
+   * 用于将频道guild_id下的用户 user_id 添加到身份组 role_id
+   *
+   * TODO 修改方法名称为加入某个频道身份组
+   */
+  @UntestedApi
+  fun addGuildRoleMember(user: User, role: RoleBean): Future<RoleBean> {
+    TODO()
+  }
+
+  /**
+   * 删除频道成员
+   * @param userID 成员ID
+   * @param addBlacklist 是否将用户加入黑名单
+   * @param deleteHistoryMsg 是否删除用户的历史消息
+   *
+   * TODO 修改方法名称为推出某个频道身份组
+   */
+  @UntestedApi
+  @JvmOverloads
+  fun deleteGuildMember(
+    userID: User,
+    addBlacklist: Boolean = false,
+    deleteHistoryMsg: MessageRevokeTimeRange = MessageRevokeTimeRange.NO_REVOKE,
+  ): Future<Boolean> {
+    TODO()
   }
 }

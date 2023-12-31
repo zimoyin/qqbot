@@ -3,6 +3,7 @@ package com.github.zimoyin.qqbot.net.http.api.channel
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.contact.Channel
 import com.github.zimoyin.qqbot.bot.contact.ChannelImpl
+import com.github.zimoyin.qqbot.bot.contact.ChannelUser
 import com.github.zimoyin.qqbot.exception.HttpClientException
 import com.github.zimoyin.qqbot.net.http.addRestfulParam
 import com.github.zimoyin.qqbot.net.http.api.API
@@ -270,11 +271,11 @@ fun HttpAPIClient.getGuildMembers(
   channel: Channel,
   after: String = "0",
   limit: Int = -1,
-  callback: ((List<MemberBean>) -> Unit)? = null,
-): Future<List<MemberBean>> {
+  callback: ((List<ChannelUser>) -> Unit)? = null,
+): Future<List<ChannelUser>> {
   val list = HashSet<MemberBean>()
   var margin = limit
-  val promise = promise<List<MemberBean>>()
+  val promise = promise<List<ChannelUser>>()
   var id = after
   task {
     kotlin.runCatching {
@@ -293,8 +294,9 @@ fun HttpAPIClient.getGuildMembers(
       logError("ChannelMembers", "获取频道成员失败", it)
       promise.fail(it)
     }.onSuccess {
-      promise.complete(list.toList())
-      callback?.let { it1 -> it1(list.toList()) }
+      val result = list.toList().map { it.mapToChannelUser(channel) }
+      promise.complete(result)
+      callback?.let { it1 -> it1(result) }
     }
   }
   return promise.future()
