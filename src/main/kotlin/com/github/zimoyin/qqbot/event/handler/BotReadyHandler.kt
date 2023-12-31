@@ -1,10 +1,10 @@
 package com.github.zimoyin.qqbot.event.handler
 
-import com.github.zimoyin.qqbot.net.websocket.bean.BotUser
+import com.github.zimoyin.qqbot.net.bean.BotUser
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.event.events.bot.BotReadyEvent
 import com.github.zimoyin.qqbot.event.supporter.AbsEventHandler
-import com.github.zimoyin.qqbot.net.websocket.bean.Payload
+import com.github.zimoyin.qqbot.net.bean.Payload
 import com.github.zimoyin.qqbot.utils.JSON
 
 /**

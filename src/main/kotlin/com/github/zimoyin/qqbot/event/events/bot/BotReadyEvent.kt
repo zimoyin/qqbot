@@ -1,6 +1,6 @@
 package com.github.zimoyin.qqbot.event.events.bot
 
-import com.github.zimoyin.qqbot.net.websocket.bean.BotUser
+import com.github.zimoyin.qqbot.net.bean.BotUser
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.event.handler.BotReadyHandler

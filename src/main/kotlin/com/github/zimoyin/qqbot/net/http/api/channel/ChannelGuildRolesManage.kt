@@ -6,7 +6,7 @@ import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.contact.Channel
 import com.github.zimoyin.qqbot.bot.contact.Role
 import com.github.zimoyin.qqbot.net.http.api.API
-import com.github.zimoyin.qqbot.net.websocket.bean.RoleBean
+import com.github.zimoyin.qqbot.net.bean.RoleBean
 import com.github.zimoyin.qqbot.utils.Color
 import com.github.zimoyin.qqbot.utils.ex.promise
 import com.github.zimoyin.qqbot.utils.ex.toInt

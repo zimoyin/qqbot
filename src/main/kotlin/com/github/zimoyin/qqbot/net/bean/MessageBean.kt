@@ -1,4 +1,4 @@
-package com.github.zimoyin.qqbot.net.websocket.bean
+package com.github.zimoyin.qqbot.net.bean
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
@@ -27,19 +27,19 @@ import java.time.Instant
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SendMessageBean(
-    /**
+  /**
      * 选填，消息内容，文本内容，支持内嵌格式
      */
     @field:JsonProperty("content")
     val content: String? = null,
 
-    /**
+  /**
      * 选填，embed 消息，一种特殊的 ark，详情参考Embed消息
      */
     @field:JsonProperty("embed")
     val embed: MessageEmbed? = null,
 
-    /**
+  /**
      * 选填，ark 消息,该信息需要申请才能发送，详情参考Ark消息
      * 一种卡片信息
      *  以下默认可使用的 ID 但是发送信息还需要申请：
@@ -51,25 +51,25 @@ data class SendMessageBean(
 //    val ark: JsonObject? = null,
     val ark: MessageArk? = null,
 
-    /**
+  /**
      * 选填，引用消息
      */
     @field:JsonProperty("message_reference")
     val messageReference: MessageReference? = null,
 
-    /**
+  /**
      * 选填，图片url地址，平台会转存该图片，用于下发图片消息
      */
     @field:JsonProperty("image")
     val image: String? = null,
 
-    /**
+  /**
      * 选填，要回复的消息id(Message.id), 在 AT_CREATE_MESSAGE 事件中获取。
      */
     @field:JsonProperty("msg_id")
     val id: String? = null,
 
-    /**
+  /**
      * 选填，markdown 息
      */
     @field:JsonProperty("markdown")
@@ -81,92 +81,92 @@ data class SendMessageBean(
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Message(
-    /**
+  /**
      * 消息 id
      */
     @field:JsonProperty("id")
     val msgID: String? = null,
 
-    /**
+  /**
      * 频道 id
      */
     @field:JsonProperty("guild_id")
     val guildID: String? = null,
 
-    /**
+  /**
      * 子频道 id
      */
     @field:JsonProperty("channel_id")
     val channelID: String? = null,
 
 
-    /**
+  /**
      * 群聊 id
      */
     @field:JsonProperty("group_openid")
     val groupID: String? = null,
 
-    /**
+  /**
      * 消息内容
      */
     @field:JsonProperty("content")
     val content: String? = null,
 
-    /**
+  /**
      * 消息创建时间
      */
     @field:JsonProperty("timestamp")
     val timestamp: Instant? = null,
 
-    /**
+  /**
      * 消息编辑时间
      */
     @field:JsonProperty("edited_timestamp")
     val editedTimestamp: Instant? = null,
 
-    /**
+  /**
      * 是否是@全员消息
      */
     @field:JsonProperty("mention_everyone")
     val mentionEveryone: Boolean? = null,
 
-    /**
+  /**
      * 消息创建者
      */
     @field:JsonProperty("author")
     val author: User? = null,
 
-    /**
+  /**
      * 附件
      */
     @field:JsonProperty("attachments")
     val attachments: List<MessageAttachment>? = null,
 
-    /**
+  /**
      * embed 卡片信息
      */
     @field:JsonProperty("embeds")
     val embeds: List<MessageEmbed>? = null,
 
-    /**
+  /**
      * 消息中@的人
      */
     @field:JsonProperty("mentions")
     val mentions: List<User>? = null,
 
-    /**
+  /**
      * 消息创建者的member信息
      */
     @field:JsonProperty("member")
     val member: MemberBean? = null,
 
-    /**
+  /**
      * ark消息
      */
     @field:JsonProperty("ark")
     val ark: MessageArk? = null,
 
-    /**
+  /**
      * 用于消息间的排序
      * seq 在同一子频道中按从先到后的顺序递增
      * 不同的子频道之间消息无法排序
@@ -176,7 +176,7 @@ data class Message(
     @Deprecated("自2022年8月1日起废除 @see seqInChannel")
     val seq: Int? = null,
 
-    /**
+  /**
      * 子频道消息 seq
      * 用于消息间的排序
      * seq 在同一子频道中按从先到后的顺序递增
@@ -185,17 +185,17 @@ data class Message(
     @field:JsonProperty("seq_in_channel")
     val seqInChannel: String? = null,
 
-    /**
+  /**
      * 引用消息对象
      */
     @field:JsonProperty("message_reference")
     val messageReference: MessageReference? = null,
 
-    @field:JsonProperty("direct_message")
+  @field:JsonProperty("direct_message")
     val directMessage: Boolean? = null,
 
 
-    /**
+  /**
      * src_guild_id 用于私信场景下识别真实的来源频道id（即用户发起私信的频道id)。
      * guild_id 为私信场景下的临时频道id，并非真实频道id，因此不应用作其他地方。
      *
@@ -211,25 +211,25 @@ data class Message(
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class MessageEmbed(
-    /**
+  /**
      * 标题
      */
     @field:JsonProperty("title")
     val title: String? = null,
 
-    /**
+  /**
      * 消息弹窗内容
      */
     @field:JsonProperty("prompt")
     val prompt: String? = null,
 
-    /**
+  /**
      * 缩略图
      */
     @field:JsonProperty("thumbnail")
     val thumbnail: MessageEmbedThumbnail? = null,
 
-    /**
+  /**
      * Embed字段数据
      */
     @field:JsonProperty("fields")
@@ -318,13 +318,13 @@ data class MessageAttachment(
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class MessageArk(
-    /**
+  /**
      * Ark模板id（需要先申请）
      */
     @field:JsonProperty("template_id")
     val templateId: Int? = null,
 
-    /**
+  /**
      * Ark kv值列表
      */
     @field:JsonProperty("kv")
@@ -336,19 +336,19 @@ data class MessageArk(
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class MessageArkKv(
-    /**
+  /**
      * Key
      */
     @field:JsonProperty("key")
     val key: String? = null,
 
-    /**
+  /**
      * Value
      */
     @field:JsonProperty("value")
     val value: String? = null,
 
-    /**
+  /**
      * Ark obj类型的列表
      */
     @field:JsonProperty("obj")
@@ -360,7 +360,7 @@ data class MessageArkKv(
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class MessageArkObj(
-    /**
+  /**
      * Ark objkv列表
      */
     @field:JsonProperty("obj_kv")
@@ -407,19 +407,19 @@ data class MessageReference(
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class MessageMarkdown(
-    /**
+  /**
      * Markdown 模板 id
      */
     @field:JsonProperty("template_id")
     val templateId: Int? = null,
 
-    /**
+  /**
      * Markdown 模板参数
      */
     @field:JsonProperty("params")
     val params: MessageMarkdownParams? = null,
 
-    /**
+  /**
      * 原生 Markdown 内容，与 template_id 和 params 参数互斥
      */
     @field:JsonProperty("content")
@@ -447,31 +447,31 @@ data class MessageMarkdownParams(
 
 
 data class MessageReaction(
-    /**
+  /**
      * 用户ID
      */
     @JsonProperty("user_id")
     val userId: String? = null,
 
-    /**
+  /**
      * 频道ID
      */
     @JsonProperty("guild_id")
     val guildId: String? = null,
 
-    /**
+  /**
      * 子频道ID
      */
     @JsonProperty("channel_id")
     val channelId: String? = null,
 
-    /**
+  /**
      * 表态对象
      */
     @JsonProperty("target")
     val target: ReactionTarget? = null,
 
-    /**
+  /**
      * 表态所用表情
      */
     @JsonProperty("emoji")
@@ -487,13 +487,13 @@ data class MessageReaction(
 }
 
 data class EmojiBean(
-    /**
+  /**
      * 表情ID，系统表情使用数字为ID，emoji使用emoji本身为id，参考 Emoji 列表
      */
     @JsonProperty("id")
     val id: String? = null,
 
-    /**
+  /**
      * 表情类型，参考 [EmojiType]
      */
     @JsonProperty("type")

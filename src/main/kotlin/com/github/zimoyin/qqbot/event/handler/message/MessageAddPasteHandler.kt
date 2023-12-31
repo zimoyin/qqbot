@@ -1,12 +1,12 @@
 package com.github.zimoyin.qqbot.event.handler.message
 
-import com.github.zimoyin.qqbot.net.websocket.bean.MessageReaction
+import com.github.zimoyin.qqbot.net.bean.MessageReaction
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.event.events.paste.MessageAddPasteEvent
 import com.github.zimoyin.qqbot.event.supporter.AbsEventHandler
 
 import com.github.zimoyin.qqbot.utils.JSON
-import com.github.zimoyin.qqbot.net.websocket.bean.Payload
+import com.github.zimoyin.qqbot.net.bean.Payload
 /**
  *
  * @author : zimo

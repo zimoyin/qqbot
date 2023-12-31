@@ -1,6 +1,6 @@
 package com.github.zimoyin.qqbot.event.events.channel.forum.thread
 
-import com.github.zimoyin.qqbot.net.websocket.bean.ForumThread
+import com.github.zimoyin.qqbot.net.bean.ForumThread
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.event.handler.channel.forum.thread.ForumThreadCreateHandler

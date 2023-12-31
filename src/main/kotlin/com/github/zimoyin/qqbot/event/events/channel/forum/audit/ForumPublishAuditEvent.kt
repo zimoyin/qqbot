@@ -1,6 +1,6 @@
 package com.github.zimoyin.qqbot.event.events.channel.forum.audit
 
-import com.github.zimoyin.qqbot.net.websocket.bean.ForumAuditResult
+import com.github.zimoyin.qqbot.net.bean.ForumAuditResult
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.contact.Channel

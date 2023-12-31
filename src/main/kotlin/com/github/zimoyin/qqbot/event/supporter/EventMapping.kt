@@ -50,7 +50,7 @@ import com.github.zimoyin.qqbot.event.handler.NoneEventHandler
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import com.github.zimoyin.qqbot.net.websocket.bean.Payload
+import com.github.zimoyin.qqbot.net.bean.Payload
 
 /**
  *

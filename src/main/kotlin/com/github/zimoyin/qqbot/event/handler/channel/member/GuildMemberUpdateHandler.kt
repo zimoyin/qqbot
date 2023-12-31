@@ -1,7 +1,7 @@
 package com.github.zimoyin.qqbot.event.handler.channel.member
 
-import com.github.zimoyin.qqbot.net.websocket.bean.MemberWithGuildID
-import com.github.zimoyin.qqbot.net.websocket.bean.Payload
+import com.github.zimoyin.qqbot.net.bean.MemberWithGuildID
+import com.github.zimoyin.qqbot.net.bean.Payload
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.event.events.channel.member.GuildMemberUpdateEvent
 import com.github.zimoyin.qqbot.event.supporter.AbsEventHandler

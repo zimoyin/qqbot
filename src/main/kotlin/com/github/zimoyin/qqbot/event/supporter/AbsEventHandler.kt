@@ -1,7 +1,7 @@
 package com.github.zimoyin.qqbot.event.supporter
 
 import com.github.zimoyin.qqbot.event.events.Event
-import com.github.zimoyin.qqbot.net.websocket.bean.Payload
+import com.github.zimoyin.qqbot.net.bean.Payload
 
 /**
  *

@@ -1,6 +1,7 @@
 package com.github.zimoyin.qqbot.bot.message
 
 
+import com.github.zimoyin.qqbot.net.bean.*
 import com.github.zimoyin.qqbot.net.websocket.bean.*
 import com.github.zimoyin.qqbot.utils.JSON
 import org.slf4j.LoggerFactory

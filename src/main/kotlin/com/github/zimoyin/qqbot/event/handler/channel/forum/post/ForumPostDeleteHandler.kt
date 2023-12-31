@@ -1,12 +1,12 @@
 package com.github.zimoyin.qqbot.event.handler.channel.forum.post
 
-import com.github.zimoyin.qqbot.net.websocket.bean.ForumPost
+import com.github.zimoyin.qqbot.net.bean.ForumPost
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.event.events.channel.forum.post.ForumPostDeleteEvent
 import com.github.zimoyin.qqbot.event.supporter.AbsEventHandler
 
 import com.github.zimoyin.qqbot.utils.JSON
-import com.github.zimoyin.qqbot.net.websocket.bean.Payload
+import com.github.zimoyin.qqbot.net.bean.Payload
 /**
  *
  * @author : zimo

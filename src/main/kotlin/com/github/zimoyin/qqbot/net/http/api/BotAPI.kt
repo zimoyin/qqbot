@@ -1,6 +1,6 @@
 package com.github.zimoyin.qqbot.net.http.api
 
-import com.github.zimoyin.qqbot.net.websocket.bean.BotUser
+import com.github.zimoyin.qqbot.net.bean.BotUser
 import com.github.zimoyin.qqbot.net.Token
 import com.github.zimoyin.qqbot.utils.JSON
 import com.github.zimoyin.qqbot.utils.ex.mapTo

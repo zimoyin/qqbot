@@ -3,6 +3,7 @@ package com.github.zimoyin.qqbot.bot.contact
 import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.message.MessageChain
+import com.github.zimoyin.qqbot.net.bean.*
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.*
 import com.github.zimoyin.qqbot.net.websocket.bean.*

@@ -12,7 +12,7 @@ import com.github.zimoyin.qqbot.net.Token
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.getGuildInfos
 import com.github.zimoyin.qqbot.net.http.api.channel.getGuilds
-import com.github.zimoyin.qqbot.net.websocket.bean.GuildBean
+import com.github.zimoyin.qqbot.net.bean.GuildBean
 import com.github.zimoyin.qqbot.utils.vertx
 import io.vertx.core.Future
 import io.vertx.core.Vertx

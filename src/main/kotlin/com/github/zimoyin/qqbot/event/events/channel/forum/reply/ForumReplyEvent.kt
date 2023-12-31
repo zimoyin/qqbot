@@ -1,6 +1,6 @@
 package com.github.zimoyin.qqbot.event.events.channel.forum.reply
 
-import com.github.zimoyin.qqbot.net.websocket.bean.ForumReply
+import com.github.zimoyin.qqbot.net.bean.ForumReply
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.contact.Channel
 import com.github.zimoyin.qqbot.bot.contact.ChannelImpl

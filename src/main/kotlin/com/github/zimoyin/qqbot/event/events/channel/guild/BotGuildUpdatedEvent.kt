@@ -3,7 +3,7 @@ package com.github.zimoyin.qqbot.event.events.channel.guild
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.event.handler.channel.guild.BotGuildUpdatedHandler
-import com.github.zimoyin.qqbot.net.websocket.bean.GuildBean
+import com.github.zimoyin.qqbot.net.bean.GuildBean
 
 
 /**

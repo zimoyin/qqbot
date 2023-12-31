@@ -1,6 +1,6 @@
 package com.github.zimoyin.qqbot.bot.contact
 
-import com.github.zimoyin.qqbot.net.websocket.bean.Message
+import com.github.zimoyin.qqbot.net.bean.Message
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import io.vertx.core.Future

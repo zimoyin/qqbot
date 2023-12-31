@@ -12,7 +12,7 @@ import com.github.zimoyin.qqbot.event.events.platform.MessageSendPreEvent
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.exception.HttpClientException
 import com.github.zimoyin.qqbot.net.http.api.API
-import com.github.zimoyin.qqbot.net.websocket.bean.Message
+import com.github.zimoyin.qqbot.net.bean.Message
 import com.github.zimoyin.qqbot.utils.JSON
 import io.vertx.core.Future
 import io.vertx.core.Promise

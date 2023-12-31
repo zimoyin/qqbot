@@ -1,6 +1,6 @@
 package com.github.zimoyin.qqbot.event.events
 
-import com.github.zimoyin.qqbot.net.websocket.bean.MessageAuditBean
+import com.github.zimoyin.qqbot.net.bean.MessageAuditBean
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.event.events.platform.PlatformEvent

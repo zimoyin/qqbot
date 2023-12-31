@@ -8,10 +8,10 @@ import com.github.zimoyin.qqbot.exception.HttpClientException
 import com.github.zimoyin.qqbot.net.http.addRestfulParam
 import com.github.zimoyin.qqbot.net.http.api.API
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
-import com.github.zimoyin.qqbot.net.websocket.bean.ChannelBean
-import com.github.zimoyin.qqbot.net.websocket.bean.GuildBean
-import com.github.zimoyin.qqbot.net.websocket.bean.GuildRolesBean
-import com.github.zimoyin.qqbot.net.websocket.bean.MemberBean
+import com.github.zimoyin.qqbot.net.bean.ChannelBean
+import com.github.zimoyin.qqbot.net.bean.GuildBean
+import com.github.zimoyin.qqbot.net.bean.GuildRolesBean
+import com.github.zimoyin.qqbot.net.bean.MemberBean
 import com.github.zimoyin.qqbot.utils.JSON
 import com.github.zimoyin.qqbot.utils.ex.await
 import com.github.zimoyin.qqbot.utils.ex.mapTo

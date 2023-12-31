@@ -1,4 +1,4 @@
-package com.github.zimoyin.qqbot.net.websocket.bean
+package com.github.zimoyin.qqbot.net.bean
 
 /**
  *

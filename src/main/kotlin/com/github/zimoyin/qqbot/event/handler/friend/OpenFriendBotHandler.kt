@@ -1,6 +1,6 @@
 package com.github.zimoyin.qqbot.event.handler.friend
 
-import com.github.zimoyin.qqbot.net.websocket.bean.Payload
+import com.github.zimoyin.qqbot.net.bean.Payload
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.event.events.friend.OpenFriendBotEvent
 import com.github.zimoyin.qqbot.event.supporter.AbsEventHandler

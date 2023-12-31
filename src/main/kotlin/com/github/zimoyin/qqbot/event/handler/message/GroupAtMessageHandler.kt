@@ -6,10 +6,10 @@ import com.github.zimoyin.qqbot.bot.contact.Sender
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.event.events.message.at.GroupAtMessageEvent
 import com.github.zimoyin.qqbot.event.supporter.AbsEventHandler
-import com.github.zimoyin.qqbot.net.websocket.bean.Message
+import com.github.zimoyin.qqbot.net.bean.Message
 
 import com.github.zimoyin.qqbot.utils.JSON
-import com.github.zimoyin.qqbot.net.websocket.bean.Payload
+import com.github.zimoyin.qqbot.net.bean.Payload
 /**
  *
  * @author : zimo

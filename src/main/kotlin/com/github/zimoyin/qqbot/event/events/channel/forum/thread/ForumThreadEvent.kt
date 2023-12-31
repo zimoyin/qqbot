@@ -5,7 +5,7 @@ import com.github.zimoyin.qqbot.bot.contact.Channel
 import com.github.zimoyin.qqbot.bot.contact.ChannelImpl
 import com.github.zimoyin.qqbot.event.events.channel.forum.ForumEvent
 import com.github.zimoyin.qqbot.event.handler.NoneEventHandler
-import com.github.zimoyin.qqbot.net.websocket.bean.ForumThread
+import com.github.zimoyin.qqbot.net.bean.ForumThread
 
 
 /**

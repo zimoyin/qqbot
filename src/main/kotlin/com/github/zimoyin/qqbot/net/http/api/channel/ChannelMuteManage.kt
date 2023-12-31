@@ -2,7 +2,7 @@ package com.github.zimoyin.qqbot.net.http.api.channel
 
 import com.github.zimoyin.qqbot.net.http.addRestfulParam
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
-import com.github.zimoyin.qqbot.net.websocket.bean.MessageSetting
+import com.github.zimoyin.qqbot.net.bean.MessageSetting
 import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.contact.Channel
 import com.github.zimoyin.qqbot.net.http.api.API

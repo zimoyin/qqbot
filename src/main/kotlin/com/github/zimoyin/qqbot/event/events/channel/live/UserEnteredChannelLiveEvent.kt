@@ -5,7 +5,7 @@ import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.contact.Channel
 import com.github.zimoyin.qqbot.bot.contact.ChannelImpl
 import com.github.zimoyin.qqbot.event.handler.channel.live.EnterChannelLiveHandler
-import com.github.zimoyin.qqbot.net.websocket.bean.UserLive
+import com.github.zimoyin.qqbot.net.bean.UserLive
 
 
 /**

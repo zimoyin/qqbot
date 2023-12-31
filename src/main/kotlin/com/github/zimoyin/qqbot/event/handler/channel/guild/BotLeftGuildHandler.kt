@@ -1,9 +1,9 @@
 package com.github.zimoyin.qqbot.event.handler.channel.guild
-import com.github.zimoyin.qqbot.net.websocket.bean.Payload
+import com.github.zimoyin.qqbot.net.bean.Payload
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.event.events.channel.guild.BotLeftGuildEvent
 import com.github.zimoyin.qqbot.event.supporter.AbsEventHandler
-import com.github.zimoyin.qqbot.net.websocket.bean.GuildBean
+import com.github.zimoyin.qqbot.net.bean.GuildBean
 
 
 import com.github.zimoyin.qqbot.utils.JSON
