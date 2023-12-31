@@ -51,9 +51,17 @@ suspend fun main() {
       }
 
       println("Bot -> " + it.messageChain.toString())
+      println("Bot -> " + it.messageChain.id)
       //尝试发送信息
       it.reply(it.messageChain)
     }
     login()
+
+    getGuilds().await().forEach {
+      println(it.guildID)
+      it.getChannelInfos().await().forEach {
+        println(it)
+      }
+    }
   }
 }
