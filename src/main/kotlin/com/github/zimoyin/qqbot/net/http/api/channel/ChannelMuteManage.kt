@@ -28,7 +28,7 @@ fun HttpAPIClient.getChannelRate(
     callback: ((MessageSetting) -> Unit)? = null,
 ): Future<MessageSetting> {
     val promise = promise<MessageSetting>()
-    API.ChannelRate.addRestfulParam(channel.guildID).send().onSuccess {
+    API.ChannelRate.putHeaders(channel.botInfo.token.getHeaders()).addRestfulParam(channel.guildID).send().onSuccess {
         kotlin.runCatching {
             val json = it.bodyAsJsonObject()
             val code = json.getInteger("code")
@@ -77,7 +77,7 @@ fun HttpAPIClient.setChannelMute(
         put("mute_seconds", "${muteTimestamp / 1000}")
         put("mute_end_timestamp", "${muteEndTimestamp / 1000}")
     }
-    API.ChannelMute.addRestfulParam(channel.guildID).sendJsonObject(param).onSuccess {
+    API.ChannelMute.putHeaders(channel.botInfo.token.getHeaders()).addRestfulParam(channel.guildID).sendJsonObject(param).onSuccess {
         kotlin.runCatching {
             if (it.statusCode() == 204) {
                 promise.complete(true)
@@ -126,7 +126,7 @@ fun HttpAPIClient.setChannelMuteMember(
         put("mute_seconds", "${muteTimestamp / 1000}")
         put("mute_end_timestamp", "${muteEndTimestamp / 1000}")
     }
-    API.ChannelMuteMember.addRestfulParam(channel.guildID, userID).sendJsonObject(param).onSuccess {
+    API.ChannelMuteMember.putHeaders(channel.botInfo.token.getHeaders()).addRestfulParam(channel.guildID, userID).sendJsonObject(param).onSuccess {
         kotlin.runCatching {
             if (it.statusCode() == 204) {
                 promise.complete(true)
@@ -176,7 +176,7 @@ fun HttpAPIClient.setChannelMuteMembers(
         put("mute_seconds", "${muteTimestamp / 1000}")
         put("mute_end_timestamp", "${muteEndTimestamp / 1000}")
     }
-    API.ChannelMuteMembers.addRestfulParam(channel.guildID).sendJsonObject(param).onSuccess {
+    API.ChannelMuteMembers.putHeaders(channel.botInfo.token.getHeaders()).addRestfulParam(channel.guildID).sendJsonObject(param).onSuccess {
         kotlin.runCatching {
             if (it.statusCode() == 204) {
                 promise.complete(true)

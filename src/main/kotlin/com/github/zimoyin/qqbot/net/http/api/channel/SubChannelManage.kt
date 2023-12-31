@@ -33,7 +33,7 @@ fun HttpAPIClient.creatSubChannel(
   callback: ((Channel) -> Unit)? = null,
 ): Future<Channel> {
   val promise = promise<Channel>()
-  API.CreateSubChannel.addRestfulParam(channel.guildID).sendJsonObject(subChannel.toJsonObject()).onSuccess {
+  API.CreateSubChannel.putHeaders(channel.botInfo.token.getHeaders()).addRestfulParam(channel.guildID).sendJsonObject(subChannel.toJsonObject()).onSuccess {
     kotlin.runCatching {
       val json = it.bodyAsJsonObject()
       val code = json.getInteger("code")
@@ -93,7 +93,7 @@ fun HttpAPIClient.updateSubChannel(
     privateType?.let { put("private_type", it) }
     speakPermission?.let { put("speak_permission", it) }
   }
-  API.UpdateSubChannel.addRestfulParam(channel.channelID!!).sendJsonObject(param).onSuccess {
+  API.UpdateSubChannel.putHeaders(channel.botInfo.token.getHeaders()).addRestfulParam(channel.channelID!!).sendJsonObject(param).onSuccess {
     kotlin.runCatching {
       val json = it.bodyAsJsonObject()
       val code = json.getInteger("code")
@@ -136,7 +136,7 @@ fun HttpAPIClient.deleteSubChannel(
   callback: ((Boolean) -> Unit)? = null,
 ): Future<Boolean> {
   val promise = promise<Boolean>()
-  API.DeleteSubChannel.addRestfulParam(channel.channelID!!).send().onSuccess {
+  API.DeleteSubChannel.putHeaders(channel.botInfo.token.getHeaders()).addRestfulParam(channel.channelID!!).send().onSuccess {
     kotlin.runCatching {
       if (it.statusCode() == 200) {
         promise.complete(true)
@@ -184,7 +184,7 @@ fun HttpAPIClient.deleteSubChannelMember(
     put("add_blacklist", addBlacklist)
     put("delete_history_msg_days", deleteHistoryMsg.value)
   }
-  API.DeleteSubChannelMember.addRestfulParam(channel.channelID!!, userID).sendJsonObject(param).onSuccess {
+  API.DeleteSubChannelMember.putHeaders(channel.botInfo.token.getHeaders()).addRestfulParam(channel.channelID!!, userID).sendJsonObject(param).onSuccess {
     kotlin.runCatching {
       if (it.statusCode() == 204) {
         promise.complete(true)
