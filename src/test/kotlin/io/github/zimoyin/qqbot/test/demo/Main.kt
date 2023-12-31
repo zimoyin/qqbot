@@ -14,46 +14,46 @@ import token
 
 
 suspend fun main() {
-    openDebug()
+  openDebug()
 
-    token.version = 1
+  token.version = 1
 //    token.version = 2
 
-    //监听该BOT的全局事件
-    GlobalEventBus.onBotEvent<Event>(token.appID) {
+  //监听该BOT的全局事件
+  GlobalEventBus.onBotEvent<Event>(token.appID) {
 //        println("BOT全局事件监听: " + it.metadataType)
-    }
+  }
 
-    //全局事件监听
-    GlobalEventBus.onEvent<Event> {
-        println("全局事件监听: " + it.metadataType)
-    }
+  //全局事件监听
+  GlobalEventBus.onEvent<Event> {
+    println("全局事件监听: " + it.metadataType)
+  }
 
-    //拦截发送的信息
-    MessageSendPreEvent.interceptor {
-        return@interceptor it.apply {
-            intercept = false
-            messageChain = messageChain
-        }
+  //拦截发送的信息
+  MessageSendPreEvent.interceptor {
+    return@interceptor it.apply {
+      intercept = false
+      messageChain = messageChain
     }
+  }
 
-    Bot.INSTANCE.createBot(token) {
+  Bot.INSTANCE.createBot(token) {
 //        setIntents(github.zimoyin.net.Intents.Presets.PUBLIC_INTENTS)
-        setIntents(Intents.Presets.PRIVATE_INTENTS)
-    }.apply {
-        println(this.botInfo)
-        //用于复用会话
-//        context["SESSION_ID"] = "66e85fe6-f429-40cb-b890-d91f94cced8e"
-        onEvent<MessageEvent> {
+    setIntents(Intents.Presets.PRIVATE_INTENTS)
+  }.apply {
+    println(this.botInfo)
+    //用于复用会话
+      context["SESSION_ID"] = "51415469-4672-41c2-a72c-a3038f4b4cf1"
+    onEvent<MessageEvent> {
 
-            it.getBot().getGuilds().await().forEach {
-                println(it)
-            }
+      it.getBot().getGuilds().await().forEach {
+        println(it)
+      }
 
-            println("Bot -> " + it.messageChain.toString())
-            //尝试发送信息
-            it.reply(it.messageChain)
-        }
-        login()
+      println("Bot -> " + it.messageChain.toString())
+      //尝试发送信息
+      it.reply(it.messageChain)
     }
+    login()
+  }
 }

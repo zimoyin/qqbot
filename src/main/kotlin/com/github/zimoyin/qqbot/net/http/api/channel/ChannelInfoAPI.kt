@@ -151,6 +151,36 @@ fun HttpAPIClient.getChannels(channel: Channel, callback: ((List<Channel>) -> Un
 
 /**
  *
+ * 获取用户子频道列表
+ * @param channel 频道
+ * @param callback 回调
+ *
+ * @author : zimo
+ * @date : 2023/12/21
+ */
+fun HttpAPIClient.getChannelInfos(channel: Channel, callback: ((List<ChannelBean>) -> Unit)? = null): Future<List<ChannelBean>> {
+  val promise = promise<List<ChannelBean>>()
+  API.Channels.addRestfulParam(channel.guildID).putHeaders(channel.botInfo.token.getHeaders()).send().onSuccess {
+    kotlin.runCatching {
+      it.body().toJsonArray().map {
+        JSON.toObject<ChannelBean>(it.toString())
+      }.apply {
+        promise.tryComplete(this)
+        callback?.let { it1 -> it1(this) }
+      }
+    }.onFailure {
+      logError("Channels", "获取子频道列表失败", it)
+      promise.tryFail(it)
+    }
+  }.onFailure {
+    promise.tryFail(it)
+  }
+  return promise.future()
+}
+
+
+/**
+ *
  * 获取子频道列的详细信息
  * @param channel 频道
  * @param callback 回调

@@ -71,6 +71,13 @@ interface Channel : Contact {
     fun getChannels(): Future<List<Channel>> {
         return HttpAPIClient.getChannels(this)
     }
+    /**
+     * 获取子频道列表信息
+     * 该方法区别于 getChannels() 该方法只返回子频道信息
+     */
+    fun getChannelInfos(): Future<List<ChannelBean>> {
+        return HttpAPIClient.getChannelInfos(this)
+    }
 
     /**
      * 获取频道成员列表
@@ -309,8 +316,6 @@ class GuildRoles(val channel: Channel) {
         require(!channel.isChannel)
         return HttpAPIClient.deleteGuildRoleMember(channel, userID, roleID)
     }
-
-
 }
 
 /**
