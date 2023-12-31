@@ -3,6 +3,7 @@ package com.github.zimoyin.qqbot.bot.contact
 import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.message.MessageChain
+import com.github.zimoyin.qqbot.net.bean.ContactPermission
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.*
 import com.github.zimoyin.qqbot.net.bean.Message
@@ -182,5 +183,21 @@ data class ChannelUser(
     deleteHistoryMsg: MessageRevokeTimeRange = MessageRevokeTimeRange.NO_REVOKE,
   ): Future<Boolean> {
     return HttpAPIClient.deleteSubChannelMember(channel, id, addBlacklist, deleteHistoryMsg)
+  }
+
+  /**
+   * 获取子频道用户权限
+   */
+  @OptIn(UntestedApi::class)
+  fun getChannelPermissions(): Future<ContactPermission> {
+    return HttpAPIClient.getChannelPermissions(channel, id)
+  }
+
+  /**
+   * 修改子频道用户权限
+   */
+  @OptIn(UntestedApi::class)
+  fun updateChannelPermissions(permissions: ContactPermission): Future<Boolean> {
+    return HttpAPIClient.updateChannelPermissions(channel,id,permissions)
   }
 }

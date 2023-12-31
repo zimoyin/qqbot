@@ -1,5 +1,5 @@
-import com.github.zimoyin.qqbot.bot.Bot
-import com.github.zimoyin.qqbot.net.Token
+import com.github.zimoyin.qqbot.net.bean.ContactPermission
+import com.github.zimoyin.qqbot.net.bean.Permissions
 
 
 /**
@@ -10,5 +10,10 @@ import com.github.zimoyin.qqbot.net.Token
 
 
 fun main() {
-
+  val permission = ContactPermission(0)
+  permission.addPermission(Permissions.PERMISSION_MANAGE_SUB_CHANNEL)
+  permission.addPermission(Permissions.PERMISSION_SPEAK_SUB_CHANNEL)
+  permission.addPermission(Permissions.PERMISSION_VIEW_SUB_CHANNEL)
+  println(permission)
+  println(permission.getDifferenceSet())
 }

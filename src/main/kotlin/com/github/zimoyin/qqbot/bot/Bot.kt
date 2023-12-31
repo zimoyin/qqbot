@@ -101,6 +101,7 @@ interface Bot : Serializable, Contact {
 
   /**
    * 登录
+   * 警告： 如果使用 await 后会严重阻塞协程
    */
   fun login(): Future<WebSocket>
 

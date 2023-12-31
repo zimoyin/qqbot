@@ -226,6 +226,179 @@ object API {
     DefaultHttpClient.client.get("/channels/{channel_id}/members/{user_id}/permissions")
   }
 
+  /**
+   * 获取子频道身份组权限
+   */
+  val GetChannelRolePermissions: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.get("/channels/{channel_id}/roles/{role_id}/permissions")
+  }
+
+  /**
+   * 修改子频道用户权限
+   */
+  val UpdateChannelPermissions: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.put("/channels/{channel_id}/members/{user_id}/permissions")
+  }
+
+
+  /**
+   * 修改子频道身份组权限
+   */
+  val UpdateChannelRolePermissions: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.put("/channels/{channel_id}/roles/{role_id}/permissions")
+  }
+
+  /**
+   * 修改子频道身份组权限
+   */
+  val GetChannelBotPermissions: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.get("/guilds/{guild_id}/api_permission")
+  }
+
+
+  /**
+   * 请求子频道身份组权限
+   */
+  val DemandChannelBotPermissions: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.post("/guilds/{guild_id}/api_permission/demand")
+  }
+
+
+  /**
+   * 创建频道公告
+   */
+  val CreateChannelAnnouncement: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.post("/guilds/{guild_id}/announces")
+  }
+
+  /**
+   * 删除频道公告
+   */
+  val DeleteChannelAnnouncement: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.delete("/guilds/{guild_id}/announces/{message_id}")
+  }
+
+
+  /**
+   * 添加精华消息
+   * TODO 频道事件也需要该方法
+   */
+  val AddEssentialMessage: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.put("/channels/{channel_id}/pins/{message_id}")
+  }
+
+
+  /**
+   * 删除精华消息
+   */
+  val DeleteEssentialMessage: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.delete("/channels/{channel_id}/pins/{message_id}")
+  }
+
+
+  /**
+   * 获取精华消息列表
+   * 返回 信息ID 列表
+   */
+  val EssentialMessages: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.get("/channels/{channel_id}/pins")
+  }
+
+
+  /**
+   * 获取频道日程列表
+   */
+  val ChannelSchedules: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.get("/channels/{channel_id}/schedules")
+  }
+
+  /**
+   * 获取日程详情
+   */
+  val ChannelScheduleDetail: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.get("/channels/{channel_id}/schedules/{schedule_id}")
+  }
+
+  /**
+   * 创建日程详情
+   */
+  val CreateChannelSchedule: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.post("/channels/{channel_id}/schedules")
+  }
+
+  /**
+   * 修改日程详情
+   */
+  val UpdateChannelSchedule: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.patch("/channels/{channel_id}/schedules/{schedule_id}")
+  }
+
+  /**
+   * 删除日程详情
+   */
+  val DeleteChannelSchedule: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.delete("/channels/{channel_id}/schedules/{schedule_id}")
+  }
+
+  /**
+   * 音频控制
+   * TODO 低优先级
+   */
+  val AudioControl: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.post("/channels/{channel_id}/audio")
+  }
+
+
+  /**
+   * 机器人上麦
+   * TODO 低优先级
+   */
+  val RobotOnStage: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.put("/channels/{channel_id}/mic")
+  }
+
+
+  /**
+   * 机器人下麦
+   * TODO 低优先级
+   */
+  val robotOffStage: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.delete("/channels/{channel_id}/mic")
+  }
+
+  /**
+   * 获取帖子列表
+   */
+  val PostList: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.get("/channels/{channel_id}/threads")
+  }
+
+  /**
+   * 获取帖子详情
+   * TODO 帖子 bean 需要一个该方法
+   */
+  val PostDetail: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.get("/channels/{channel_id}/threads/{thread_id}")
+  }
+
+
+  /**
+   * 发布帖子
+   * TODO 低优先级
+   */
+  val PublishPost: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.put("/channels/{channel_id}/threads")
+  }
+
+
+  /**
+   * 删除帖子
+   * TODO 低优先级
+   */
+  val DeletePost: HttpRequest<Buffer> by LazyInit {
+    DefaultHttpClient.client.put("/channels/{channel_id}/threads/{thread_id}")
+  }
+
 
   /**
    *  @param repeat 是否重复生成

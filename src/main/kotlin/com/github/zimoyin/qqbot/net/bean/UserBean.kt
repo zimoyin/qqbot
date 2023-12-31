@@ -181,3 +181,94 @@ data class BotUser(
   @field:JsonProperty("union_user_account")
   val unionUserAccount: String? = null,
 ) : Serializable
+
+
+/**
+ * 定义权限枚举，每个枚举项代表一种权限，并携带其对应的值
+ */
+enum class Permissions(val value: Int):Serializable {
+  /**
+   * 可查看子频道
+   * 序列化后为十进制1
+   */
+  PERMISSION_VIEW_SUB_CHANNEL(1 shl 0),
+
+  /**
+   * 可管理子频道
+   * 序列化后为十进制2
+   */
+  PERMISSION_MANAGE_SUB_CHANNEL(1 shl 1),
+
+  /**
+   * 可发言子频道
+   * 序列化后为十进制4
+   */
+  PERMISSION_SPEAK_SUB_CHANNEL(1 shl 2);
+}
+
+class ContactPermission(
+  private var permission: Int = 0,
+) : Serializable {
+  constructor() : this(4)
+
+  /**
+   * 检查用户权限中是否包含指定权限
+   * @param targetPermission 目标权限 ChannelPermission.PERMISSION_xxx
+   */
+  fun hasPermission(targetPermission: Permissions): Boolean {
+    return (permission and targetPermission.value) == targetPermission.value
+  }
+
+  /**
+   * 添加用户权限
+   */
+  fun addPermission(targetPermission: Permissions): ContactPermission {
+    this.permission = this.permission or targetPermission.value
+    return this
+  }
+
+  /**
+   * 从用户权限中移除指定权限
+   */
+  fun removePermission(targetPermission: Permissions): Permissions {
+    this.permission = this.permission and (targetPermission.value.inv())
+    return targetPermission
+  }
+
+  fun getDifferenceSet(): ContactPermission {
+    val FULL_PERMISSIONS = ContactPermission()
+      .addPermission(Permissions.PERMISSION_SPEAK_SUB_CHANNEL)
+      .addPermission(Permissions.PERMISSION_MANAGE_SUB_CHANNEL)
+      .addPermission(Permissions.PERMISSION_VIEW_SUB_CHANNEL)
+    return ContactPermission(permission = (FULL_PERMISSIONS.permission.inv() and this.permission) or (FULL_PERMISSIONS.permission and this.permission.inv()))
+  }
+
+  fun getPermission(): Int {
+    return permission
+  }
+
+  /**
+   * 检查用户是否有查看子频道权限
+   */
+  @get:JvmName("isViewSubChannel")
+  val isViewSubChannel: Boolean
+    get() = hasPermission(Permissions.PERMISSION_VIEW_SUB_CHANNEL)
+
+  /**
+   * 检查用户是否有管理子频道权限
+   */
+  @get:JvmName("isManageSubChannel")
+  val isManageSubChannel: Boolean
+    get() = hasPermission(Permissions.PERMISSION_MANAGE_SUB_CHANNEL)
+
+  /**
+   * 检查用户是否有发言子频道权限
+   */
+  @get:JvmName("isSpeakSubChannel")
+  val isSpeakSubChannel: Boolean
+    get() = hasPermission(Permissions.PERMISSION_SPEAK_SUB_CHANNEL)
+
+  override fun toString(): String {
+    return "UserPermission(permission=$permission, isViewSubChannel=$isViewSubChannel, isManageSubChannel=$isManageSubChannel, isSpeakSubChannel=$isSpeakSubChannel)"
+  }
+}

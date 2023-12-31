@@ -1,6 +1,9 @@
 package com.github.zimoyin.qqbot.bot.contact
 
 import com.github.zimoyin.qqbot.annotation.UntestedApi
+import com.github.zimoyin.qqbot.bot.BotInfo
+import com.github.zimoyin.qqbot.bot.message.MessageChain
+import com.github.zimoyin.qqbot.net.bean.ContactPermission
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.*
 import io.vertx.core.Future
@@ -10,7 +13,7 @@ class Role(
   /**
    * 身份组ID
    */
-  val id: String = "",
+  override val id: String = "",
 
   /**
    * 名称
@@ -38,7 +41,14 @@ class Role(
   val memberLimit: Int = 30,
 
   val channel: Channel,
-) : Serializable {
+) : Contact, Serializable {
+  override val botInfo: BotInfo = channel.botInfo
+
+  @Throws(IllegalStateException::class)
+  override fun send(message: MessageChain): Future<MessageChain> {
+    throw IllegalStateException("Role can't send message")
+  }
+
   /**
    * 获取频道身份组成员列表
    */
@@ -93,4 +103,22 @@ class Role(
     require(!channel.isChannel)
     return HttpAPIClient.deleteGuildRoleMember(channel, user.id, id)
   }
+
+
+  /**
+   * 获取子频道身份组权限
+   */
+  @OptIn(UntestedApi::class)
+  fun getChannelRolePermissions(): Future<ContactPermission> {
+    return HttpAPIClient.getChannelRolePermissions(channel, id)
+  }
+
+  /**
+   * 修改子频道身份组权限
+   */
+  @OptIn(UntestedApi::class)
+  fun updateChannelRolePermissions(permissions: ContactPermission): Future<Boolean> {
+    return HttpAPIClient.updateChannelRolePermissions(channel, id, permissions)
+  }
+
 }

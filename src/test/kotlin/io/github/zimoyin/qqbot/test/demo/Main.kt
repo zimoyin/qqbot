@@ -43,7 +43,7 @@ suspend fun main() {
   }.apply {
     println(this.botInfo)
     //用于复用会话
-      context["SESSION_ID"] = "51415469-4672-41c2-a72c-a3038f4b4cf1"
+    context["SESSION_ID"] = "51415469-4672-41c2-a72c-a3038f4b4cf1"
     onEvent<MessageEvent> {
 
       it.getBot().getGuilds().await().forEach {

@@ -6,7 +6,6 @@ import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.net.bean.*
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.*
-import com.github.zimoyin.qqbot.net.websocket.bean.*
 import com.github.zimoyin.qqbot.utils.Color
 import io.vertx.core.Future
 
@@ -434,28 +433,83 @@ class AssetManagement(val channel: Channel) {
  * 权限管理类，提供对子频道用户权限、身份组权限以及机器人在频道接口权限的获取、修改和授权链接发送等功能。
  */
 class Authorization(val channel: Channel) {
-  fun getChannelPermissions() {
-    //TODO 获取子频道用户权限
+  /**
+   * 获取子频道用户权限
+   */
+  @OptIn(UntestedApi::class)
+  fun getChannelPermissions(user: User): Future<ContactPermission> {
+    return HttpAPIClient.getChannelPermissions(channel, user.id)
   }
 
-  fun updateChannelPermissions() {
-    //TODO 修改子频道用户权限
+  /**
+   * 获取子频道用户权限
+   */
+  @OptIn(UntestedApi::class)
+  fun getChannelPermissions(userID: String): Future<ContactPermission> {
+    return HttpAPIClient.getChannelPermissions(channel, userID)
   }
 
-  fun getChannelRolePermissions() {
-    //TODO 获取子频道身份组权限
+  /**
+   * 修改子频道用户权限
+   */
+  @OptIn(UntestedApi::class)
+  fun updateChannelPermissions(user: User, permissions: ContactPermission): Future<Boolean> {
+    return HttpAPIClient.updateChannelPermissions(channel, user.id, permissions)
   }
 
-  fun updateChannelRolePermissions() {
-    //TODO 修改子频道身份组权限
+  /**
+   * 修改子频道用户权限
+   */
+  @OptIn(UntestedApi::class)
+  fun updateChannelPermissions(userID: String, permissions: ContactPermission): Future<Boolean> {
+    return HttpAPIClient.updateChannelPermissions(channel, userID, permissions)
   }
 
-  fun getBotPermissions() {
-    // TODO 获取机器人在频道可用权限列表
+  /**
+   * 获取子频道身份组权限
+   */
+  @OptIn(UntestedApi::class)
+  fun getChannelRolePermissions(role: Role): Future<ContactPermission> {
+    return HttpAPIClient.getChannelRolePermissions(channel, role.id)
   }
 
-  fun sendAuthLink() {
-    //TODO 发送机器人在频道接口权限的授权链接
+  /**
+   * 获取子频道身份组权限
+   */
+  @OptIn(UntestedApi::class)
+  fun getChannelRolePermissions(roleID: String): Future<ContactPermission> {
+    return HttpAPIClient.getChannelRolePermissions(channel, roleID)
+  }
+
+  /**
+   * 修改子频道身份组权限
+   */
+  @OptIn(UntestedApi::class)
+  fun updateChannelRolePermissions(role: Role, permissions: ContactPermission): Future<Boolean> {
+    return HttpAPIClient.updateChannelRolePermissions(channel, role.id, permissions)
+  }
+
+  /**
+   * 修改子频道身份组权限
+   */
+  @OptIn(UntestedApi::class)
+  fun updateChannelRolePermissions(roleID: String, permissions: ContactPermission): Future<Boolean> {
+    return HttpAPIClient.updateChannelRolePermissions(channel, roleID, permissions)
+  }
+
+  /**
+   * 获取机器人在频道可用权限列表
+   */
+  fun getBotPermissions(): Future<List<APIPermission>> {
+    return HttpAPIClient.getChannelBotPermissions(channel)
+  }
+
+  /**
+   * 发送机器人在频道接口权限的授权链接
+   */
+  @OptIn(UntestedApi::class)
+  fun sendAuthLink(permissions: APIPermission): Future<APIPermissionDemand> {
+    return HttpAPIClient.demandChannelBotPermissions(channel, permissions)
   }
 }
 
