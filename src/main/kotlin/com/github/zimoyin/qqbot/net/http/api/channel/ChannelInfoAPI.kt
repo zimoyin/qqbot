@@ -361,10 +361,11 @@ fun HttpAPIClient.getGuildRoles(
     }.onFailure {
       logError("GuildRoles", "获取频道身份组失败", it)
       promise.tryFail(it)
-    }.onSuccess { count ->
-      if (count != null) {
-        promise.complete(count)
-        callback?.let { it1 -> it1(count) }
+    }.onSuccess { rolesBean ->
+      if (rolesBean != null) {
+        rolesBean.channel = channel
+        promise.complete(rolesBean)
+        callback?.let { it1 -> it1(rolesBean) }
       } else {
         promise.fail(HttpClientException("The API returned unexpected content: ${resp.bodyAsString()}"))
         apiError("GuildRoles", resp.bodyAsJsonObject())
@@ -448,11 +449,11 @@ fun HttpAPIClient.getGuildRoleMembers(
   roleID: String,
   after: String = "0",
   limit: Int = -1,
-  callback: ((List<MemberBean>) -> Unit)? = null,
-): Future<List<MemberBean>> {
+  callback: ((List<ChannelUser>) -> Unit)? = null,
+): Future<List<ChannelUser>> {
   val list = HashSet<MemberBean>()
   var margin = limit
-  val promise = promise<List<MemberBean>>()
+  val promise = promise<List<ChannelUser>>()
   var next = after
   task {
     kotlin.runCatching {
@@ -473,8 +474,9 @@ fun HttpAPIClient.getGuildRoleMembers(
       logError("ChannelMembers", "获取频道成员失败", it)
       promise.fail(it)
     }.onSuccess {
-      promise.complete(list.toList())
-      callback?.let { it1 -> it1(list.toList()) }
+      val beans = list.toList().map { it.mapToChannelUser(channel) }
+      promise.complete(beans)
+      callback?.let { it1 -> it1(beans) }
     }
   }
   return promise.future()

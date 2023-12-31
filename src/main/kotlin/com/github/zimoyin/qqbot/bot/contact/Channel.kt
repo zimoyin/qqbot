@@ -152,6 +152,14 @@ data class ChannelImpl(
       currentID = srcGuildID ?: channelID ?: guildID,
       botInfo = info
     )
+
+    fun convert(info: BotInfo, channelBean: ChannelBean): ChannelImpl = ChannelImpl(
+      id = channelBean.guildID,
+      guildID = channelBean.guildID,
+      channelID = channelBean.channelID,
+      currentID = channelBean.channelID,
+      botInfo = info
+    )
   }
 
   override fun send(message: MessageChain): Future<MessageChain> {
@@ -174,15 +182,8 @@ class GuildRoles(val channel: Channel) {
   /**
    * 获取频道身份组成员列表
    */
-  fun getGuildRoleMembers(roleID: String): Future<List<MemberBean>> {
+  fun getGuildRoleMembers(roleID: String): Future<List<ChannelUser>> {
     return HttpAPIClient.getGuildRoleMembers(channel, roleID)
-  }
-
-  /**
-   * 获取频道身份组成员列表
-   */
-  fun getGuildRoleMembers(role: RoleBean): Future<List<MemberBean>> {
-    return getGuildRoleMembers(role.id)
   }
 
   /**
@@ -197,7 +198,7 @@ class GuildRoles(val channel: Channel) {
     name: String = "0",
     color: Int = Color.TRANSPARENT_BLACK.toArgb(),
     hoist: Boolean = true,
-  ): Future<RoleBean> {
+  ): Future<Role> {
     return HttpAPIClient.createGuildRole(channel, name, color, hoist)
   }
 
@@ -217,38 +218,10 @@ class GuildRoles(val channel: Channel) {
     name: String? = null,
     color: Int? = null,
     hoist: Boolean? = null,
-  ): Future<RoleBean> {
+  ): Future<Role> {
     return HttpAPIClient.updateGuildRole(channel, roleID, name, color, hoist)
   }
 
-  /**
-   * 修改频道身份组
-   * @param roleID 身份组ID
-   * @param name 身份组名称
-   * @param color 身份组颜色
-   * @param hoist 是否在成员列表中显示
-   *
-   * 接口会修改传入的字段，不传入的默认不会修改，至少要传入一个参数。
-   */
-  @UntestedApi
-  @JvmOverloads
-  fun updateGuildRole(
-    role: RoleBean,
-    name: String? = null,
-    color: Int? = null,
-    hoist: Boolean? = null,
-  ): Future<RoleBean> {
-    return HttpAPIClient.updateGuildRole(channel, role.id, name, color, hoist)
-  }
-
-  /**
-   * 删除频道身份组
-   * @param role 身份组
-   */
-  @UntestedApi
-  fun deleteGuildRole(role: RoleBean): Future<Boolean> {
-    return HttpAPIClient.deleteGuildRole(channel, role.id)
-  }
 
   /**
    * 删除频道身份组
@@ -264,17 +237,7 @@ class GuildRoles(val channel: Channel) {
    * 用于将频道guild_id下的用户 user_id 添加到身份组 role_id
    */
   @UntestedApi
-  fun addGuildRoleMember(user: User, role: RoleBean): Future<RoleBean> {
-    require(!channel.isChannel)
-    return addGuildRoleMember(user.id, role.id)
-  }
-
-  /**
-   * 创建频道身份组成员
-   * 用于将频道guild_id下的用户 user_id 添加到身份组 role_id
-   */
-  @UntestedApi
-  fun addGuildRoleMember(user: User, roleID: String): Future<RoleBean> {
+  fun addGuildRoleMember(user: User, roleID: String): Future<Role> {
     require(!channel.isChannel)
     return addGuildRoleMember(user.id, roleID)
   }
@@ -284,26 +247,16 @@ class GuildRoles(val channel: Channel) {
    * 用于将频道guild_id下的用户 user_id 添加到身份组 role_id
    */
   @UntestedApi
-  fun addGuildRoleMember(userID: String, roleID: String): Future<RoleBean> {
+  fun addGuildRoleMember(userID: String, roleID: String): Future<Role> {
     require(!channel.isChannel)
     return HttpAPIClient.addGuildRoleMember(channel, userID, roleID)
   }
 
-
   /**
    * 删除频道身份组成员
    */
   @UntestedApi
-  fun deleteGuildRoleMember(user: User, role: RoleBean): Future<RoleBean> {
-    require(!channel.isChannel)
-    return deleteGuildRoleMember(user.id, role.id)
-  }
-
-  /**
-   * 删除频道身份组成员
-   */
-  @UntestedApi
-  fun deleteGuildRoleMember(userID: User, roleID: String): Future<RoleBean> {
+  fun deleteGuildRoleMember(userID: User, roleID: String): Future<Role> {
     require(!channel.isChannel)
     return deleteGuildRoleMember(userID.id, roleID)
   }
@@ -312,7 +265,7 @@ class GuildRoles(val channel: Channel) {
    * 删除频道身份组成员
    */
   @UntestedApi
-  fun deleteGuildRoleMember(userID: String, roleID: String): Future<RoleBean> {
+  fun deleteGuildRoleMember(userID: String, roleID: String): Future<Role> {
     require(!channel.isChannel)
     return HttpAPIClient.deleteGuildRoleMember(channel, userID, roleID)
   }
@@ -326,9 +279,13 @@ class ChannelOperate(val channel: Channel) {
 
   /**
    * 创建子频道
+   * @param subChannel 子频道信息
+   * 请使用 ChannelBean.crate(...) 进行创建
+   *
+   * @return 子频道信息
    */
   @UntestedApi
-  fun createChannel(subChannel: ChannelBean): Future<ChannelBean> {
+  fun createChannel(subChannel: ChannelBean): Future<Channel> {
     return HttpAPIClient.creatSubChannel(channel, subChannel)
   }
 
@@ -349,7 +306,7 @@ class ChannelOperate(val channel: Channel) {
     parentId: String? = null,
     privateType: PrivateType? = null,
     speakPermission: SpeakPermission? = null,
-  ): Future<ChannelBean> {
+  ): Future<Channel> {
     require(!channel.isChannel)
     return HttpAPIClient.updateSubChannel(
       channel, name, position, parentId, privateType?.value, speakPermission?.value

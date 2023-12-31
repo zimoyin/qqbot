@@ -4,6 +4,7 @@ import com.github.zimoyin.qqbot.net.http.addRestfulParam
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.contact.Channel
+import com.github.zimoyin.qqbot.bot.contact.Role
 import com.github.zimoyin.qqbot.net.http.api.API
 import com.github.zimoyin.qqbot.net.websocket.bean.RoleBean
 import com.github.zimoyin.qqbot.utils.Color
@@ -32,9 +33,9 @@ fun HttpAPIClient.createGuildRole(
     name: String = "0",
     color: Int = Color.TRANSPARENT_BLACK.toArgb(),
     hoist: Boolean = true,
-    callback: ((RoleBean) -> Unit)? = null,
-): Future<RoleBean> {
-    val promise = promise<RoleBean>()
+    callback: ((Role) -> Unit)? = null,
+): Future<Role> {
+    val promise = promise<Role>()
     val param = jsonObjectOf("name" to name, "color" to color, "hoist" to hoist.toInt())
     API.CreateGuildRole.addRestfulParam(channel.guildID).sendJsonObject(param).onSuccess {
         kotlin.runCatching {
@@ -42,7 +43,7 @@ fun HttpAPIClient.createGuildRole(
             val code = json.getInteger("code")
             val message = json.getString("message")
             if (code == null && message == null) {
-                val role = json.getJsonObject("role").mapTo(RoleBean::class.java)
+                val role = json.getJsonObject("role").mapTo(RoleBean::class.java).mapToRole(channel)
                 promise.complete(role)
                 callback?.let { it1 -> it1(role) }
             } else {
@@ -82,9 +83,9 @@ fun HttpAPIClient.updateGuildRole(
     name: String?,
     color: Int?,
     hoist: Boolean?,
-    callback: ((RoleBean) -> Unit)? = null,
-): Future<RoleBean> {
-    val promise = promise<RoleBean>()
+    callback: ((Role) -> Unit)? = null,
+): Future<Role> {
+    val promise = promise<Role>()
     val param = JsonObject().apply {
         name?.let { put("name", name) }
         color?.let { put("color", color) }
@@ -96,7 +97,7 @@ fun HttpAPIClient.updateGuildRole(
             val code = json.getInteger("code")
             val message = json.getString("message")
             if (code == null && message == null) {
-                val role = json.getJsonObject("role").mapTo(RoleBean::class.java)
+                val role = json.getJsonObject("role").mapTo(RoleBean::class.java).mapToRole(channel)
                 promise.complete(role)
                 callback?.let { it1 -> it1(role) }
             } else {
@@ -178,9 +179,9 @@ fun HttpAPIClient.addGuildRoleMember(
     channel: Channel,
     userID: String,
     roleID: String,
-    callback: ((RoleBean) -> Unit)? = null,
-): Future<RoleBean> {
-    val promise = promise<RoleBean>()
+    callback: ((Role) -> Unit)? = null,
+): Future<Role> {
+    val promise = promise<Role>()
     val param = JsonObject().apply {
 //        put("channel", jsonObjectOf("id" to channel.guildID))
         //不确定是上面还是下面的语句哪个有效
@@ -192,7 +193,7 @@ fun HttpAPIClient.addGuildRoleMember(
             val code = json.getInteger("code")
             val message = json.getString("message")
             if (code == null && message == null) {
-                val role = json.getJsonObject("role").mapTo(RoleBean::class.java)
+                val role = json.getJsonObject("role").mapTo(RoleBean::class.java).mapToRole(channel)
                 promise.complete(role)
                 callback?.let { it1 -> it1(role) }
             } else {
@@ -231,9 +232,9 @@ fun HttpAPIClient.deleteGuildRoleMember(
     channel: Channel,
     userID: String,
     roleID: String,
-    callback: ((RoleBean) -> Unit)? = null,
-): Future<RoleBean> {
-    val promise = promise<RoleBean>()
+    callback: ((Role) -> Unit)? = null,
+): Future<Role> {
+    val promise = promise<Role>()
     val param = JsonObject().apply {
 //        put("channel", jsonObjectOf("id" to channel.guildID))
         //不确定是上面还是下面的语句哪个有效
@@ -245,7 +246,7 @@ fun HttpAPIClient.deleteGuildRoleMember(
             val code = json.getInteger("code")
             val message = json.getString("message")
             if (code == null && message == null) {
-                val role = json.getJsonObject("role").mapTo(RoleBean::class.java)
+                val role = json.getJsonObject("role").mapTo(RoleBean::class.java).mapToRole(channel)
                 promise.complete(role)
                 callback?.let { it1 -> it1(role) }
             } else {

@@ -4,10 +4,10 @@ import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
-import com.github.zimoyin.qqbot.net.http.api.channel.MessageRevokeTimeRange
-import com.github.zimoyin.qqbot.net.http.api.channel.deleteSubChannelMember
+import com.github.zimoyin.qqbot.net.http.api.channel.*
 import com.github.zimoyin.qqbot.net.websocket.bean.Message
 import com.github.zimoyin.qqbot.net.websocket.bean.RoleBean
+import com.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Future
 import java.io.Serializable
 import java.time.Instant
@@ -63,7 +63,10 @@ interface User : Contact {
   /**
    * 禁言用户
    */
-  fun mute(muteTimestamp: Long = 24 * 60 * 1000, muteEndTimestamp: Long = System.currentTimeMillis() + muteTimestamp) {
+  fun mute(
+    muteTimestamp: Long = 24 * 60 * 1000,
+    muteEndTimestamp: Long = System.currentTimeMillis() + muteTimestamp,
+  ): Future<Boolean> {
     TODO("该用户无法在此创建下被禁言")
   }
 }
@@ -133,19 +136,23 @@ data class ChannelUser(
   }
 
   override fun send(message: MessageChain): Future<MessageChain> {
-    //TODO 等待实现
-    TODO("无实现")
+    val promise = promise<MessageChain>()
+    if (channel.currentID == channel.channelID) {
+      promise.fail("当前机器人不允许向频道发送信息，只能向当前联系人发送信息。[频道无法获取到联系人临时ID]")
+      return promise.future()
+    }
+    return HttpAPIClient.sendChannelPrivateMessageAsync(channel, message)
   }
 
   @JvmOverloads
-  fun mute(muteTimestamp: Long = 24 * 60 * 1000) {
-    mute(muteTimestamp, System.currentTimeMillis() + muteTimestamp)
+  fun mute(muteTimestamp: Long = 24 * 60 * 1000): Future<Boolean> {
+    return mute(muteTimestamp, System.currentTimeMillis() + muteTimestamp)
   }
 
 
-  override fun mute(muteTimestamp: Long, muteEndTimestamp: Long) {
-    //TODO 等待实现
-    TODO("无实现")
+  @OptIn(UntestedApi::class)
+  override fun mute(muteTimestamp: Long, muteEndTimestamp: Long): Future<Boolean> {
+    return HttpAPIClient.setChannelMuteMember(channel, id, muteTimestamp, muteEndTimestamp)
   }
 
 
@@ -156,8 +163,8 @@ data class ChannelUser(
    * TODO 修改方法名称为加入某个频道身份组
    */
   @UntestedApi
-  fun addGuildRoleMember(user: User, role: RoleBean): Future<RoleBean> {
-    TODO()
+  fun addGuildRoleMember(role: Role): Future<RoleBean> {
+    return HttpAPIClient.addGuildRoleMember(channel, id, role.id)
   }
 
   /**
@@ -171,10 +178,9 @@ data class ChannelUser(
   @UntestedApi
   @JvmOverloads
   fun deleteGuildMember(
-    userID: User,
     addBlacklist: Boolean = false,
     deleteHistoryMsg: MessageRevokeTimeRange = MessageRevokeTimeRange.NO_REVOKE,
   ): Future<Boolean> {
-    TODO()
+    return HttpAPIClient.deleteSubChannelMember(channel, id, addBlacklist, deleteHistoryMsg)
   }
 }
