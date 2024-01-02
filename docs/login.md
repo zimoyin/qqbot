@@ -67,9 +67,30 @@ GlobalEventBus.INSTANCE.onBotEvent(token.appID,Event.class, event -> {
 //省略其他
 ```
 ### 关于框架中的 HTTP API 返回的不是值而是一个 Future
-为了系统的性能所有操作都是异步的，如果你需要阻塞等待结果你可以使用 `await()` 方法或者 `awaitToCompleteExceptionally()` 方法。前者是阻塞协程，后者阻塞线程
-对于 java 来说没有任何等待函数，或许以后 awaitToCompleteExceptionally 会在工具类中出现方便 java 使用。或者使用以下的调用链
+为了系统的性能所有操作都是异步的，如果你需要阻塞等待结果你可以使用 `await()` 方法或者 `awaitToCompleteExceptionally()` 方法。前者是阻塞协程，后者阻塞线程。
+
+对于 java 来说没有任何等待函数，或许以后 awaitToCompleteExceptionally 会在工具类中出现方便 java 使用。
+或者使用以下的调用链
 ```kotlin
 future.toCompletionStage().toCompletableFuture().get() //阻塞线程并获取值
 
 ```
+
+### 关于自定义事件
+[前往文档](CustomEvent.md)
+
+### 关于如何主动的复用 Session 进行重连服务器
+每次链接服务器后，服务器都会下发 Session 方便机器人重连。该Session通常会存在一天作业，超过就会失效
+以下是复用Session的示例
+```kotlin
+bot.context["SESSION_ID"] = "SessionID"
+bot.login()
+```
+
+### bot 上下文
+对于Session的复用是通过对bot 上下文进行设置后进行的，那么上面是bot上下文？
+Bot上下文是Bot的全局变量每个Bot都有自己的上下文，你可以在任何地方使用，他可以存储信息等，方便你跨事件数据传输或者报错。
+Bot提供了 set/get 方法来报错每一个信息。
+Bot 还提供的`设置栈`方法，提供该方法，你可以查找到是哪个位置设置的该上下文.
+
+[源码](..%2Fsrc%2Fmain%2Fkotlin%2Fcom%2Fgithub%2Fzimoyin%2Fqqbot%2Fbot%2FBotContent.kt)

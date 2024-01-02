@@ -52,15 +52,22 @@ data class BotInfo(
             )
         }
 
-        fun create(bot: Bot): BotInfo {
-            return BotInfo(
-                token = bot.config.token,
-                id = bot.id,
-                nick = bot.nick,
-                avatar = bot.avatar,
-                unionOpenid = bot.unionOpenid,
-                unionUserAccount = bot.unionUserAccount,
-            )
-        }
+        fun create(bot: Bot): BotInfo = BotInfo(
+            token = bot.config.token,
+            id = bot.id,
+            nick = bot.nick,
+            avatar = bot.avatar,
+            unionOpenid = bot.unionOpenid,
+            unionUserAccount = bot.unionUserAccount,
+        )
+
+      fun emptyBotInfo(): BotInfo = BotInfo(
+        token = Token("emptyBotInfo"),
+        id = "emptyBotInfo",
+        nick = "emptyBotInfo",
+        avatar = "emptyBotInfo",
+        unionOpenid = "emptyBotInfo",
+        unionUserAccount = "emptyBotInfo",
+      )
     }
 }

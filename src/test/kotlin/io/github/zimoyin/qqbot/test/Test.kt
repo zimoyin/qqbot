@@ -1,6 +1,3 @@
-import com.github.zimoyin.qqbot.net.bean.ContactPermission
-import com.github.zimoyin.qqbot.net.bean.Permissions
-
 
 /**
  *
@@ -10,10 +7,5 @@ import com.github.zimoyin.qqbot.net.bean.Permissions
 
 
 fun main() {
-  val permission = ContactPermission(0)
-  permission.addPermission(Permissions.PERMISSION_MANAGE_SUB_CHANNEL)
-  permission.addPermission(Permissions.PERMISSION_SPEAK_SUB_CHANNEL)
-  permission.addPermission(Permissions.PERMISSION_VIEW_SUB_CHANNEL)
-  println(permission)
-  println(permission.getDifferenceSet())
+
 }
