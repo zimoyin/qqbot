@@ -185,6 +185,24 @@ class BotContent : Serializable {
         return getValue<Any>(key)
     }
 
+    @JvmName("get")
+    fun <T : Any> getObject(key: String, clazz: Class<T>): T? {
+        val value = get<Any>(key) ?: return null
+        if (clazz.isAssignableFrom(value.javaClass)) {
+            return value as T
+        }
+        throw IllegalArgumentException("The Value of this Key[$key] is not a Class<${clazz.name}>type in the context")
+    }
+
+    @JvmName("getValue")
+    fun <T : Any> getObjectValue(key: String, clazz: Class<T>): T {
+        val value = get<Any>(key) ?: throw NullPointerException("The Value of this Key[$key] is null in the context")
+        if (clazz.isAssignableFrom(value.javaClass)) {
+            return value as T
+        }
+        throw IllegalArgumentException("The Value of this Key[$key] is not a Class<${clazz.name}>type in the context")
+    }
+
     @Deprecated("不推荐")
     fun getArray(key: String): List<Any>? {
         return get<List<Any>>(key)
