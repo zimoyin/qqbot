@@ -1,16 +1,15 @@
 package com.github.zimoyin.qqbot.net.http.api.channel
 
-import com.github.zimoyin.qqbot.net.http.addRestfulParam
-import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.contact.Channel
 import com.github.zimoyin.qqbot.bot.contact.Role
-import com.github.zimoyin.qqbot.net.http.api.API
 import com.github.zimoyin.qqbot.net.bean.RoleBean
+import com.github.zimoyin.qqbot.net.http.addRestfulParam
+import com.github.zimoyin.qqbot.net.http.api.API
+import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.utils.Color
 import com.github.zimoyin.qqbot.utils.ex.promise
 import com.github.zimoyin.qqbot.utils.ex.toInt
-import com.github.zimoyin.qqbot.utils.ex.writeToText
 import io.vertx.core.Future
 import io.vertx.core.json.JsonObject
 import io.vertx.kotlin.core.json.jsonObjectOf
@@ -37,29 +36,16 @@ fun HttpAPIClient.createGuildRole(
 ): Future<Role> {
     val promise = promise<Role>()
     val param = jsonObjectOf("name" to name, "color" to color, "hoist" to hoist.toInt())
-    API.CreateGuildRole.addRestfulParam(channel.guildID).sendJsonObject(param).onSuccess {
-        kotlin.runCatching {
-            val json = it.bodyAsJsonObject()
-            val code = json.getInteger("code")
-            val message = json.getString("message")
-            if (code == null && message == null) {
-                val role = json.getJsonObject("role").mapTo(RoleBean::class.java).mapToRole(channel)
-                promise.complete(role)
-                callback?.let { it1 -> it1(role) }
-            } else {
-                logError(
-                    "CreateGuildRole",
-                    "result -> [$code] $message"
-                )
-            }
-        }.onFailure {
-            logError("CreateGuildRole", "创建频道身份组失败", it)
-            promise.fail(it)
+    API.CreateGuildRole
+        .putHeaders(channel.botInfo.token.getHeaders())
+        .addRestfulParam(channel.guildID)
+        .sendJsonObject(param)
+        .bodyJsonHandle(promise, "CreateGuildRole", "创建频道身份组失败") {
+            if (!it.result) return@bodyJsonHandle
+            val role = it.body.toJsonObject().getJsonObject("role").mapTo(RoleBean::class.java).mapToRole(channel)
+            promise.complete(role)
+            callback?.let { it1 -> it1(role) }
         }
-    }.onFailure {
-        logError("CreateGuildRole", "创建频道身份组失败", it)
-        promise.fail(it)
-    }
     return promise.future()
 }
 
@@ -91,29 +77,16 @@ fun HttpAPIClient.updateGuildRole(
         color?.let { put("color", color) }
         hoist?.let { put("hoist", hoist) }
     }
-    API.UpdateGuildRole.addRestfulParam(channel.guildID, roleID).sendJsonObject(param).onSuccess {
-        kotlin.runCatching {
-            val json = it.bodyAsJsonObject()
-            val code = json.getInteger("code")
-            val message = json.getString("message")
-            if (code == null && message == null) {
-                val role = json.getJsonObject("role").mapTo(RoleBean::class.java).mapToRole(channel)
-                promise.complete(role)
-                callback?.let { it1 -> it1(role) }
-            } else {
-                logError(
-                    "UpdateGuildRole",
-                    "result -> [$code] $message"
-                )
-            }
-        }.onFailure {
-            logError("UpdateGuildRole", "修改频道身份组失败", it)
-            promise.fail(it)
+    API.UpdateGuildRole
+        .putHeaders(channel.botInfo.token.getHeaders())
+        .addRestfulParam(channel.guildID, roleID)
+        .sendJsonObject(param)
+        .bodyJsonHandle(promise, "UpdateGuildRole", "修改频道身份组失败") {
+            if (!it.result) return@bodyJsonHandle
+            val role = it.body.toJsonObject().getJsonObject("role").mapTo(RoleBean::class.java).mapToRole(channel)
+            promise.complete(role)
+            callback?.let { it1 -> it1(role) }
         }
-    }.onFailure {
-        logError("UpdateGuildRole", "修改频道身份组失败", it)
-        promise.fail(it)
-    }
     return promise.future()
 }
 
@@ -136,30 +109,21 @@ fun HttpAPIClient.deleteGuildRole(
     callback: ((Boolean) -> Unit)? = null,
 ): Future<Boolean> {
     val promise = promise<Boolean>()
-    API.UpdateGuildRole.addRestfulParam(channel.guildID, roleID).send().onSuccess {
-        kotlin.runCatching {
-            if (it.statusCode() == 204) {
+    API.UpdateGuildRole
+        .putHeaders(channel.botInfo.token.getHeaders())
+        .addRestfulParam(channel.guildID, roleID)
+        .send()
+        .bodyJsonHandle(promise, "DeleteGuildRole", "删除频道身份组失败") {
+            if (it.result) {
                 promise.complete(true)
                 callback?.let { it1 -> it1(true) }
             } else {
-                promise.fail("Error: ${it.body().writeToText()}")
-                logError(
-                    "DeleteGuildRole",
-                    "result -> ${it.body().writeToText()}"
-                )
+                promise.complete(false)
                 callback?.let { it1 -> it1(false) }
             }
-        }.onFailure {
-            logError("DeleteGuildRole", "修改频道身份组失败", it)
-            promise.fail(it)
         }
-    }.onFailure {
-        logError("UpdateGuildRole", "修改频道身份组失败", it)
-        promise.fail(it)
-    }
     return promise.future()
 }
-
 
 
 /**
@@ -187,32 +151,18 @@ fun HttpAPIClient.addGuildRoleMember(
         //不确定是上面还是下面的语句哪个有效
         put("channel", jsonObjectOf("id" to channel.channelID))
     }
-    API.AddGuildRoleMember.addRestfulParam(channel.guildID, userID,roleID).sendJsonObject(param).onSuccess {
-        kotlin.runCatching {
-            val json = it.bodyAsJsonObject()
-            val code = json.getInteger("code")
-            val message = json.getString("message")
-            if (code == null && message == null) {
-                val role = json.getJsonObject("role").mapTo(RoleBean::class.java).mapToRole(channel)
-                promise.complete(role)
-                callback?.let { it1 -> it1(role) }
-            } else {
-                logError(
-                    "AddGuildRoleMember",
-                    "result -> [$code] $message"
-                )
-            }
-        }.onFailure {
-            logError("AddGuildRoleMember", "添加频道身份组成员失败", it)
-            promise.fail(it)
+    API.AddGuildRoleMember
+        .putHeaders(channel.botInfo.token.getHeaders())
+        .addRestfulParam(channel.guildID, userID, roleID)
+        .sendJsonObject(param)
+        .bodyJsonHandle(promise, "AddGuildRoleMember", "添加频道身份组成员失败") {
+            if (!it.result) return@bodyJsonHandle
+            val role = it.body.toJsonObject().getJsonObject("role").mapTo(RoleBean::class.java).mapToRole(channel)
+            promise.complete(role)
+            callback?.let { it1 -> it1(role) }
         }
-    }.onFailure {
-        logError("AddGuildRoleMember", "添加频道身份组成员失败", it)
-        promise.fail(it)
-    }
     return promise.future()
 }
-
 
 
 /**
@@ -240,28 +190,15 @@ fun HttpAPIClient.deleteGuildRoleMember(
         //不确定是上面还是下面的语句哪个有效
         put("channel", jsonObjectOf("id" to channel.channelID))
     }
-    API.DeleteGuildRoleMember.addRestfulParam(channel.guildID, userID,roleID).sendJsonObject(param).onSuccess {
-        kotlin.runCatching {
-            val json = it.bodyAsJsonObject()
-            val code = json.getInteger("code")
-            val message = json.getString("message")
-            if (code == null && message == null) {
-                val role = json.getJsonObject("role").mapTo(RoleBean::class.java).mapToRole(channel)
-                promise.complete(role)
-                callback?.let { it1 -> it1(role) }
-            } else {
-                logError(
-                    "DeleteGuildRoleMember",
-                    "result -> [$code] $message"
-                )
-            }
-        }.onFailure {
-            logError("DeleteGuildRoleMember", "删除频道身份组成员失败", it)
-            promise.fail(it)
+    API.DeleteGuildRoleMember
+        .putHeaders(channel.botInfo.token.getHeaders())
+        .addRestfulParam(channel.guildID, userID, roleID)
+        .sendJsonObject(param)
+        .bodyJsonHandle(promise, "DeleteGuildRoleMember", "删除频道身份组成员失败"){
+            if (!it.result) return@bodyJsonHandle
+            val role = it.body.toJsonObject().getJsonObject("role").mapTo(RoleBean::class.java).mapToRole(channel)
+            promise.complete(role)
+            callback?.let { it1 -> it1(role) }
         }
-    }.onFailure {
-        logError("DeleteGuildRoleMember", "删除频道身份组成员失败", it)
-        promise.fail(it)
-    }
     return promise.future()
 }

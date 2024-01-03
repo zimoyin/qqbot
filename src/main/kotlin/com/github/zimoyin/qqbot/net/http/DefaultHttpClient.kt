@@ -178,6 +178,7 @@ fun HttpRequest<Buffer>.addRestfulParam(vararg paramMap: Any): HttpRequest<Buffe
     uri(constructRestfulUrl(this.uri(), *paramMap))
     return this
 }
+
 /**
  * 为URI里面的占位符添加参数
  */
@@ -185,6 +186,27 @@ fun HttpRequest<Buffer>.setRestfulParam(vararg paramMap: Any): HttpRequest<Buffe
     uri(constructRestfulUrl(this.uri(), *paramMap))
     return this
 }
+
+/**
+ * 为URI添加查询参数
+ */
+fun HttpRequest<Buffer>.addQueryParams(paramMap: Map<String, String>): HttpRequest<Buffer> {
+    paramMap.forEach { k, v ->
+        addQueryParam(k, v)
+    }
+    return this
+}
+
+/**
+ * 为URI添加查询参数
+ */
+fun HttpRequest<Buffer>.addQueryParams(pair: Pair<String, String>): HttpRequest<Buffer> {
+    mapOf(pair).forEach { k, v ->
+        addQueryParam(k, v)
+    }
+    return this
+}
+
 
 /**
  * 通过将给定的基础URL中的占位符使用提供的参数映射中的值进行替换，构造一个RESTful URL。

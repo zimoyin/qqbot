@@ -1,3 +1,5 @@
+import com.github.zimoyin.qqbot.utils.ex.promise
+import io.vertx.core.json.JsonObject
 
 /**
  *
@@ -7,5 +9,15 @@
 
 
 fun main() {
+    val promise = promise<String>()
 
+    promise.complete("a")
+    promise.tryComplete("b")
+    promise.fail("c")
+
+    promise.future().onSuccess {
+        println(it)
+    }.onFailure {
+        println(it)
+    }
 }

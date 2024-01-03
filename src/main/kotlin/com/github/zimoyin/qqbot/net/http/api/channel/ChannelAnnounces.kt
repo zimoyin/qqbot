@@ -7,6 +7,7 @@ import com.github.zimoyin.qqbot.net.bean.RecommendChannelBean
 import com.github.zimoyin.qqbot.net.http.addRestfulParam
 import com.github.zimoyin.qqbot.net.http.api.API
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
+import com.github.zimoyin.qqbot.utils.ex.mapTo
 import com.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Future
 
@@ -25,42 +26,26 @@ import io.vertx.core.Future
  */
 @UntestedApi
 fun HttpAPIClient.createChannelAnnouncement(
-  channel: Channel,
-  messageID: String? = null,
-  welcomeAnnouncement: Boolean = false,
-  recommend: List<RecommendChannelBean> = arrayListOf(),
-  callback: ((AnnouncesBean) -> Unit)? = null,
+    channel: Channel,
+    messageID: String? = null,
+    welcomeAnnouncement: Boolean = false,
+    recommend: List<RecommendChannelBean> = arrayListOf(),
+    callback: ((AnnouncesBean) -> Unit)? = null,
 ): Future<AnnouncesBean> {
-  val promise = promise<AnnouncesBean>()
-  val bean = AnnouncesBean(channel.guildID, channel.id, messageID, if (welcomeAnnouncement) 1 else 0, recommend)
-  val json0 = bean.toJson()
-  API.CreateChannelAnnouncement
-    .putHeaders(channel.botInfo.token.getHeaders())
-    .addRestfulParam(channel.guildID)
-    .sendJsonObject(json0)
-    .onSuccess {
-      kotlin.runCatching {
-        val json = it.bodyAsJsonObject()
-        val code = json.getInteger("code")
-        val message = json.getString("message")
-        if (code == null && message == null) {
-          val list = json.mapTo(AnnouncesBean::class.java)
-          promise.complete(list)
-          callback?.let { it1 -> it1(list) }
-        } else {
-          logError(
-            "createChannelAnnouncement", "result -> [$code] $message"
-          )
+    val promise = promise<AnnouncesBean>()
+    val bean = AnnouncesBean(channel.guildID, channel.id, messageID, if (welcomeAnnouncement) 1 else 0, recommend)
+    val json0 = bean.toJson()
+    API.CreateChannelAnnouncement
+        .putHeaders(channel.botInfo.token.getHeaders())
+        .addRestfulParam(channel.guildID)
+        .sendJsonObject(json0)
+        .bodyJsonHandle(promise, "createChannelAnnouncement", "创建公告失败") {
+            if (!it.result) return@bodyJsonHandle
+            val list = it.body.mapTo(AnnouncesBean::class.java)
+            promise.complete(list)
+            callback?.let { it1 -> it1(list) }
         }
-      }.onFailure {
-        logError("createChannelAnnouncement", "发布公告失败", it)
-        promise.fail(it)
-      }
-    }.onFailure {
-      logError("createChannelAnnouncement", "发布公告失败", it)
-      promise.fail(it)
-    }
-  return promise.future()
+    return promise.future()
 }
 
 
@@ -74,41 +59,24 @@ fun HttpAPIClient.createChannelAnnouncement(
  */
 @UntestedApi
 fun HttpAPIClient.deleteChannelAnnouncement(
-  channel: Channel,
-  messageID: String,
-  callback: ((Boolean) -> Unit)? = null,
+    channel: Channel,
+    messageID: String,
+    callback: ((Boolean) -> Unit)? = null,
 ): Future<Boolean> {
-  val promise = promise<Boolean>()
-  API.CreateChannelAnnouncement
-    .putHeaders(channel.botInfo.token.getHeaders())
-    .addRestfulParam(channel.guildID, messageID)
-    .send()
-    .onSuccess {
-      kotlin.runCatching {
-        if (it.statusCode() != 204) {
-          val json = it.bodyAsJsonObject()
-          val code = json.getInteger("code")
-          val message = json.getString("message")
-          if (code != null || message != null) {
-            logError(
-              "deleteChannelAnnouncement", "result -> [$code] $message"
-            )
-          }
-          promise.complete(false)
-          callback?.let { it1 -> it1(false) }
-        } else {
-          promise.complete(true)
-          callback?.let { it1 -> it1(true) }
+    val promise = promise<Boolean>()
+    API.CreateChannelAnnouncement
+        .putHeaders(channel.botInfo.token.getHeaders())
+        .addRestfulParam(channel.guildID, messageID)
+        .send()
+        .bodyJsonHandle(promise, "deleteChannelAnnouncement", "删除公告失败") {
+            if (it.result) {
+                promise.complete(true)
+                callback?.let { it1 -> it1(true) }
+            } else {
+                promise.complete(false)
+                callback?.let { it1 -> it1(false) }
+            }
         }
-
-      }.onFailure {
-        logError("deleteChannelAnnouncement", "删除公告失败", it)
-        promise.fail(it)
-      }
-    }.onFailure {
-      logError("deleteChannelAnnouncement", "删除公告失败", it)
-      promise.fail(it)
-    }
-  return promise.future()
+    return promise.future()
 }
 

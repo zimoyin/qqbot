@@ -9,6 +9,7 @@ import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.MessageRevokeTimeRange.ALL_MESSAGES
 import com.github.zimoyin.qqbot.net.http.api.channel.MessageRevokeTimeRange.NO_REVOKE
 import com.github.zimoyin.qqbot.net.bean.ChannelBean
+import com.github.zimoyin.qqbot.utils.ex.mapTo
 import com.github.zimoyin.qqbot.utils.ex.promise
 import com.github.zimoyin.qqbot.utils.ex.toJsonObject
 import com.github.zimoyin.qqbot.utils.ex.writeToText
@@ -33,30 +34,15 @@ fun HttpAPIClient.creatSubChannel(
   callback: ((Channel) -> Unit)? = null,
 ): Future<Channel> {
   val promise = promise<Channel>()
-  API.CreateSubChannel.putHeaders(channel.botInfo.token.getHeaders()).addRestfulParam(channel.guildID).sendJsonObject(subChannel.toJsonObject()).onSuccess {
-    kotlin.runCatching {
-      val json = it.bodyAsJsonObject()
-      val code = json.getInteger("code")
-      val message = json.getString("message")
-      if (code == null && message == null) {
-        val bean = json.getJsonObject("role").mapTo(ChannelBean::class.java)
-        val mapToChannel = ChannelImpl.convert(channel.botInfo, bean)
-        promise.complete(mapToChannel)
-        callback?.let { it1 -> it1(mapToChannel) }
-      } else {
-        logError(
-          "CreateSubChannel",
-          "result -> [$code] $message"
-        )
+  API.CreateSubChannel.putHeaders(channel.botInfo.token.getHeaders()).addRestfulParam(channel.guildID)
+      .sendJsonObject(subChannel.toJsonObject())
+      .bodyJsonHandle(promise,"CreateSubChannel","创建子频道失败"){
+          if (!it.result) return@bodyJsonHandle
+          val bean = it.body.toJsonObject().getJsonObject("role").mapTo(ChannelBean::class.java)
+          val mapToChannel = ChannelImpl.convert(channel.botInfo, bean)
+          promise.complete(mapToChannel)
+          callback?.let { it1 -> it1(mapToChannel) }
       }
-    }.onFailure {
-      logError("CreateSubChannel", "创建子频道失败", it)
-      promise.fail(it)
-    }
-  }.onFailure {
-    logError("CreateSubChannel", "创建子频道失败", it)
-    promise.fail(it)
-  }
   return promise.future()
 }
 
@@ -93,30 +79,14 @@ fun HttpAPIClient.updateSubChannel(
     privateType?.let { put("private_type", it) }
     speakPermission?.let { put("speak_permission", it) }
   }
-  API.UpdateSubChannel.putHeaders(channel.botInfo.token.getHeaders()).addRestfulParam(channel.channelID!!).sendJsonObject(param).onSuccess {
-    kotlin.runCatching {
-      val json = it.bodyAsJsonObject()
-      val code = json.getInteger("code")
-      val message = json.getString("message")
-      if (code == null && message == null) {
-        val bean = json.mapTo(ChannelBean::class.java)
-        val mapToChannel = ChannelImpl.convert(channel.botInfo, bean)
-        promise.complete(mapToChannel)
-        callback?.let { it1 -> it1(mapToChannel) }
-      } else {
-        logError(
-          "UpdateSubChannel",
-          "result -> [$code] $message"
-        )
+  API.UpdateSubChannel.putHeaders(channel.botInfo.token.getHeaders()).addRestfulParam(channel.channelID!!).sendJsonObject(param)
+      .bodyJsonHandle(promise,"UpdateSubChannel","修改子频道失败"){
+          if (!it.result) return@bodyJsonHandle
+          val bean = it.body.mapTo(ChannelBean::class.java)
+          val mapToChannel = ChannelImpl.convert(channel.botInfo, bean)
+          promise.complete(mapToChannel)
+          callback?.let { it1 -> it1(mapToChannel) }
       }
-    }.onFailure {
-      logError("UpdateSubChannel", "修改子频道失败", it)
-      promise.fail(it)
-    }
-  }.onFailure {
-    logError("UpdateSubChannel", "修改子频道失败", it)
-    promise.fail(it)
-  }
   return promise.future()
 }
 
@@ -136,27 +106,16 @@ fun HttpAPIClient.deleteSubChannel(
   callback: ((Boolean) -> Unit)? = null,
 ): Future<Boolean> {
   val promise = promise<Boolean>()
-  API.DeleteSubChannel.putHeaders(channel.botInfo.token.getHeaders()).addRestfulParam(channel.channelID!!).send().onSuccess {
-    kotlin.runCatching {
-      if (it.statusCode() == 200) {
-        promise.complete(true)
-        callback?.let { it1 -> it1(true) }
-      } else {
-        promise.fail("Error: ${it.body().writeToText()}")
-        logError(
-          "DeleteSubChannel",
-          "result -> ${it.body().writeToText()}"
-        )
-        callback?.let { it1 -> it1(false) }
+  API.DeleteSubChannel.putHeaders(channel.botInfo.token.getHeaders()).addRestfulParam(channel.channelID!!).send()
+      .bodyJsonHandle(promise,"DeleteSubChannel","删除子频道失败"){
+          if (it.result){
+              promise.complete(true)
+              callback?.let { it1 -> it1(true) }
+          }else{
+              promise.complete(false)
+              callback?.let { it1 -> it1(false) }
+          }
       }
-    }.onFailure {
-      logError("DeleteSubChannel", "删除子频道失败", it)
-      promise.fail(it)
-    }
-  }.onFailure {
-    logError("DeleteSubChannel", "删除子频道失败", it)
-    promise.fail(it)
-  }
   return promise.future()
 }
 
@@ -184,27 +143,17 @@ fun HttpAPIClient.deleteSubChannelMember(
     put("add_blacklist", addBlacklist)
     put("delete_history_msg_days", deleteHistoryMsg.value)
   }
-  API.DeleteSubChannelMember.putHeaders(channel.botInfo.token.getHeaders()).addRestfulParam(channel.channelID!!, userID).sendJsonObject(param).onSuccess {
-    kotlin.runCatching {
-      if (it.statusCode() == 204) {
-        promise.complete(true)
-        callback?.let { it1 -> it1(true) }
-      } else {
-        promise.fail("Error: ${it.body().writeToText()}")
-        logError(
-          "DeleteSubChannelMember",
-          "result -> ${it.body().writeToText()}"
-        )
-        callback?.let { it1 -> it1(false) }
+  API.DeleteSubChannelMember.putHeaders(channel.botInfo.token.getHeaders()).addRestfulParam(channel.channelID!!, userID)
+      .sendJsonObject(param)
+      .bodyJsonHandle(promise,"DeleteSubChannelMember","删除子频道成员失败"){
+          if (it.result){
+              promise.complete(true)
+              callback?.let { it1 -> it1(true) }
+          }else{
+              promise.complete(false)
+              callback?.let { it1 -> it1(false) }
+          }
       }
-    }.onFailure {
-      logError("DeleteSubChannelMember", "删除频道成员失败", it)
-      promise.fail(it)
-    }
-  }.onFailure {
-    logError("DeleteSubChannelMember", "删除频道成员失败", it)
-    promise.fail(it)
-  }
   return promise.future()
 }
 

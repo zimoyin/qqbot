@@ -6,6 +6,7 @@ import com.github.zimoyin.qqbot.net.bean.ScheduleBean
 import com.github.zimoyin.qqbot.net.http.addRestfulParam
 import com.github.zimoyin.qqbot.net.http.api.API
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
+import com.github.zimoyin.qqbot.utils.ex.mapTo
 import com.github.zimoyin.qqbot.utils.ex.promise
 import com.github.zimoyin.qqbot.utils.ex.toJsonObject
 import io.vertx.core.Future
@@ -23,38 +24,22 @@ import io.vertx.kotlin.core.json.jsonObjectOf
  */
 @UntestedApi
 fun HttpAPIClient.getChannelScheduleList(
-  channel: Channel,
-  since: Long = System.currentTimeMillis(),
-  callback: ((ScheduleBean) -> Unit)? = null,
+    channel: Channel,
+    since: Long = System.currentTimeMillis(),
+    callback: ((ScheduleBean) -> Unit)? = null,
 ): Future<ScheduleBean> {
-  val promise = promise<ScheduleBean>()
-  API.ChannelSchedules
-    .putHeaders(channel.botInfo.token.getHeaders())
-    .addRestfulParam(channel.channelID!!)
-    .sendJsonObject(jsonObjectOf("since" to since))
-    .onSuccess {
-      kotlin.runCatching {
-        val json = it.bodyAsJsonObject()
-        val code = json.getInteger("code")
-        val message = json.getString("message")
-        if (code == null && message == null) {
-          val bean = json.mapTo(ScheduleBean::class.java)
-          promise.complete(bean)
-          callback?.let { it1 -> it1(bean) }
-        } else {
-          logError(
-            "getChannelScheduleList", "result -> [$code] $message"
-          )
+    val promise = promise<ScheduleBean>()
+    API.ChannelSchedules
+        .putHeaders(channel.botInfo.token.getHeaders())
+        .addRestfulParam(channel.channelID!!)
+        .sendJsonObject(jsonObjectOf("since" to since))
+        .bodyJsonHandle(promise, "getChannelScheduleList", "获取频道日程列表失败"){
+            if (!it.result)  return@bodyJsonHandle
+            val bean = it.body.mapTo(ScheduleBean::class.java)
+            promise.complete(bean)
+            callback?.let { it1 -> it1(bean) }
         }
-      }.onFailure {
-        logError("getChannelScheduleList", "获取频道日程列表失败", it)
-        promise.fail(it)
-      }
-    }.onFailure {
-      logError("getChannelScheduleList", "获取频道日程列表失败", it)
-      promise.fail(it)
-    }
-  return promise.future()
+    return promise.future()
 }
 
 /**
@@ -68,38 +53,22 @@ fun HttpAPIClient.getChannelScheduleList(
  */
 @UntestedApi
 fun HttpAPIClient.getScheduleDetails(
-  channel: Channel,
-  scheduleID: String,
-  callback: ((ScheduleBean) -> Unit)? = null,
+    channel: Channel,
+    scheduleID: String,
+    callback: ((ScheduleBean) -> Unit)? = null,
 ): Future<ScheduleBean> {
-  val promise = promise<ScheduleBean>()
-  API.ChannelScheduleDetail
-    .putHeaders(channel.botInfo.token.getHeaders())
-    .addRestfulParam(channel.channelID!!, scheduleID)
-    .send()
-    .onSuccess {
-      kotlin.runCatching {
-        val json = it.bodyAsJsonObject()
-        val code = json.getInteger("code")
-        val message = json.getString("message")
-        if (code == null && message == null) {
-          val bean = json.mapTo(ScheduleBean::class.java)
-          promise.complete(bean)
-          callback?.let { it1 -> it1(bean) }
-        } else {
-          logError(
-            "getScheduleDetails", "result -> [$code] $message"
-          )
+    val promise = promise<ScheduleBean>()
+    API.ChannelScheduleDetail
+        .putHeaders(channel.botInfo.token.getHeaders())
+        .addRestfulParam(channel.channelID!!, scheduleID)
+        .send()
+        .bodyJsonHandle(promise, "getScheduleDetails", "获取日程详情失败"){
+            if (!it.result) return@bodyJsonHandle
+            val bean = it.body.mapTo(ScheduleBean::class.java)
+            promise.complete(bean)
+            callback?.let { it1 -> it1(bean) }
         }
-      }.onFailure {
-        logError("getScheduleDetails", "获取日程详情失败", it)
-        promise.fail(it)
-      }
-    }.onFailure {
-      logError("getScheduleDetails", "获取日程详情失败", it)
-      promise.fail(it)
-    }
-  return promise.future()
+    return promise.future()
 }
 
 /**
@@ -113,38 +82,22 @@ fun HttpAPIClient.getScheduleDetails(
  */
 @UntestedApi
 fun HttpAPIClient.createSchedule(
-  channel: Channel,
-  schedule: ScheduleBean,
-  callback: ((ScheduleBean) -> Unit)? = null,
+    channel: Channel,
+    schedule: ScheduleBean,
+    callback: ((ScheduleBean) -> Unit)? = null,
 ): Future<ScheduleBean> {
-  val promise = promise<ScheduleBean>()
-  API.ChannelScheduleDetail
-    .putHeaders(channel.botInfo.token.getHeaders())
-    .addRestfulParam(channel.channelID!!)
-    .sendJsonObject(jsonObjectOf("schedule" to schedule.toJsonObject()))
-    .onSuccess {
-      kotlin.runCatching {
-        val json = it.bodyAsJsonObject()
-        val code = json.getInteger("code")
-        val message = json.getString("message")
-        if (code == null && message == null) {
-          val bean = json.mapTo(ScheduleBean::class.java)
-          promise.complete(bean)
-          callback?.let { it1 -> it1(bean) }
-        } else {
-          logError(
-            "createSchedule", "result -> [$code] $message"
-          )
+    val promise = promise<ScheduleBean>()
+    API.ChannelScheduleDetail
+        .putHeaders(channel.botInfo.token.getHeaders())
+        .addRestfulParam(channel.channelID!!)
+        .sendJsonObject(jsonObjectOf("schedule" to schedule.toJsonObject()))
+        .bodyJsonHandle(promise, "createSchedule", "创建日程失败"){
+            if (!it.result) return@bodyJsonHandle
+            val bean = it.body.mapTo(ScheduleBean::class.java)
+            promise.complete(bean)
+            callback?.let { it1 -> it1(bean) }
         }
-      }.onFailure {
-        logError("createSchedule", "创建日程失败", it)
-        promise.fail(it)
-      }
-    }.onFailure {
-      logError("createSchedule", "创建日程失败", it)
-      promise.fail(it)
-    }
-  return promise.future()
+    return promise.future()
 }
 
 /**
@@ -159,39 +112,24 @@ fun HttpAPIClient.createSchedule(
  */
 @UntestedApi
 fun HttpAPIClient.updateSchedule(
-  channel: Channel,
-  schedule: ScheduleBean,
-  scheduleID: String,
-  callback: ((ScheduleBean) -> Unit)? = null,
+    channel: Channel,
+    schedule: ScheduleBean,
+    scheduleID: String,
+    callback: ((ScheduleBean) -> Unit)? = null,
 ): Future<ScheduleBean> {
-  val promise = promise<ScheduleBean>()
-  API.UpdateChannelSchedule
-    .putHeaders(channel.botInfo.token.getHeaders())
-    .addRestfulParam(channel.channelID!!, scheduleID)
-    .sendJsonObject(jsonObjectOf("schedule" to schedule.toJsonObject()))
-    .onSuccess {
-      kotlin.runCatching {
-        val json = it.bodyAsJsonObject()
-        val code = json.getInteger("code")
-        val message = json.getString("message")
-        if (code == null && message == null) {
-          val bean = json.mapTo(ScheduleBean::class.java)
-          promise.complete(bean)
-          callback?.let { it1 -> it1(bean) }
-        } else {
-          logError(
-            "createSchedule", "result -> [$code] $message"
-          )
+    val promise = promise<ScheduleBean>()
+    API.UpdateChannelSchedule
+        .putHeaders(channel.botInfo.token.getHeaders())
+        .addRestfulParam(channel.channelID!!, scheduleID)
+        .sendJsonObject(jsonObjectOf("schedule" to schedule.toJsonObject()))
+        .bodyJsonHandle(promise, "updateSchedule", "修改日程失败") {
+          if (!it.result) return@bodyJsonHandle
+            val bean = it.body.mapTo(ScheduleBean::class.java)
+            promise.complete(bean)
+            callback?.let { it1 -> it1(bean) }
+
         }
-      }.onFailure {
-        logError("updateSchedule", "修改日程失败", it)
-        promise.fail(it)
-      }
-    }.onFailure {
-      logError("updateSchedule", "修改日程失败", it)
-      promise.fail(it)
-    }
-  return promise.future()
+    return promise.future()
 }
 
 /**
@@ -206,39 +144,23 @@ fun HttpAPIClient.updateSchedule(
  */
 @UntestedApi
 fun HttpAPIClient.deleteSchedule(
-  channel: Channel,
-  scheduleID: String,
-  callback: ((Boolean) -> Unit)? = null,
+    channel: Channel,
+    scheduleID: String,
+    callback: ((Boolean) -> Unit)? = null,
 ): Future<Boolean> {
-  val promise = promise<Boolean>()
-  API.UpdateChannelSchedule
-    .putHeaders(channel.botInfo.token.getHeaders())
-    .addRestfulParam(channel.channelID!!, scheduleID)
-    .send()
-    .onSuccess {
-      kotlin.runCatching {
-        if (it.statusCode() != 204) {
-          val json = it.bodyAsJsonObject()
-          val code = json.getInteger("code")
-          val message = json.getString("message")
-          if (code != null || message != null) {
-            logError(
-              "updateSchedule", "result -> [$code] $message"
-            )
-          }
-          promise.complete(false)
-          callback?.let { it1 -> it1(false) }
-        } else {
-          promise.complete(true)
-          callback?.let { it1 -> it1(true) }
+    val promise = promise<Boolean>()
+    API.UpdateChannelSchedule
+        .putHeaders(channel.botInfo.token.getHeaders())
+        .addRestfulParam(channel.channelID!!, scheduleID)
+        .send()
+        .bodyJsonHandle(promise, "deleteSchedule", "删除日程失败") {
+            if (it.result) {
+                promise.complete(true)
+                callback?.let { it1 -> it1(true) }
+            } else {
+                promise.complete(false)
+                callback?.let { it1 -> it1(false) }
+            }
         }
-      }.onFailure {
-        logError("updateSchedule", "修改日程失败", it)
-        promise.fail(it)
-      }
-    }.onFailure {
-      logError("updateSchedule", "修改日程失败", it)
-      promise.fail(it)
-    }
-  return promise.future()
+    return promise.future()
 }

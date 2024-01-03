@@ -2,11 +2,11 @@ package com.github.zimoyin.qqbot.net.http.api.channel
 
 import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.contact.Channel
-import com.github.zimoyin.qqbot.net.bean.AnnouncesBean
 import com.github.zimoyin.qqbot.net.bean.PinsMessageBean
 import com.github.zimoyin.qqbot.net.http.addRestfulParam
 import com.github.zimoyin.qqbot.net.http.api.API
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
+import com.github.zimoyin.qqbot.utils.ex.mapTo
 import com.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Future
 
@@ -23,40 +23,24 @@ import io.vertx.core.Future
  */
 @UntestedApi
 fun HttpAPIClient.addEssentialMessage(
-  channel: Channel,
-  messageID: String,
-  callback: ((PinsMessageBean) -> Unit)? = null,
+    channel: Channel,
+    messageID: String,
+    callback: ((PinsMessageBean) -> Unit)? = null,
 ): Future<PinsMessageBean> {
-  val promise = promise<PinsMessageBean>()
-  API.AddEssentialMessage
-    .putHeaders(channel.botInfo.token.getHeaders())
-    .addRestfulParam(channel.channelID!!, messageID)
-    .send()
-    .onSuccess {
-      kotlin.runCatching {
-        val json = it.bodyAsJsonObject()
-        val code = json.getInteger("code")
-        val message = json.getString("message")
-        if (code == null && message == null) {
-          val bean = json.mapTo(PinsMessageBean::class.java)
-          promise.complete(bean)
-          callback?.let { it1 -> it1(bean) }
-        } else {
-          logError(
-            "addEssentialMessage", "result -> [$code] $message"
-          )
-        }
-      }.onFailure {
-        logError("addEssentialMessage", "添加精华消息", it)
-        promise.fail(it)
-      }
-    }.onFailure {
-      logError("addEssentialMessage", "添加精华消息", it)
-      promise.fail(it)
-    }
-  return promise.future()
-}
+    val promise = promise<PinsMessageBean>()
+    API.AddEssentialMessage
+        .putHeaders(channel.botInfo.token.getHeaders())
+        .addRestfulParam(channel.channelID!!, messageID)
+        .send()
+        .bodyJsonHandle(promise, "addEssentialMessage", "添加精华消息失败") {
+            if (!it.result) return@bodyJsonHandle
+            val bean = it.body.mapTo(PinsMessageBean::class.java)
+            promise.complete(bean)
+            callback?.let { it1 -> it1(bean) }
 
+        }
+    return promise.future()
+}
 
 
 /**
@@ -69,41 +53,25 @@ fun HttpAPIClient.addEssentialMessage(
  */
 @UntestedApi
 fun HttpAPIClient.deleteEssentialMessage(
-  channel: Channel,
-  messageID: String,
-  callback: ((Boolean) -> Unit)? = null,
+    channel: Channel,
+    messageID: String,
+    callback: ((Boolean) -> Unit)? = null,
 ): Future<Boolean> {
-  val promise = promise<Boolean>()
-  API.DeleteEssentialMessage
-    .putHeaders(channel.botInfo.token.getHeaders())
-    .addRestfulParam(channel.channelID!!, messageID)
-    .send()
-    .onSuccess {
-      kotlin.runCatching {
-        if (it.statusCode() != 204) {
-          val json = it.bodyAsJsonObject()
-          val code = json.getInteger("code")
-          val message = json.getString("message")
-          if (code != null || message != null) {
-            logError(
-              "deleteEssentialMessage", "result -> [$code] $message"
-            )
-          }
-          promise.complete(false)
-          callback?.let { it1 -> it1(false) }
-        } else {
-          promise.complete(true)
-          callback?.let { it1 -> it1(true) }
+    val promise = promise<Boolean>()
+    API.DeleteEssentialMessage
+        .putHeaders(channel.botInfo.token.getHeaders())
+        .addRestfulParam(channel.channelID!!, messageID)
+        .send()
+        .bodyJsonHandle(promise, "deleteEssentialMessage", "删除精华消息失败") {
+            if (it.result) {
+                promise.complete(true)
+                callback?.let { it1 -> it1(true) }
+            } else {
+                promise.complete(false)
+                callback?.let { it1 -> it1(false) }
+            }
         }
-      }.onFailure {
-        logError("deleteEssentialMessage", "删除精华消息", it)
-        promise.fail(it)
-      }
-    }.onFailure {
-      logError("deleteEssentialMessage", "删除精华消息", it)
-      promise.fail(it)
-    }
-  return promise.future()
+    return promise.future()
 }
 
 
@@ -118,35 +86,19 @@ fun HttpAPIClient.deleteEssentialMessage(
  */
 @UntestedApi
 fun HttpAPIClient.getEssentialMessages(
-  channel: Channel,
-  callback: ((PinsMessageBean) -> Unit)? = null,
+    channel: Channel,
+    callback: ((PinsMessageBean) -> Unit)? = null,
 ): Future<PinsMessageBean> {
-  val promise = promise<PinsMessageBean>()
-  API.AddEssentialMessage
-    .putHeaders(channel.botInfo.token.getHeaders())
-    .addRestfulParam(channel.channelID!!)
-    .send()
-    .onSuccess {
-      kotlin.runCatching {
-        val json = it.bodyAsJsonObject()
-        val code = json.getInteger("code")
-        val message = json.getString("message")
-        if (code == null && message == null) {
-          val bean = json.mapTo(PinsMessageBean::class.java)
-          promise.complete(bean)
-          callback?.let { it1 -> it1(bean) }
-        } else {
-          logError(
-            "addEssentialMessage", "result -> [$code] $message"
-          )
+    val promise = promise<PinsMessageBean>()
+    API.AddEssentialMessage
+        .putHeaders(channel.botInfo.token.getHeaders())
+        .addRestfulParam(channel.channelID!!)
+        .send()
+        .bodyJsonHandle(promise, "getEssentialMessages", "获取精华消息失败"){
+            if (!it.result) return@bodyJsonHandle
+            val bean = it.body.mapTo(PinsMessageBean::class.java)
+            promise.complete(bean)
+            callback?.let { it1 -> it1(bean) }
         }
-      }.onFailure {
-        logError("addEssentialMessage", "添加精华消息", it)
-        promise.fail(it)
-      }
-    }.onFailure {
-      logError("addEssentialMessage", "添加精华消息", it)
-      promise.fail(it)
-    }
-  return promise.future()
+    return promise.future()
 }
