@@ -6,7 +6,7 @@
 
   <groupId>com.github.zimoyin</groupId>
   <artifactId>qqbot</artifactId>
-  <version>alpha-1.0.3</version>
+  <version>alpha-1.0.4</version>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
