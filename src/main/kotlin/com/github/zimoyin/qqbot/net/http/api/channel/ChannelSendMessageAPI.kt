@@ -119,7 +119,7 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
                             "sendChannelMessage",
                             "result -> [${it.getInteger("code")}] ${it.getString("message")}"
                         )
-                        promise.fail(HttpClientException("The server does not receive this value: $it"))
+                        promise.fail("The server does not receive this value: $it")
                     }
                 } else {
                     //发送成功广播一个事件该事件为 广播后 通过返回值获取构建事件
