@@ -19,11 +19,6 @@ class MessageChainBuilder(private var id: String? = null) {
 
     private val internalItems: ArrayList<MessageItem> = ArrayList()
 
-    fun randomID(): MessageChainBuilder {
-        id = UUID.randomUUID().toString()
-        return this
-    }
-
     fun setID(id: String): MessageChainBuilder {
         this.id = id
         return this
