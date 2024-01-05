@@ -395,6 +395,19 @@ object API {
         DefaultHttpClient.client.put("/channels/{channel_id}/threads/{thread_id}")
     }
 
+    /**
+     * 添加表情
+     */
+    val AddEmoji: HttpRequest<Buffer> by LazyInit {
+        DefaultHttpClient.client.put("/channels/{channel_id}/messages/{message_id}/reactions/{type}/{id}")
+    }
+    /**
+     * 删除表情
+     */
+    val DeleteEmoji: HttpRequest<Buffer> by LazyInit {
+        DefaultHttpClient.client.delete("/channels/{channel_id}/messages/{message_id}/reactions/{type}/{id}")
+    }
+
     private val logger = LoggerFactory.getLogger(API::class.java)
 
     /**
