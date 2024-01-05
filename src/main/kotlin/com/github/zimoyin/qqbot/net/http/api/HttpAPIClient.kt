@@ -39,6 +39,10 @@ object HttpAPIClient {
         logger.debug("API Client [$apiName]: $msg")
     }
 
+    fun logWarn(apiName: String, msg: String) {
+        logger.warn("API Client [$apiName]: $msg")
+    }
+
     fun Future<HttpResponse<Buffer>>.logError(apiName: String, msg: String): Future<HttpResponse<Buffer>> {
         val thr = HttpClientException()
         this.onFailure {

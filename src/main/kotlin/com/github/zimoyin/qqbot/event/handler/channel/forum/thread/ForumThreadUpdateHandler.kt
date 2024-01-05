@@ -19,6 +19,8 @@ class ForumThreadUpdateHandler : AbsEventHandler<ForumThreadUpdateEvent>() {
             metadata = payload.metadata,
             botInfo = BotInfo.create(payload.appID!!),
             forum = JSON.toObject<ForumThread>(payload.eventContent.toString())
-        )
+        ).apply {
+            this.forum.channel = channel
+        }
     }
 }

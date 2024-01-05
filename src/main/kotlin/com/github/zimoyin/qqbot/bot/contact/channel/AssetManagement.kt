@@ -2,10 +2,7 @@ package com.github.zimoyin.qqbot.bot.contact.channel
 
 import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.contact.Channel
-import com.github.zimoyin.qqbot.net.bean.AnnouncesBean
-import com.github.zimoyin.qqbot.net.bean.PinsMessageBean
-import com.github.zimoyin.qqbot.net.bean.RecommendChannelBean
-import com.github.zimoyin.qqbot.net.bean.ScheduleBean
+import com.github.zimoyin.qqbot.net.bean.*
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.*
 import com.github.zimoyin.qqbot.utils.ex.promise
@@ -57,7 +54,7 @@ class AssetManagement(val channel: Channel) {
      */
     @OptIn(UntestedApi::class)
     fun addEssentialMessage(messageID: String): Future<PinsMessageBean> {
-        if (!channel.isChannel){
+        if (!channel.isChannel) {
             val promise = promise<PinsMessageBean>()
             promise.fail(IllegalStateException("Channel is not a channel"))
             return promise.future()
@@ -70,7 +67,7 @@ class AssetManagement(val channel: Channel) {
      */
     @OptIn(UntestedApi::class)
     fun deleteEssentialMessage(messageID: String): Future<Boolean> {
-        if (!channel.isChannel){
+        if (!channel.isChannel) {
             val promise = promise<Boolean>()
             promise.fail(IllegalStateException("Channel is not a channel"))
             return promise.future()
@@ -84,7 +81,7 @@ class AssetManagement(val channel: Channel) {
      */
     @OptIn(UntestedApi::class)
     fun getEssentialMessages(): Future<PinsMessageBean> {
-        if (!channel.isChannel){
+        if (!channel.isChannel) {
             val promise = promise<PinsMessageBean>()
             promise.fail(IllegalStateException("Channel is not a channel"))
             return promise.future()
@@ -98,7 +95,7 @@ class AssetManagement(val channel: Channel) {
     @OptIn(UntestedApi::class)
     @JvmOverloads
     fun getChannelScheduleList(since: Long = System.currentTimeMillis()): Future<ScheduleBean> {
-        if (!channel.isChannel){
+        if (!channel.isChannel) {
             val promise = promise<ScheduleBean>()
             promise.fail(IllegalStateException("Channel is not a channel"))
             return promise.future()
@@ -111,7 +108,7 @@ class AssetManagement(val channel: Channel) {
      */
     @OptIn(UntestedApi::class)
     fun getScheduleDetails(scheduleID: String): Future<ScheduleBean> {
-        if (!channel.isChannel){
+        if (!channel.isChannel) {
             val promise = promise<ScheduleBean>()
             promise.fail(IllegalStateException("Channel is not a channel"))
             return promise.future()
@@ -143,38 +140,68 @@ class AssetManagement(val channel: Channel) {
         return HttpAPIClient.deleteSchedule(channel, scheduleID)
     }
 
+    @OptIn(UntestedApi::class)
     fun audioControl() {
         //TODO 音频控制
         TODO("Not implemented")
     }
 
-    fun robotOnStage() {
-        //TODO 机器人上麦
-        TODO("Not implemented")
+    /**
+     * 机器人上麦
+     */
+    @OptIn(UntestedApi::class)
+    fun robotOnStage(): Future<Boolean> {
+        return HttpAPIClient.robotOnStage(channel)
     }
 
-    fun robotOffStage() {
-        //TODO 机器人下麦
-        TODO("Not implemented")
+    /**
+     * 机器人下麦
+     */
+    @OptIn(UntestedApi::class)
+    fun robotOffStage(): Future<Boolean> {
+        return HttpAPIClient.robotOffStage(channel)
     }
 
-    fun getPostList() {
-        //TODO 获取帖子列表
-        TODO("Not implemented")
+
+    /**
+     * 获取帖子列表
+     */
+    @OptIn(UntestedApi::class)
+    fun getPostList(): Future<List<ForumThread>> {
+        return HttpAPIClient.getPostList(channel)
     }
 
-    fun getPostDetails() {
-        //TODO 获取帖子详情
-        TODO("Not implemented")
+    /**
+     * 获取帖子详情
+     * @param id 帖子ID
+     */
+    @OptIn(UntestedApi::class)
+    fun getPostDetails(id: String): Future<ForumThread> {
+        return HttpAPIClient.getPostDetail(channel, id)
     }
 
-    fun publishPost() {
-        //TODO 发表帖子
-        TODO("Not implemented")
+    /**
+     * 发表帖子
+     * @param title 标题
+     * @param content 内容
+     * @param format 帖子格式
+     */
+    @OptIn(UntestedApi::class)
+    @JvmOverloads
+    fun publishPost(
+        title: String,
+        content: String,
+        format: PostFormat = PostFormat.FORMAT_TEXT,
+    ): Future<Boolean> {
+        return HttpAPIClient.publishPost(channel, title, content, format)
     }
 
-    fun deletePost() {
-        //TODO 删除帖子
-        TODO("Not implemented")
+    /**
+     * 删除帖子
+     * @param id 帖子ID
+     */
+    @OptIn(UntestedApi::class)
+    fun deletePost(id: String): Future<Boolean> {
+        return HttpAPIClient.deletePost(channel,id)
     }
 }

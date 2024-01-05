@@ -352,7 +352,6 @@ object API {
 
     /**
      * 机器人上麦
-     * TODO 低优先级
      */
     val RobotOnStage: HttpRequest<Buffer> by LazyInit {
         DefaultHttpClient.client.put("/channels/{channel_id}/mic")
@@ -361,9 +360,8 @@ object API {
 
     /**
      * 机器人下麦
-     * TODO 低优先级
      */
-    val robotOffStage: HttpRequest<Buffer> by LazyInit {
+    val RobotOffStage: HttpRequest<Buffer> by LazyInit {
         DefaultHttpClient.client.delete("/channels/{channel_id}/mic")
     }
 
@@ -376,7 +374,6 @@ object API {
 
     /**
      * 获取帖子详情
-     * TODO 帖子 bean 需要一个该方法
      */
     val PostDetail: HttpRequest<Buffer> by LazyInit {
         DefaultHttpClient.client.get("/channels/{channel_id}/threads/{thread_id}")
@@ -385,7 +382,6 @@ object API {
 
     /**
      * 发布帖子
-     * TODO 低优先级
      */
     val PublishPost: HttpRequest<Buffer> by LazyInit {
         DefaultHttpClient.client.put("/channels/{channel_id}/threads")
@@ -394,7 +390,6 @@ object API {
 
     /**
      * 删除帖子
-     * TODO 低优先级
      */
     val DeletePost: HttpRequest<Buffer> by LazyInit {
         DefaultHttpClient.client.put("/channels/{channel_id}/threads/{thread_id}")

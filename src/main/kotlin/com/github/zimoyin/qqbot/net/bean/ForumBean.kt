@@ -5,7 +5,14 @@ package com.github.zimoyin.qqbot.net.bean
  * @author : zimo
  * @date : 2023/12/20
  */
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.github.zimoyin.qqbot.annotation.UntestedApi
+import com.github.zimoyin.qqbot.bot.contact.Channel
+import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
+import com.github.zimoyin.qqbot.net.http.api.channel.deletePost
+import com.github.zimoyin.qqbot.net.http.api.channel.getPostDetail
+import io.vertx.core.Future
 import java.io.Serializable
 
 // ForumThread 类
@@ -33,7 +40,27 @@ data class ForumThread(
      */
     @field:JsonProperty("thread_info")
     val threadInfo: ThreadInfo? = null,
-) : Serializable
+) : Serializable {
+
+    @field:JsonIgnore
+    var channel: Channel? = null
+
+    /**
+     * 获取帖子详情
+     */
+    @OptIn(UntestedApi::class)
+    fun getPostDetails(): Future<ForumThread> {
+        return HttpAPIClient.getPostDetail(channel!!, threadInfo!!.threadId!!)
+    }
+
+    /**
+     * 删除帖子
+     */
+    @OptIn(UntestedApi::class)
+    fun deletePost(): Future<Boolean> {
+        return HttpAPIClient.deletePost(channel!!, threadInfo!!.threadId!!)
+    }
+}
 
 // ThreadInfo 类
 data class ThreadInfo(
@@ -226,8 +253,8 @@ data class ForumAuditResult(
      * result不为0时错误信息
      */
     @field:JsonProperty("err_msg")
-    val errMsg: String? = null
-): Serializable
+    val errMsg: String? = null,
+) : Serializable
 
 // ForumAuditType 类
 data class ForumAuditType(
@@ -239,5 +266,5 @@ data class ForumAuditType(
     /**
      * 描述
      */
-    val description: String? = null
-): Serializable
+    val description: String? = null,
+) : Serializable
