@@ -2,6 +2,7 @@ package io.github.zimoyin.qqbot.test.demo
 
 
 import com.github.zimoyin.qqbot.bot.Bot
+import com.github.zimoyin.qqbot.bot.message.MessageChainBuilder
 import com.github.zimoyin.qqbot.bot.onEvent
 import com.github.zimoyin.qqbot.event.events.Event
 import com.github.zimoyin.qqbot.event.events.message.MessageEvent
@@ -53,28 +54,9 @@ suspend fun main() {
             println("Bot -> " + it.messageChain.toString())
             println("Bot -> " + it.messageChain.id)
             //尝试发送信息
-            it.reply(it.messageChain)
+            val reply = it.reply(MessageChainBuilder(it.messageChain).reference(it.messageChain).build()).await()
+            reply.convertChannelMessage()
         }
-//        login()
-
-        getGuilds().await().forEach {
-            println(it.guildID)
-            it.getChannel("634326197").onSuccess {
-                println(it)
-                it!!.assetManagement.deleteEssentialMessage("08b0c3be83acc3f391db0110b599bcae02383b48e2fdd3ac06")
-                    .onSuccess {
-                        println(it)
-                    }.onFailure {
-                    it.printStackTrace()
-                }
-            }
-//            it.getChannels().await().forEach {c->
-//                c.assetManagement.deleteEssentialMessage("08b0c3be83acc3f391db0110b599bcae02383b48e2fdd3ac06").onSuccess {
-//                    println(it)
-//                }.onFailure {
-//                    it.printStackTrace()
-//                }
-//            }
-        }
+        login()
     }
 }

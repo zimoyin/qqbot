@@ -1,8 +1,8 @@
 package com.github.zimoyin.qqbot.bot.message
 
 
+import com.github.zimoyin.qqbot.bot.message.type.*
 import com.github.zimoyin.qqbot.net.bean.*
-import com.github.zimoyin.qqbot.utils.JSON
 import org.slf4j.LoggerFactory
 import java.io.Serializable
 import java.time.Instant
@@ -43,7 +43,7 @@ class MessageChain(
         ).apply {
             internalItems.apply {
                 metaTextContent?.let {
-                    add(PlainText(it))
+                    add(PlainTextMessage(it))
                 }
                 //处理 AT 信息
                 // 分割全体成员
@@ -73,22 +73,22 @@ class MessageChain(
                         .toMutableList()
                     EmojiType.entries.forEach {
                         if (metaTextContent.contains("<emoji:${it.id}>")) {
-                            splitAndAdd("<emoji:${it.id}>", Emoji(it.id.toString(), it))
+                            splitAndAdd("<emoji:${it.id}>", EmojiMessage(it.id.toString(), it))
                             numbers.remove(it.id)
                         }
                     }
                     if (numbers.size > 0) LoggerFactory.getLogger(MessageChain::class.java)
                         .warn("未找到表情ids: $numbers ")
                     numbers.forEach {
-                        splitAndAdd("<emoji:${it}>", Emoji(it.toString(), EmojiType.NULL))
+                        splitAndAdd("<emoji:${it}>", EmojiMessage(it.toString(), EmojiType.NULL))
                     }
                 }
                 //处理文件与相册
                 message0.attachments?.forEach {
                     if (it.contentType != null && it.contentType.contains("image")) {
-                        add(Image(it.filename, it))
+                        add(ImageMessage(it.filename, it))
                     } else {
-                        add(File(it.filename, it))
+                        add(FileMessage(it.filename, it))
                     }
                 }
                 //处理 MessageReference
@@ -96,11 +96,11 @@ class MessageChain(
                 //处理 embeds
                 if (message0.embeds != null) {
                     message0.embeds.forEach {
-                        add(Embed(it))
+                        add(EmbedMessage(it))
                     }
                 }
                 //处理 MessageArk
-                if (message0.ark != null) add(Ark(message0.ark))
+                if (message0.ark != null) add(ArkMessage(message0.ark))
             }
 
 
@@ -214,12 +214,12 @@ class MessageChain(
     ) {
         val temp = ArrayList<MessageItem>()
         forEach { msg ->
-            if (msg is PlainText) {
+            if (msg is PlainTextMessage) {
                 msg.content.customSplit(delimiter).forEach {
                     if (it == delimiter) {
                         wendItem?.let { temp.add(wendItem) }
                     } else {
-                        temp.add(PlainText(it))
+                        temp.add(PlainTextMessage(it))
                     }
                 }
             } else {
@@ -260,17 +260,17 @@ class MessageChain(
         val reference = internalItems.filterIsInstance<ReferenceMessage>().lastOrNull()?.let { MessageReference(it.id) }
         val sb = StringBuilder()
         internalItems.forEach {
-            if (it is PlainText) sb.append(it.toMetaContent())
-            if (it is Emoji) sb.append(it.toMetaContent())
+            if (it is PlainTextMessage) sb.append(it.toMetaContent())
+            if (it is EmojiMessage) sb.append(it.toMetaContent())
             if (it is At) sb.append(it.toMetaContent())
             if (it is AtALL) sb.append(it.toMetaContent())
             if (it is AtOnlineAll) sb.append(it.toMetaContent())
             if (it is AtChannelOwnerAll) sb.append(it.toMetaContent())
         }
-        val image = internalItems.filterIsInstance<Image>().lastOrNull()?.attachment?.getURL()
-        val ark = internalItems.filterIsInstance<Ark>().lastOrNull()?.ark
-        val embed = internalItems.filterIsInstance<Embed>().lastOrNull()?.embed
-        val md = internalItems.filterIsInstance<Markdown>().lastOrNull()?.markdown
+        val image = internalItems.filterIsInstance<ImageMessage>().lastOrNull()?.attachment?.getURL()
+        val ark = internalItems.filterIsInstance<ArkMessage>().lastOrNull()?.ark
+        val embed = internalItems.filterIsInstance<EmbedMessage>().lastOrNull()?.embed
+        val md = internalItems.filterIsInstance<MarkdownMessage>().lastOrNull()?.markdown
         return SendMessageBean(
             id = this.id,
             messageReference = reference,
@@ -284,213 +284,3 @@ class MessageChain(
     //TODO 单聊/群聊 -> 信息bean 构建
 }
 
-/**
- * 信息链构造器
- * 该构造器主要可以构建以下信息类型。TODO 暂时不考虑 群里与单聊
- * 1. 纯文本
- * 2. 图文混排 TODO 群里与单聊
- * 5. media 富媒体 TODO 单聊/群聊
- */
-class MessageChainBuilder(val id: String? = null) {
-    private val internalItems: ArrayList<MessageItem> = ArrayList()
-    fun append(item: MessageItem): MessageChainBuilder {
-        internalItems.add(item)
-        return this
-    }
-
-    fun append(text: String): MessageChainBuilder {
-        internalItems.add(PlainText(text))
-        return this
-    }
-
-    fun buildMetaTextContent(): String {
-        val sb = StringBuilder()
-        internalItems.forEach {
-            sb.append(it.toMetaContent())
-        }
-        return sb.toString()
-    }
-
-    fun build(): MessageChain {
-        return MessageChain(id = id, metaTextContent = buildMetaTextContent(), internalItems = internalItems)
-    }
-}
-
-interface MessageItem : Serializable {
-    /**
-     * 获取消息内容
-     */
-    fun toContent(): String {
-        return ""
-    }
-
-    /**
-     * 信息类型与部分信息
-     */
-    fun toStringType(): String {
-        return toString()
-    }
-
-    /**
-     * 构建消息元信息
-     */
-    fun toMetaContent(): String {
-        return ""
-    }
-}
-
-
-data class PlainText(val content: String) : MessageItem {
-    override fun toContent(): String {
-        return content
-    }
-
-    override fun toStringType(): String {
-        return "[PlainText:${content.replace("\n", "\\n")}]"
-    }
-
-    override fun toMetaContent(): String {
-        return content.replace("<", "&lt;").replace(">", "&gt;")
-    }
-}
-
-data class Emoji(val id: String, val emojiType: EmojiType = EmojiType.fromValueID(id) ?: EmojiType.NULL) : MessageItem {
-    override fun toContent(): String {
-        return "/${emojiType.description}"
-    }
-
-    override fun toStringType(): String {
-        return "[Emoji:$id]"
-    }
-
-    override fun toMetaContent(): String {
-        return "<emoji:$id>"
-    }
-}
-
-data class File(val name: String?, val attachment: MessageAttachment) : MessageItem {
-    override fun toStringType(): String {
-        return "[File:${name?.replace("\n", "\\n")}]"
-    }
-}
-
-data class Image(val name: String?, val attachment: MessageAttachment) : MessageItem {
-    override fun toStringType(): String {
-        return "[Image:${name?.replace("\n", "\\n")}]"
-    }
-}
-
-/**
- * 字段属性作用见 @see [github.zimoyin.net.websocket.bean.User]
- */
-data class At(
-    val id: String,
-    val avatar: String = "",
-    val isBot: Boolean = false,
-    val name: String = "",
-    val unionOpenID: String? = null,
-    val unionUserAccount: String? = null,
-) : MessageItem {
-    override fun toContent(): String {
-        return "@$id"
-    }
-
-    override fun toStringType(): String {
-        return "[At:${id.replace("\n", "\\n")}]"
-    }
-
-    override fun toMetaContent(): String {
-        return "<@!$id>"
-    }
-}
-
-data class AtALL(val id: String) : MessageItem {
-    override fun toContent(): String {
-        return "@$id"
-    }
-
-    override fun toStringType(): String {
-        return "[At:${id.replace("\n", "\\n")}]"
-    }
-
-    override fun toMetaContent(): String {
-        return "@$id"
-    }
-}
-
-data class AtChannelOwnerAll(val id: String) : MessageItem {
-    override fun toContent(): String {
-        return "@$id"
-    }
-
-    override fun toStringType(): String {
-        return "[At:$id]"
-    }
-
-    override fun toMetaContent(): String {
-        return "@$id"
-    }
-}
-
-data class AtOnlineAll(val id: String) : MessageItem {
-    override fun toContent(): String {
-        return "@$id"
-    }
-
-    override fun toStringType(): String {
-        return "[At:$id]"
-    }
-
-    override fun toMetaContent(): String {
-        return "@$id"
-    }
-}
-
-data class ReferenceMessage(val id: String) : MessageItem {
-    override fun toStringType(): String {
-        return "[ReferenceMessage:$id]"
-    }
-}
-
-data class Ark(val ark: MessageArk, val content: String = JSON.toJsonString(ark)) : MessageItem {
-    override fun toContent(): String {
-        return content
-    }
-
-    override fun toStringType(): String {
-        return "[MessageArk:${ark.templateId}]"
-    }
-
-    override fun toMetaContent(): String {
-        return content
-    }
-}
-
-
-data class Embed(val embed: MessageEmbed, val content: String = JSON.toJsonString(embed)) : MessageItem {
-    override fun toContent(): String {
-        return content
-    }
-
-    override fun toStringType(): String {
-        return "[MessageEmbed:${embed.title}]"
-    }
-
-    override fun toMetaContent(): String {
-        return content
-    }
-}
-
-data class Markdown(val markdown: MessageMarkdown, val content: String = JSON.toJsonString(markdown)) : MessageItem {
-    override fun toContent(): String {
-        return content
-    }
-
-    override fun toStringType(): String {
-        return "[MessageMarkdown:${markdown.templateId}]"
-    }
-
-    override fun toMetaContent(): String {
-        return content
-    }
-}
