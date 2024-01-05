@@ -408,6 +408,20 @@ object API {
         DefaultHttpClient.client.delete("/channels/{channel_id}/messages/{message_id}/reactions/{type}/{id}")
     }
 
+    /**
+     * 撤回子频道的信息
+     */
+    val RecallChannelMessage: HttpRequest<Buffer> by LazyInit {
+        DefaultHttpClient.client.delete("/channels/{channel_id}/messages/{message_id}")
+    }
+
+    /**
+     * 撤回频道私信的信息
+     */
+    val RecallChannelPrivateMessage: HttpRequest<Buffer> by LazyInit {
+        DefaultHttpClient.client.delete("/dms/{guild_id}/messages/{message_id}?hidetip=false")
+    }
+
     private val logger = LoggerFactory.getLogger(API::class.java)
 
     /**

@@ -10,6 +10,7 @@ import com.github.zimoyin.qqbot.event.handler.message.MessageHandler
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.addEmoji
 import com.github.zimoyin.qqbot.net.http.api.channel.deleteEmoji
+import com.github.zimoyin.qqbot.net.http.api.channel.recallChannelMessage
 import io.vertx.core.Future
 
 /**
@@ -47,6 +48,24 @@ interface ChannelMessageEvent : MessageEvent, ChannelEvent {
         TODO("由于该API是需要 message_id,channel_id,type_id,type_value 作为参数并且是一个分包的API。实用性不大，故暂不实现")
     }
 
+
+    /**
+     * 撤回消息
+     * @param hidetip 是否隐藏提示小灰条
+     */
+    @OptIn(UntestedApi::class)
+    fun recall(hidetip: Boolean): Future<Boolean> {
+        return HttpAPIClient.recallChannelMessage(channel, msgID, hidetip)
+    }
+
+    /**
+     * 撤回消息
+     * @param hidetip 是否隐藏提示小灰条
+     */
+    @OptIn(UntestedApi::class)
+    fun recall(): Future<Boolean> {
+        return recall(false)
+    }
 
     companion object {
         /**
