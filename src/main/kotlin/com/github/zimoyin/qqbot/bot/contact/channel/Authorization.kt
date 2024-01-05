@@ -9,6 +9,7 @@ import com.github.zimoyin.qqbot.net.bean.APIPermissionDemand
 import com.github.zimoyin.qqbot.net.bean.ContactPermission
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.*
+import com.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Future
 
 /**
@@ -20,6 +21,11 @@ class Authorization(val channel: Channel) {
      */
     @OptIn(UntestedApi::class)
     fun getChannelPermissions(user: User): Future<ContactPermission> {
+        if (!channel.isChannel) {
+            val promise = promise<ContactPermission>()
+            promise.fail(IllegalStateException("Channel is not a channel"))
+            return promise.future()
+        }
         return HttpAPIClient.getChannelPermissions(channel, user.id)
     }
 
@@ -28,6 +34,11 @@ class Authorization(val channel: Channel) {
      */
     @OptIn(UntestedApi::class)
     fun getChannelPermissions(userID: String): Future<ContactPermission> {
+        if (!channel.isChannel) {
+            val promise = promise<ContactPermission>()
+            promise.fail(IllegalStateException("Channel is not a channel"))
+            return promise.future()
+        }
         return HttpAPIClient.getChannelPermissions(channel, userID)
     }
 
@@ -36,6 +47,11 @@ class Authorization(val channel: Channel) {
      */
     @OptIn(UntestedApi::class)
     fun updateChannelPermissions(user: User, permissions: ContactPermission): Future<Boolean> {
+        if (!channel.isChannel) {
+            val promise = promise<Boolean>()
+            promise.fail(IllegalStateException("Channel is not a channel"))
+            return promise.future()
+        }
         return HttpAPIClient.updateChannelPermissions(channel, user.id, permissions)
     }
 
@@ -44,6 +60,11 @@ class Authorization(val channel: Channel) {
      */
     @OptIn(UntestedApi::class)
     fun updateChannelPermissions(userID: String, permissions: ContactPermission): Future<Boolean> {
+        if (!channel.isChannel) {
+            val promise = promise<Boolean>()
+            promise.fail(IllegalStateException("Channel is not a channel"))
+            return promise.future()
+        }
         return HttpAPIClient.updateChannelPermissions(channel, userID, permissions)
     }
 
@@ -52,6 +73,11 @@ class Authorization(val channel: Channel) {
      */
     @OptIn(UntestedApi::class)
     fun getChannelRolePermissions(role: Role): Future<ContactPermission> {
+        if (!channel.isChannel) {
+            val promise = promise<ContactPermission>()
+            promise.fail(IllegalStateException("Channel is not a channel"))
+            return promise.future()
+        }
         return HttpAPIClient.getChannelRolePermissions(channel, role.id)
     }
 
@@ -60,6 +86,11 @@ class Authorization(val channel: Channel) {
      */
     @OptIn(UntestedApi::class)
     fun getChannelRolePermissions(roleID: String): Future<ContactPermission> {
+        if (!channel.isChannel) {
+            val promise = promise<ContactPermission>()
+            promise.fail(IllegalStateException("Channel is not a channel"))
+            return promise.future()
+        }
         return HttpAPIClient.getChannelRolePermissions(channel, roleID)
     }
 
@@ -68,6 +99,11 @@ class Authorization(val channel: Channel) {
      */
     @OptIn(UntestedApi::class)
     fun updateChannelRolePermissions(role: Role, permissions: ContactPermission): Future<Boolean> {
+        if (!channel.isChannel) {
+            val promise = promise<Boolean>()
+            promise.fail(IllegalStateException("Channel is not a channel"))
+            return promise.future()
+        }
         return HttpAPIClient.updateChannelRolePermissions(channel, role.id, permissions)
     }
 
@@ -76,6 +112,11 @@ class Authorization(val channel: Channel) {
      */
     @OptIn(UntestedApi::class)
     fun updateChannelRolePermissions(roleID: String, permissions: ContactPermission): Future<Boolean> {
+        if (!channel.isChannel) {
+            val promise = promise<Boolean>()
+            promise.fail(IllegalStateException("Channel is not a channel"))
+            return promise.future()
+        }
         return HttpAPIClient.updateChannelRolePermissions(channel, roleID, permissions)
     }
 

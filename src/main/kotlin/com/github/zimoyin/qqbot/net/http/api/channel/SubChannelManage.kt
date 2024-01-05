@@ -142,7 +142,7 @@ fun HttpAPIClient.deleteSubChannelMember(
     put("add_blacklist", addBlacklist)
     put("delete_history_msg_days", deleteHistoryMsg.value)
   }
-  API.DeleteSubChannelMember.putHeaders(channel.botInfo.token.getHeaders()).addRestfulParam(channel.channelID!!, userID)
+  API.DeleteSubChannelMember.putHeaders(channel.botInfo.token.getHeaders()).addRestfulParam(channel.guildID, userID)
       .sendJsonObject(param)
       .bodyJsonHandle(promise,"DeleteSubChannelMember","删除子频道成员失败"){
           if (it.result){

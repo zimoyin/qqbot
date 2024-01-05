@@ -151,6 +151,11 @@ class AssetManagement(val channel: Channel) {
      */
     @OptIn(UntestedApi::class)
     fun robotOnStage(): Future<Boolean> {
+        if (!channel.isChannel) {
+            val promise = promise<Boolean>()
+            promise.fail(IllegalStateException("Channel is not a channel"))
+            return promise.future()
+        }
         return HttpAPIClient.robotOnStage(channel)
     }
 
@@ -159,6 +164,11 @@ class AssetManagement(val channel: Channel) {
      */
     @OptIn(UntestedApi::class)
     fun robotOffStage(): Future<Boolean> {
+        if (!channel.isChannel) {
+            val promise = promise<Boolean>()
+            promise.fail(IllegalStateException("Channel is not a channel"))
+            return promise.future()
+        }
         return HttpAPIClient.robotOffStage(channel)
     }
 
@@ -168,6 +178,11 @@ class AssetManagement(val channel: Channel) {
      */
     @OptIn(UntestedApi::class)
     fun getPostList(): Future<List<ForumThread>> {
+        if (!channel.isChannel) {
+            val promise = promise<List<ForumThread>>()
+            promise.fail(IllegalStateException("Channel is not a channel"))
+            return promise.future()
+        }
         return HttpAPIClient.getPostList(channel)
     }
 
@@ -177,6 +192,11 @@ class AssetManagement(val channel: Channel) {
      */
     @OptIn(UntestedApi::class)
     fun getPostDetails(id: String): Future<ForumThread> {
+        if (!channel.isChannel) {
+            val promise = promise<ForumThread>()
+            promise.fail(IllegalStateException("Channel is not a channel"))
+            return promise.future()
+        }
         return HttpAPIClient.getPostDetail(channel, id)
     }
 
@@ -193,6 +213,11 @@ class AssetManagement(val channel: Channel) {
         content: String,
         format: PostFormat = PostFormat.FORMAT_TEXT,
     ): Future<Boolean> {
+        if (!channel.isChannel) {
+            val promise = promise<Boolean>()
+            promise.fail(IllegalStateException("Channel is not a channel"))
+            return promise.future()
+        }
         return HttpAPIClient.publishPost(channel, title, content, format)
     }
 
@@ -202,6 +227,11 @@ class AssetManagement(val channel: Channel) {
      */
     @OptIn(UntestedApi::class)
     fun deletePost(id: String): Future<Boolean> {
-        return HttpAPIClient.deletePost(channel,id)
+        if (!channel.isChannel) {
+            val promise = promise<Boolean>()
+            promise.fail(IllegalStateException("Channel is not a channel"))
+            return promise.future()
+        }
+        return HttpAPIClient.deletePost(channel, id)
     }
 }
