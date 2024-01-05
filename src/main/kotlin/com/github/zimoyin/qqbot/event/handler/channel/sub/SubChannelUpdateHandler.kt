@@ -18,7 +18,7 @@ class SubChannelUpdateHandler : AbsEventHandler<SubChannelUpdateEvent>() {
     override fun handle(payload: Payload): SubChannelUpdateEvent {
         val json = JSON.toJsonObject(payload.eventContent.toString())
         val info = BotInfo.create(payload.appID!!)
-        json.put("botInfo", info)
+//        json.put("botInfo", info) //未知代码在此注释
         return SubChannelUpdateEvent(
             metadata = payload.metadata,
             botInfo = info,
