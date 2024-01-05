@@ -2,7 +2,7 @@ package com.github.zimoyin.qqbot.event.events.channel.guild
 
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.contact.Channel
-import com.github.zimoyin.qqbot.bot.contact.ChannelImpl
+import com.github.zimoyin.qqbot.bot.contact.channel.ChannelImpl
 import com.github.zimoyin.qqbot.event.events.channel.ChannelEvent
 import com.github.zimoyin.qqbot.event.handler.NoneEventHandler
 import com.github.zimoyin.qqbot.net.bean.GuildBean

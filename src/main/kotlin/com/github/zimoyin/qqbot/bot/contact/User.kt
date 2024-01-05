@@ -2,12 +2,12 @@ package com.github.zimoyin.qqbot.bot.contact
 
 import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.BotInfo
+import com.github.zimoyin.qqbot.bot.contact.channel.ChannelImpl
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.net.bean.ContactPermission
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.*
 import com.github.zimoyin.qqbot.net.bean.Message
-import com.github.zimoyin.qqbot.net.bean.RoleBean
 import com.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Future
 import java.io.Serializable

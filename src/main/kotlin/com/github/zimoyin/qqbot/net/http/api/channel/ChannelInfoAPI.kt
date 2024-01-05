@@ -2,7 +2,7 @@ package com.github.zimoyin.qqbot.net.http.api.channel
 
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.contact.Channel
-import com.github.zimoyin.qqbot.bot.contact.ChannelImpl
+import com.github.zimoyin.qqbot.bot.contact.channel.ChannelImpl
 import com.github.zimoyin.qqbot.bot.contact.ChannelUser
 import com.github.zimoyin.qqbot.exception.HttpClientException
 import com.github.zimoyin.qqbot.net.bean.ChannelBean

@@ -1,9 +1,8 @@
 package com.github.zimoyin.qqbot.event.handler.message
 
 import com.github.zimoyin.qqbot.bot.BotInfo
-import com.github.zimoyin.qqbot.bot.contact.ChannelImpl
+import com.github.zimoyin.qqbot.bot.contact.channel.ChannelImpl
 import com.github.zimoyin.qqbot.bot.contact.ChannelUser
-import com.github.zimoyin.qqbot.bot.contact.Sender
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.event.events.message.PrivateChannelMessageEvent
 import com.github.zimoyin.qqbot.event.supporter.AbsEventHandler

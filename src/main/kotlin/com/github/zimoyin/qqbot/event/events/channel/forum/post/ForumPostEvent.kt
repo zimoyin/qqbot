@@ -3,7 +3,7 @@ package com.github.zimoyin.qqbot.event.events.channel.forum.post
 import com.github.zimoyin.qqbot.net.bean.ForumPost
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.contact.Channel
-import com.github.zimoyin.qqbot.bot.contact.ChannelImpl
+import com.github.zimoyin.qqbot.bot.contact.channel.ChannelImpl
 import com.github.zimoyin.qqbot.event.events.channel.forum.ForumEvent
 import com.github.zimoyin.qqbot.event.handler.NoneEventHandler
 

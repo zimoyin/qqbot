@@ -2,7 +2,6 @@ package com.github.zimoyin.qqbot.net.bean
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.github.zimoyin.qqbot.bot.contact.ChannelImpl
 import java.io.Serializable
 
 
