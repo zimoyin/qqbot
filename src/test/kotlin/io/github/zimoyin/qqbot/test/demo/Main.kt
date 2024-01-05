@@ -10,6 +10,9 @@ import com.github.zimoyin.qqbot.event.events.platform.MessageSendPreEvent
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.net.Intents
 import com.github.zimoyin.qqbot.utils.ex.await
+import com.github.zimoyin.qqbot.utils.ex.promise
+import io.vertx.core.Future.await
+import io.vertx.kotlin.coroutines.coAwait
 import openDebug
 import token
 
@@ -46,15 +49,14 @@ suspend fun main() {
         //用于复用会话
 //    context["SESSION_ID"] = "51415469-4672-41c2-a72c-a3038f4b4cf1"
         onEvent<MessageEvent> {
-
             it.getBot().getGuilds().await().forEach {
                 println(it)
             }
-
             println("Bot -> " + it.messageChain.toString())
-            println("Bot -> " + it.messageChain.id)
+
+
             //尝试发送信息
-            val reply = it.reply(MessageChainBuilder(it.messageChain).reference(it.messageChain).build()).await()
+            val reply = it.reply(MessageChainBuilder().reference(it.messageChain).append(it.messageChain).build()).await()
             reply.convertChannelMessage()
         }
         login()

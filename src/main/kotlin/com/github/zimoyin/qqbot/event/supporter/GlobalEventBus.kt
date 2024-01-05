@@ -1,7 +1,6 @@
 package com.github.zimoyin.qqbot.event.supporter
 
 
-
 import com.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
 import com.github.zimoyin.qqbot.SystemLogger
 import com.github.zimoyin.qqbot.bot.Bot
@@ -184,18 +183,16 @@ open class BotEventBus(val bus: EventBus) {
          * 缺点：无法直接让框架使用者实现官方的事件类型，需要监听Event 事件后再去广播
          */
         EventMapping.add(cls)
-        val eventBusException = EventBusException()
+        val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
 
         val consumer = bus.consumer<T>(cls.name) { msg ->
             CoroutineScope(Dispatchers.vertx()).launch {
                 kotlin.runCatching {
                     callback.accept(msg.body())
                 }.onFailure {
-                    throw eventBusException.initCause(it)
+                    throw EventBusException(RuntimeException("Caller: $stackTrace", it))
                 }
             }
-        }.exceptionHandler {
-            throw eventBusException.initCause(it)
         }
 
         consumers.add(consumer)
@@ -217,18 +214,16 @@ open class BotEventBus(val bus: EventBus) {
          * 缺点：无法直接让框架使用者实现官方的事件类型，需要监听Event 事件后再去广播
          */
         EventMapping.add(T::class.java)
-        val eventBusException = EventBusException()
+        val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
 
         val consumer = bus.consumer(T::class.java.name) { msg ->
             CoroutineScope(Dispatchers.vertx()).launch {
                 kotlin.runCatching {
                     msg.callback(msg.body())
                 }.onFailure {
-                    throw eventBusException.initCause(it)
+                    throw EventBusException(RuntimeException("Caller: $stackTrace", it))
                 }
             }
-        }.exceptionHandler {
-            throw eventBusException.initCause(it)
         }
 
         consumers.add(consumer)
@@ -250,18 +245,16 @@ open class BotEventBus(val bus: EventBus) {
          * 缺点：无法直接让框架使用者实现官方的事件类型，需要监听Event 事件后再去广播
          */
         EventMapping.add(cls)
-        val eventBusException = EventBusException()
+        val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
 
         val consumer = bus.consumer<T>(cls.name) { msg ->
             CoroutineScope(Dispatchers.vertx()).launch {
                 kotlin.runCatching {
                     if ((msg.body() as T).botInfo.token.appID == bot.config.token.appID) callback.accept(msg.body())
                 }.onFailure {
-                    throw eventBusException.initCause(it)
+                    throw EventBusException(RuntimeException("Caller: $stackTrace", it))
                 }
             }
-        }.exceptionHandler {
-            throw eventBusException.initCause(it)
         }
 
         consumers.add(consumer)
@@ -274,17 +267,15 @@ open class BotEventBus(val bus: EventBus) {
      */
     inline fun <reified T : Event> onBotEvent(bot: Bot, crossinline callback: suspend Message<T>.(message: T) -> Unit) {
         EventMapping.add(T::class.java)
-        val eventBusException = EventBusException()
+        val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
         val consumer = bus.consumer(T::class.java.name) { msg ->
             CoroutineScope(Dispatchers.vertx()).launch {
                 kotlin.runCatching {
                     if ((msg.body() as T).botInfo.token.appID == bot.config.token.appID) msg.callback(msg.body())
                 }.onFailure {
-                    throw eventBusException.initCause(it)
+                    throw EventBusException(RuntimeException("Caller: $stackTrace", it))
                 }
             }
-        }.exceptionHandler {
-            throw eventBusException.initCause(it)
         }
         consumers.add(consumer)
     }
@@ -300,13 +291,13 @@ open class BotEventBus(val bus: EventBus) {
         callback: Consumer<T>,
     ) {
         EventMapping.add(cls)
-        val eventBusException = EventBusException()
+        val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
         val consumer = bus.consumer<T>(cls.name) { msg ->
             CoroutineScope(Dispatchers.vertx()).launch {
                 kotlin.runCatching {
                     if ((msg.body() as T).botInfo.token.appID == appID) callback.accept(msg.body())
                 }.onFailure {
-                    throw eventBusException.initCause(it)
+                    throw EventBusException(RuntimeException("Caller: $stackTrace", it))
                 }
             }
         }
@@ -324,13 +315,13 @@ open class BotEventBus(val bus: EventBus) {
         crossinline callback: suspend Message<T>.(message: T) -> Unit,
     ) {
         EventMapping.add(T::class.java)
-        val eventBusException = EventBusException()
+        val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
         val consumer = bus.consumer(T::class.java.name) { msg ->
             CoroutineScope(Dispatchers.vertx()).launch {
                 kotlin.runCatching {
                     if ((msg.body() as T).botInfo.token.appID == appID) msg.callback(msg.body())
                 }.onFailure {
-                    throw eventBusException.initCause(it)
+                    throw EventBusException(RuntimeException("Caller: $stackTrace", it))
                 }
             }
         }

@@ -110,7 +110,7 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
                         val chain = kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }
                             .getOrDefault(MessageChain())
                         broadcastChannelMessageSendEvent(message, channel, chain)
-                        promise.complete(chain)
+                        promise.tryComplete(chain)
                         logDebug("sendChannelMessage", "信息审核事件中: $it")
                     }
 
@@ -119,14 +119,14 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
                             "sendChannelMessage",
                             "result -> [${it.getInteger("code")}] ${it.getString("message")}"
                         )
-                        promise.fail("The server does not receive this value: $it")
+                        promise.tryFail("The server does not receive this value: $it")
                     }
                 } else {
                     //发送成功广播一个事件该事件为 广播后 通过返回值获取构建事件
                     val chain = kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }
                         .getOrDefault(MessageChain())
                     broadcastChannelMessageSendEvent(message, channel, chain)
-                    promise.complete(chain)
+                    promise.tryComplete(chain)
                 }
             }.onFailure {
                 logError(

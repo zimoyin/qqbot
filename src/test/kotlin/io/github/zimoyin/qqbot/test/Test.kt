@@ -1,5 +1,11 @@
+import com.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
 import com.github.zimoyin.qqbot.utils.ex.promise
+import com.github.zimoyin.qqbot.utils.vertx
 import io.vertx.core.json.JsonObject
+import io.vertx.kotlin.coroutines.coAwait
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  *
@@ -8,16 +14,15 @@ import io.vertx.core.json.JsonObject
  */
 
 
-fun main() {
-    val promise = promise<String>()
+suspend fun main() {
+    CoroutineScope(Dispatchers.vertx(GLOBAL_VERTX_INSTANCE)).launch {
+        val promise = promise<Boolean>()
+//    promise.fail("aa")
+        promise.complete(true)
+        promise.future().coAwait()
 
-    promise.complete("a")
-    promise.tryComplete("b")
-    promise.fail("c")
-
-    promise.future().onSuccess {
-        println(it)
-    }.onFailure {
-        println(it)
+        val promise1 = promise<Boolean>()
+        promise1.fail("aa")
+        promise1.future().coAwait()
     }
 }

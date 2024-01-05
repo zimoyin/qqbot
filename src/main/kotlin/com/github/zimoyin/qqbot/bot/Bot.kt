@@ -153,13 +153,13 @@ interface Bot : Serializable, Contact {
      */
     fun <T : Event> onVertxEvent(cls: Class<out T>, callback: Consumer<T>) {
         config.apply {
-            val eventBusException = EventBusException()
+            val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
             val consumer = getVertxEventBus().localConsumer<T>(cls.name) { msg ->
                 CoroutineScope(Dispatchers.vertx(vertx)).launch {
                     kotlin.runCatching {
                         callback.accept(msg.body())
                     }.onFailure {
-                        throw eventBusException.initCause(it)
+                        throw EventBusException(RuntimeException("Caller: $stackTrace",it))
                     }
                 }
             }
@@ -172,14 +172,14 @@ interface Bot : Serializable, Contact {
      */
     fun <T : Event> onEvent(cls: Class<out T>, callback: Consumer<T>) {
         config.apply {
-            val eventBusException = EventBusException()
+            val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
             val consumer = getVertxEventBus().localConsumer<T>(cls.name) { msg ->
                 if (msg.body().botInfo.token.appID == this.token.appID) {
                     CoroutineScope(Dispatchers.vertx(vertx)).launch {
                         kotlin.runCatching {
                             callback.accept(msg.body())
                         }.onFailure {
-                            throw eventBusException.initCause(it)
+                            throw EventBusException(RuntimeException("Caller: $stackTrace",it))
                         }
                     }
                 }
@@ -347,13 +347,13 @@ class BotConfigBuilder(token0: Token? = null) {
  */
 inline fun <reified T : Event> Bot.onVertxEvent(crossinline callback: suspend Message<T>.(message: T) -> Unit) {
     this.config.apply {
-        val eventBusException = EventBusException()
+        val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
         val consumer = getVertxEventBus().localConsumer<T>(T::class.java.name) { msg ->
             CoroutineScope(Dispatchers.vertx(vertx)).launch {
                 kotlin.runCatching {
                     msg.callback(msg.body())
                 }.onFailure {
-                    throw eventBusException.initCause(it)
+                    throw EventBusException(RuntimeException("Caller: $stackTrace",it))
                 }
             }
         }
@@ -367,14 +367,14 @@ inline fun <reified T : Event> Bot.onVertxEvent(crossinline callback: suspend Me
  */
 inline fun <reified T : Event> Bot.onEvent(crossinline callback: suspend Message<T>.(message: T) -> Unit) {
     this.config.apply {
-        val eventBusException = EventBusException()
+        val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
         val consumer = getVertxEventBus().localConsumer<T>(T::class.java.name) { msg ->
             if (msg.body().botInfo.token.appID == this.token.appID) {
                 CoroutineScope(Dispatchers.vertx(vertx)).launch {
                     kotlin.runCatching {
                         callback(msg, msg.body())
                     }.onFailure {
-                        throw eventBusException.initCause(it)
+                        throw EventBusException(RuntimeException("Caller: $stackTrace",it))
                     }
                 }
             }

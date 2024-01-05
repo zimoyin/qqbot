@@ -8,6 +8,7 @@ import com.github.zimoyin.qqbot.bot.message.MessageChainBuilder
 import com.github.zimoyin.qqbot.bot.message.type.ReferenceMessage
 import com.github.zimoyin.qqbot.event.events.Event
 import com.github.zimoyin.qqbot.event.handler.message.MessageHandler
+import com.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Future
 
 /**
@@ -17,7 +18,7 @@ import io.vertx.core.Future
  * TODO
  */
 @EventAnnotation.EventMetaType("Not_MetaType_MessageEvent")
-@EventAnnotation.EventHandler(MessageHandler::class,true)
+@EventAnnotation.EventHandler(MessageHandler::class, true)
 interface MessageEvent : Event {
     /**
      * 信息的ID
@@ -40,12 +41,11 @@ interface MessageEvent : Event {
     val sender: User
 
 
-
     /**
      * 被动回复信息
      * 注意无法通过事件发送主动信息，请查询 Content.send 方法
      */
-    fun reply(message:String){
+    fun reply(message: String) {
         windows.send(MessageChainBuilder(msgID).append(message).build())
     }
 
@@ -53,7 +53,7 @@ interface MessageEvent : Event {
      * 被动引用回复信息
      * 注意无法通过事件发送主动信息，请查询 Content.send 方法
      */
-    fun quote(message:String):Future<MessageChain>{
+    fun quote(message: String): Future<MessageChain> {
         return windows.send(MessageChainBuilder(msgID).append(ReferenceMessage(msgID)).append(message).build())
     }
 
@@ -61,8 +61,12 @@ interface MessageEvent : Event {
      * 被动回复信息
      * 注意无法通过事件发送主动信息，请查询 Content.send 方法
      */
-    fun reply(message: MessageChain):Future<MessageChain>{
-        if (message.id == null) throw IllegalArgumentException("MessageChain id is null. Unable to reply to message")
+    fun reply(message: MessageChain): Future<MessageChain> {
+        if (message.id == null) {
+            val promise = promise<MessageChain>()
+            promise.fail(IllegalArgumentException("MessageChain id is null. Unable to reply to message"))
+            return promise.future()
+        }
         return windows.send(message)
     }
 
@@ -70,9 +74,17 @@ interface MessageEvent : Event {
      * 被动引用回复信息
      * 注意无法通过事件发送主动信息，请查询 Content.send 方法
      */
-    fun quote(message: MessageChain):Future<MessageChain>{
-        if (message.id == null) throw IllegalArgumentException("MessageChain id is null. Unable to reply to message")
-        if ( message.stream().filter { it is ReferenceMessage }.count() == 0.toLong()) throw IllegalArgumentException("MessageChain ReferenceMessage is null. Unable to reply to message")
+    fun quote(message: MessageChain): Future<MessageChain> {
+        if (message.id == null) {
+            val promise = promise<MessageChain>()
+            promise.fail(IllegalArgumentException("MessageChain id is null. Unable to reply to message"))
+            return promise.future()
+        }
+        if (message.stream().filter { it is ReferenceMessage }.count() == 0.toLong()) {
+            val promise = promise<MessageChain>()
+            promise.fail(IllegalArgumentException("MessageChain ReferenceMessage is null. Unable to reply to message"))
+            return promise.future()
+        }
         return windows.send(message)
     }
 }

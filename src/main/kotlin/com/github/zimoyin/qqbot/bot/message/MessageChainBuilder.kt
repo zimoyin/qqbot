@@ -3,6 +3,7 @@ package com.github.zimoyin.qqbot.bot.message
 import com.github.zimoyin.qqbot.bot.message.type.MessageItem
 import com.github.zimoyin.qqbot.bot.message.type.PlainTextMessage
 import com.github.zimoyin.qqbot.bot.message.type.ReferenceMessage
+import java.util.*
 
 /**
  * 信息链构造器
@@ -11,12 +12,26 @@ import com.github.zimoyin.qqbot.bot.message.type.ReferenceMessage
  * 2. 图文混排 TODO 群里与单聊
  * 5. media 富媒体 TODO 单聊/群聊
  */
-class MessageChainBuilder(val id: String? = null) {
+class MessageChainBuilder(private var id: String? = null) {
     constructor(chain: MessageChain) : this(chain.id) {
         append(chain)
     }
 
     private val internalItems: ArrayList<MessageItem> = ArrayList()
+
+    fun randomID(): MessageChainBuilder {
+        id = UUID.randomUUID().toString()
+        return this
+    }
+
+    fun setID(id: String): MessageChainBuilder {
+        this.id = id
+        return this
+    }
+
+    fun getID(): String {
+        return id!!
+    }
 
     fun reference(id: String): MessageChainBuilder {
         internalItems.add(ReferenceMessage(id))
