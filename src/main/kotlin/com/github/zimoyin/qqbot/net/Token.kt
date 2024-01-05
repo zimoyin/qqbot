@@ -30,24 +30,26 @@ data class Token(
     /**
      * 用户选择的鉴权版本
      */
-    var version: Int = -1
-):Serializable {
+    var version: Int = -1,
+) : Serializable {
 
     init {
-        if (version == -1){
+        if (version == -1) {
             version = if (token.isNotEmpty()) 1
             else if (appSecret.isNotEmpty()) 2
             else throw IllegalArgumentException("Token authentication method not specified")
         }
     }
 
-    fun getHeaders(): HeadersMultiMap  {
-        return when (version){
+
+    fun getHeaders(): HeadersMultiMap {
+        return when (version) {
             1 -> getHeadersV1()
             2 -> getHeadersV2()
             else -> throw IllegalArgumentException("Unsupported version: $version")
         }
     }
+
     /**
      * 老版本鉴权
      */
@@ -63,5 +65,19 @@ data class Token(
         "X-Union-Appid" to "QQBot $appID"
     ).toHeaders()
 
+    companion object {
+        @JvmOverloads
+        fun create(appID: String, token: String, appSecret: String = ""): Token {
+            return Token(appID, token, appSecret)
+        }
+
+        fun createByToken(appID: String, token: String): Token {
+            return Token(appID, token)
+        }
+
+        fun createByAppSecret(appID: String, appSecret: String): Token {
+            return Token(appID, "", appSecret)
+        }
+    }
 }
 
