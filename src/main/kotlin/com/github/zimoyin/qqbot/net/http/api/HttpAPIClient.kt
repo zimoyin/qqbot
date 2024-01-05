@@ -97,10 +97,10 @@ object HttpAPIClient {
                     callback(APIJsonResult(json, false, response))
                 }.onFailure {
                     logError(apiName, callbackErrorMessage, it)
-                    promise.tryFail(it) //callback 执行失败，保险机制
+                    promise.tryFail(HttpClientException(it)) //callback 执行失败，保险机制
                 }
                 //避免 callback 不promise 告知处理结果，导致流程卡住
-                promise.tryFail("API 错误 -> [$code] $message")
+                promise.tryFail(HttpClientException("API 错误 -> [$code] $message"))
                 return@runCatching
             }
 
@@ -116,11 +116,11 @@ object HttpAPIClient {
                     callback(APIJsonResult(json, false, response))
                 }.onFailure {
                     logError(apiName, callbackErrorMessage, it)
-                    promise.tryFail(it) //保险机制
+                    promise.tryFail(HttpClientException(it)) //保险机制
                 }
                 //避免 callback 不promise 告知处理结果，导致流程卡住
-                if (code != null || message != null) promise.tryFail("API 错误 -> [$code] $message")
-                promise.tryFail("API 错误 -> Http Code : $status")
+                if (code != null || message != null) promise.tryFail(HttpClientException("API 错误 -> [$code] $message"))
+                promise.tryFail(HttpClientException("API 错误 -> Http Code : $status"))
                 return@runCatching
             }
 
@@ -129,10 +129,10 @@ object HttpAPIClient {
                 callback(APIJsonResult(json, true, response))
             }.onFailure {
                 logError(apiName, errorMessage, it)
-                promise.tryFail(it) //保险机制
+                promise.tryFail(HttpClientException(it)) //保险机制
             }
             //保险机制
-            promise.tryFail("严重错误，API访问成功，由于 callback 未能使用 promise 告知处理结果，导致流程卡住")
+            promise.tryFail(HttpClientException("严重错误，API访问成功，由于 callback 未能使用 promise 告知处理结果，导致流程卡住"))
         }.onFailure {
             kotlin.runCatching {
                 callback(APIJsonResult(null, false, response))
@@ -140,7 +140,7 @@ object HttpAPIClient {
                 logError(apiName, callbackErrorMessage, it)
             }
             logError(apiName, errorMessage, it)
-            promise.tryFail(it)
+            promise.tryFail(HttpClientException(it))
         }
     }
 
