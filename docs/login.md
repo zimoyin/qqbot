@@ -24,6 +24,7 @@ bot.login();
 事件监听方式分为全局Bot全局监听与Bot全局监听
 #### 全局监听
 注意对全局事件进行监听只能监听来自于同一个 Vertx 的事件，如果想要跨 Vertx 监听需要自行组件Vert 集群（请自行查阅资料）
+Kotlin:
 ```kotlin
 //通过全局事件总线来对全局事件进行监听
 GlobalEventBus.onEvent<Event> {
@@ -36,6 +37,7 @@ bot.onEvent<MessageEvent> {
     it.reply(it.messageChain)
 }
 ```
+Java:
 ```java
 GlobalEventBus.INSTANCE.onEvent(Event.class, event -> {
     System.out.println(event.getMetadataType());
