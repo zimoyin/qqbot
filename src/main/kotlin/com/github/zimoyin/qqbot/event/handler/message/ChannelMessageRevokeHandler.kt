@@ -22,7 +22,6 @@ class ChannelMessageRevokeHandler : AbsEventHandler<ChannelMessageRevokeEvent>()
         val d = JSON.toJsonObject(payload.eventContent.toString())
         val message = JSON.toObject<Message>(d.getJsonObject("message"))
         val msgID = message.msgID!!
-        val messageChain = MessageChain.convert(message)
         val botInfo = BotInfo.create(payload.appID!!)
         val sender = Sender.convert(botInfo, message)
         val channel = ChannelImpl.convert(botInfo, message)
@@ -31,7 +30,6 @@ class ChannelMessageRevokeHandler : AbsEventHandler<ChannelMessageRevokeEvent>()
             metadata = payload.metadata,
             msgID = msgID,
             windows = channel,
-            messageChain = messageChain,
             sender = sender,
             botInfo = botInfo,
             operatorID = d.getJsonObject("op_user").getString("id")

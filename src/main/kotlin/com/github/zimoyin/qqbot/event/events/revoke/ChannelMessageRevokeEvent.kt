@@ -21,7 +21,6 @@ data class ChannelMessageRevokeEvent(
     override val botInfo: BotInfo,
     override val msgID: String,
     override val windows: Contact,
-    override val messageChain: MessageChain,
     override val sender: User,
     override val metadataType: String = "MESSAGE_DELETE",
     override val operatorID: String,
