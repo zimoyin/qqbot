@@ -14,6 +14,5 @@ import com.github.zimoyin.qqbot.event.events.Event
 @EventAnnotation.EventMetaType("Not_MetaType_ChannelEvent")
 @EventAnnotation.EventHandler(ignore = true)
 interface ChannelEvent : Event {
-    //TODO (Contact) Channel 属性
     val channel: Channel
 }

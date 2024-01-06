@@ -35,18 +35,23 @@ class MessageHandler : AbsEventHandler<MessageEvent>() {
 
   companion object {
     fun getWindows(info: BotInfo, message: Message): Contact {
-      return if (message.groupID != null) {
-        //群聊
-        GroupImpl.convert(info, message)
-      } else if (message.srcGuildID != null) {
-        //频道私聊
-        ChannelImpl.convert(info, message)
-      } else if (message.channelID != null) {
-        //频道
-        ChannelImpl.convert(info, message)
-      } else {
-        //朋友私聊
-        TODO("Not implemented")
+      return when {
+          message.groupID != null -> {
+              //群聊
+              GroupImpl.convert(info, message)
+          }
+          message.srcGuildID != null -> {
+              //频道私聊
+              ChannelImpl.convert(info, message)
+          }
+          message.channelID != null -> {
+              //频道
+              ChannelImpl.convert(info, message)
+          }
+          else -> {
+              //朋友私聊
+              TODO("Not implemented")
+          }
       }
     }
   }
