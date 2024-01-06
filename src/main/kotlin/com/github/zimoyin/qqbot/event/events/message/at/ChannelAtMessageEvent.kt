@@ -14,7 +14,7 @@ import com.github.zimoyin.qqbot.event.handler.message.ChannelAtMessageHandler
  * @author : zimo
  * @date : 2023/12/12
  *
- * TODO 文字子频道@机器人
+ *   文字子频道@机器人
  */
 @EventAnnotation.EventMetaType("AT_MESSAGE_CREATE")
 @EventAnnotation.EventHandler(ChannelAtMessageHandler::class)

@@ -308,7 +308,6 @@ open class BotEventBus(val bus: EventBus) {
      * 全局事件监听，如果配置了集群则可以监听来自于所有的 vertx 的事件,并监听某一个Bot 的事件
      * 如果只想监听某一杠Vertx 的事件，通过bot的 config 来监听
      *
-     * TODO 无JAVA适配调用方法
      */
     inline fun <reified T : Event> onBotEvent(
         appID: String,

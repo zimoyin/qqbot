@@ -12,7 +12,6 @@ import com.github.zimoyin.qqbot.net.bean.UserLive
  * @date : 2023/12/20
  *
  * 频道的音视频直播事件
- * TODO 该事件以及子事件未经任何测试
  */
 @EventAnnotation.EventMetaType("Not_MetaType_LiveRoomEvent")
 @EventAnnotation.EventHandler(NoneEventHandler::class, true)

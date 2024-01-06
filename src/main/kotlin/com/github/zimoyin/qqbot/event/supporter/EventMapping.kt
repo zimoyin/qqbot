@@ -162,7 +162,6 @@ object EventMapping {
       BotResumedEvent::class.java,
       BotReadyEvent::class.java,
 
-      //TODO
     ).forEach { cls ->
       kotlin.runCatching { initAdd(cls) }
         .onFailure {

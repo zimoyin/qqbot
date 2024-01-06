@@ -32,5 +32,4 @@ interface Contact : Serializable {
      */
     fun send(message: MessageChain): Future<MessageChain>
 
-    //TODO 信息撤回
 }

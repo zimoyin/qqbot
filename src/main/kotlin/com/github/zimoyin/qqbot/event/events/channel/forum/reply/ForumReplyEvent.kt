@@ -13,7 +13,6 @@ import com.github.zimoyin.qqbot.event.handler.NoneEventHandler
  * @date : 2023/12/20
  *
  * 帖子事件
- * TODO 该事件以及子事件未经任何测试
  */
 @EventAnnotation.EventMetaType("Not_MetaType_ForumPostEvent")
 @EventAnnotation.EventHandler(NoneEventHandler::class, true)

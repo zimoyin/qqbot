@@ -14,7 +14,6 @@ import com.github.zimoyin.qqbot.net.bean.GuildBean
  * @date : 2023/12/20
  *
  * 频道事件
- * TODO 该事件以及子事件未经任何测试
  */
 @EventAnnotation.EventMetaType("Not_MetaType_GuildOperate")
 @EventAnnotation.EventHandler(NoneEventHandler::class, true)

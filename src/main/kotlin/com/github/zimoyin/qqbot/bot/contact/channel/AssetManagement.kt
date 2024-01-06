@@ -10,7 +10,6 @@ import io.vertx.core.Future
 
 /**
  * 频道内容管理类，提供对频道公告、精华消息、日程、音频控制、机器人上/下麦、帖子等频道内容的管理功能。
- * TODO 未适配各种事件，使用上具有一定阻力
  */
 class AssetManagement(val channel: Channel) {
     /**

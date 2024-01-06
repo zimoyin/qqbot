@@ -134,7 +134,6 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
         }.onFailure {
             logger.warn("WebSocketClient[${client.hashCode()}] 启动失败,由于没有建立连接不予重连，请新建连接并保证网络畅通")
             logger.error("WebSocketClient[${client.hashCode()}] 启动失败", it)
-            //TODO 机器人 WS 客户端启动失败 事件
             promise.fail(it)
         }
     }

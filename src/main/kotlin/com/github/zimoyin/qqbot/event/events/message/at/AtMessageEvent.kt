@@ -8,7 +8,6 @@ import com.github.zimoyin.qqbot.event.handler.message.MessageHandler
  *
  * @author : zimo
  * @date : 2023/12/09
- * TODO
  */
 @EventAnnotation.EventMetaType("Not_MetaType_AtMessageEvent")
 @EventAnnotation.EventHandler(MessageHandler::class, true)

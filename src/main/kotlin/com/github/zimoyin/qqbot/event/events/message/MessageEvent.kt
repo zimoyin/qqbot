@@ -15,7 +15,6 @@ import io.vertx.core.Future
  *
  * @author : zimo
  * @date : 2023/12/06/18:25
- * TODO
  */
 @EventAnnotation.EventMetaType("Not_MetaType_MessageEvent")
 @EventAnnotation.EventHandler(MessageHandler::class, true)

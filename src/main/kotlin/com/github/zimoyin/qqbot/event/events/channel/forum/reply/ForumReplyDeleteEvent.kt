@@ -11,7 +11,6 @@ import com.github.zimoyin.qqbot.event.handler.channel.forum.reply.ForumReplyDele
  * @date : 2023/12/20
  *
  * 帖子事件
- * TODO 该事件以及子事件未经任何测试
  */
 @EventAnnotation.EventMetaType("FORUM_REPLY_DELETE")
 @EventAnnotation.EventHandler(ForumReplyDeleteHandler::class)

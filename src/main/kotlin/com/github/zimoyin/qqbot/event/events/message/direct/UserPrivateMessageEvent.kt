@@ -13,7 +13,7 @@ import java.time.Instant
  *
  * @author : zimo
  * @date : 2023/12/12
- * TODO C2C_MESSAGE_CREATE 私信子事件 单聊
+ *   C2C_MESSAGE_CREATE 私信子事件 单聊
  */
 @EventAnnotation.EventMetaType("C2C_MESSAGE_CREATE")
 @EventAnnotation.EventHandler(UserPrivateMessageHandler::class)

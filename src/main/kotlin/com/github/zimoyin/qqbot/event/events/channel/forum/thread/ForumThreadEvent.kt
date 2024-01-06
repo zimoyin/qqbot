@@ -14,7 +14,6 @@ import com.github.zimoyin.qqbot.net.bean.ForumThread
  * @date : 2023/12/20
  *
  * 主题事件 既创建一个全新的属于个人的帖子
- * TODO 该事件以及子事件未经任何测试
  */
 @EventAnnotation.EventMetaType("Not_MetaType_ForumThreadEvent")
 @EventAnnotation.EventHandler(NoneEventHandler::class, true)
