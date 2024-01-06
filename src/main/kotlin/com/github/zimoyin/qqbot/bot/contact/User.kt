@@ -68,7 +68,9 @@ interface User : Contact {
     muteTimestamp: Long = 24 * 60 * 1000,
     muteEndTimestamp: Long = System.currentTimeMillis() + muteTimestamp,
   ): Future<Boolean> {
-    TODO("该用户无法在此创建下被禁言")
+      val promise = promise<Boolean>()
+      promise.fail(IllegalStateException("该用户无法在此聊天会话下被禁言"))
+      return promise.future()
   }
 }
 
@@ -161,7 +163,6 @@ data class ChannelUser(
    * 创建频道身份组成员
    * 用于将频道guild_id下的用户 user_id 添加到身份组 role_id
    *
-   * TODO 修改方法名称为加入某个频道身份组
    */
   @UntestedApi
   fun addGuildRoleMember(role: Role): Future<Role> {
@@ -174,7 +175,6 @@ data class ChannelUser(
    * @param addBlacklist 是否将用户加入黑名单
    * @param deleteHistoryMsg 是否删除用户的历史消息
    *
-   * TODO 修改方法名称为推出某个频道身份组
    */
   @UntestedApi
   @JvmOverloads

@@ -29,7 +29,4 @@ data class GroupImpl(
     override fun send(message: MessageChain): Future<MessageChain> {
         TODO("Not yet implemented")
     }
-
-
-
 }
