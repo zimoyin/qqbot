@@ -84,26 +84,3 @@ fun main() {
 
     GLOBAL_VERTX_INSTANCE.close()
 }
-
-
-//一段危险的代码，但是对于当前的我来说，这是唯一的办法了
-//            pom.withXml {
-//                val dependenciesNode = asNode().children()
-//                    .filterNotNull()
-//                    .filterIsInstance<groovy.util.Node>()
-//                    .find { it.name().toString().contains("dependencies") }
-//
-//                dependenciesNode?.children()?.forEach { dependencyNode ->
-//                    if ((dependencyNode as groovy.util.Node).name().toString().contains("dependency")) {
-//                        val scopeNode = dependencyNode.children()
-//                            .filterNotNull()
-//                            .filterIsInstance<groovy.util.Node>()
-//                            .find { it.name().toString().contains("scope") }
-//
-//                        if (scopeNode != null && scopeNode.text() == "runtime") {
-////                            dependencyNode.remove(scopeNode)
-//                            scopeNode.setValue("compile")
-//                        }
-//                    }
-//                }
-//            }

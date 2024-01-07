@@ -16,3 +16,4 @@ class HttpClientException(override var message: String = "An exception occurred 
 }
 class HttpHandlerException(throwable: Throwable? = null) : RuntimeException("Unable to parse or the information returned by the server does not meet the requirements",throwable)
 class EventBusException(throwable: Throwable? = null) : RuntimeException("An uncaught exception occurred in the event loop",throwable)
+class WebSocketReconnectException(throwable: Throwable? = null) : RuntimeException("The server requires the client to reconnect",throwable)

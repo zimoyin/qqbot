@@ -49,15 +49,7 @@ suspend fun main() {
         //用于复用会话
 //    context["SESSION_ID"] = "51415469-4672-41c2-a72c-a3038f4b4cf1"
         onEvent<MessageEvent> {
-            it.getBot().getGuilds().await().forEach {
-                println(it)
-            }
             println("Bot -> " + it.messageChain.toString())
-
-
-            //尝试发送信息
-            val reply = it.reply(MessageChainBuilder().reference(it.messageChain).append(it.messageChain).build()).await()
-            reply.convertChannelMessage()
         }
         login()
     }

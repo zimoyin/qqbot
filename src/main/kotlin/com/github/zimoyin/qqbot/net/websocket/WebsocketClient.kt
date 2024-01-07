@@ -6,6 +6,7 @@ import com.github.zimoyin.qqbot.bot.Bot
 import com.github.zimoyin.qqbot.bot.BotSection
 import com.github.zimoyin.qqbot.event.events.platform.bot.BotOfflineEvent
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
+import com.github.zimoyin.qqbot.exception.WebSocketReconnectException
 import com.github.zimoyin.qqbot.net.http.api.gatewayV2Async
 import com.github.zimoyin.qqbot.utils.ex.await
 import com.github.zimoyin.qqbot.utils.ex.executeBlockingKt
@@ -93,20 +94,24 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
                     kotlin.runCatching {
                         handler.handle(buffer)
                     }.onFailure {
-                        if (it is HttpClosedException) {
-                            logger.debug("WebSocket[${ws.hashCode()}]  准备重连 -> HttpClosedException: ${it.message}")
-                            //广播机器人下线事件
-                            GlobalEventBus.broadcast(
-                                BotOfflineEvent(
-                                    bot.botInfo,
-                                    bot.context.get<Throwable>(throwableKey)
+                        when (it) {
+                            is WebSocketReconnectException -> {
+                                logger.debug("WebSocket[${ws.hashCode()}]  准备重连 -> HttpClosedException: ${it.message}")
+                                //广播机器人下线事件
+                                GlobalEventBus.broadcast(
+                                    BotOfflineEvent(
+                                        bot.botInfo,
+                                        bot.context.get<Throwable>(throwableKey)
+                                    )
                                 )
+                                reconnect(client, reconnect, retry+1)
+                            }
+
+                            else -> logger.error(
+                                "WebSocket[${ws.hashCode()}]  位于网络层的阻塞线程捕获到了处理器的异常，这是不合理的！以下为捕获的异常",
+                                it
                             )
-                            reconnect(client, reconnect, retry)
-                        } else logger.error(
-                            "WebSocket[${ws.hashCode()}]  位于网络层的阻塞线程捕获到了处理器的异常，这是不合理的！以下为捕获的异常",
-                            it
-                        )
+                        }
                     }
                 }
             }
@@ -140,8 +145,12 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
 
 
     private fun reconnect(client: WebSocketClient, reconnect: Boolean, retry: Int) {
+        logger.debug("WebSocketClient[${client.hashCode()}] 剩余重连次数: $retry")
+        logger.debug("WebSocketClient[${client.hashCode()}] 是否允许重连: $reconnect")
         if (retry > 0 && reconnect) {
             reconnectHandler(client, retry).handle(0)
+        }else{
+            logger.warn("WebSocketClient[${client.hashCode()}] 重连达到极限，不再允许重连")
         }
     }
 

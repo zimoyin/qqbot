@@ -196,7 +196,10 @@ data class BotConfig(
     val consumers: HashSet<MessageConsumer<*>>,
     val token: Token,
     val reconnect: Boolean = true,
-    val retry: Int = 8,
+    /**
+     * Bot丢失链接后的重试次数
+     */
+    val retry: Int = 64,
 ) : Serializable {
 
     /**

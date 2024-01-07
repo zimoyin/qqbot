@@ -7,6 +7,7 @@ import com.github.zimoyin.qqbot.event.events.platform.bot.BotOnlineEvent
 import com.github.zimoyin.qqbot.event.events.platform.bot.BotReconnectNotificationEvent
 import com.github.zimoyin.qqbot.event.supporter.BotEventBus
 import com.github.zimoyin.qqbot.event.supporter.EventMapping
+import com.github.zimoyin.qqbot.exception.WebSocketReconnectException
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.accessTokenUpdateAsync
 import com.github.zimoyin.qqbot.net.bean.Payload
@@ -110,7 +111,7 @@ class PayloadCmdHandler(private val bot: Bot) {
 
     if (reconnect) {
       reconnect = false
-      throw HttpClosedException("The server requires the client to reconnect")
+      throw WebSocketReconnectException()
     }
   }
 
