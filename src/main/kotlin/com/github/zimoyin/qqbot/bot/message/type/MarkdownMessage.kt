@@ -3,7 +3,15 @@ package com.github.zimoyin.qqbot.bot.message.type
 import com.github.zimoyin.qqbot.net.bean.MessageMarkdown
 import com.github.zimoyin.qqbot.utils.JSON
 
-data class MarkdownMessage(val markdown: MessageMarkdown, val content: String = JSON.toJsonString(markdown)) : MessageItem {
+data class MarkdownMessage(
+    val markdown: MessageMarkdown,
+    val content: String = JSON.toJsonString(markdown),
+) :
+    MessageItem {
+    init {
+        require(!(markdown.templateId == null && markdown.content == null)) { "templateId and content is null" }
+    }
+
     override fun toContent(): String {
         return content
     }

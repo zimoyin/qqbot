@@ -2,7 +2,9 @@ package com.github.zimoyin.qqbot.bot.message
 
 
 import com.github.zimoyin.qqbot.bot.message.type.*
-import com.github.zimoyin.qqbot.net.bean.*
+import com.github.zimoyin.qqbot.net.bean.Message
+import com.github.zimoyin.qqbot.net.bean.MessageReference
+import com.github.zimoyin.qqbot.net.bean.SendMessageBean
 import org.slf4j.LoggerFactory
 import java.io.Serializable
 import java.time.Instant
@@ -271,8 +273,9 @@ class MessageChain(
         val ark = internalItems.filterIsInstance<ArkMessage>().lastOrNull()?.ark
         val embed = internalItems.filterIsInstance<EmbedMessage>().lastOrNull()?.embed
         val md = internalItems.filterIsInstance<MarkdownMessage>().lastOrNull()?.markdown
+
         return SendMessageBean(
-            id = this.id,
+            id = if (md != null) null else this.id,
             messageReference = reference,
             content = if (sb.isEmpty()) null else sb.toString(),
             image = image,

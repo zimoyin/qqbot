@@ -9,6 +9,7 @@ Bot.INSTANCE.createBot() {
     it.setToken(appid, token, appsecret) // token 与 appsecret 允许各选其一
 }.login()
 ```
+
 Java:
 ```java
 Bot bot = Bot.INSTANCE.createBot(config -> {
@@ -37,6 +38,7 @@ bot.onEvent<MessageEvent> {
     it.reply(it.messageChain)
 }
 ```
+
 Java:
 ```java
 GlobalEventBus.INSTANCE.onEvent(Event.class, event -> {
@@ -96,3 +98,8 @@ Bot提供了 set/get 方法来报错每一个信息。
 Bot 还提供的`设置栈`方法，提供该方法，你可以查找到是哪个位置设置的该上下文.
 
 [源码](..%2Fsrc%2Fmain%2Fkotlin%2Fcom%2Fgithub%2Fzimoyin%2Fqqbot%2Fbot%2FBotContent.kt)
+
+### 信息类型
+已经支持的信息类型:
+信息类型列表: https://bot.q.qq.com/wiki/develop/api-v2/server-inter/message/type/text.html
+

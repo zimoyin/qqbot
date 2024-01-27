@@ -1,4 +1,8 @@
 import com.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
+import com.github.zimoyin.qqbot.bot.message.MessageChainBuilder
+import com.github.zimoyin.qqbot.net.bean.MessageMarkdown
+import com.github.zimoyin.qqbot.net.bean.MessageMarkdownParam
+import com.github.zimoyin.qqbot.utils.JSON
 import com.github.zimoyin.qqbot.utils.ex.promise
 import com.github.zimoyin.qqbot.utils.vertx
 import io.vertx.core.json.JsonObject
@@ -15,14 +19,13 @@ import kotlinx.coroutines.launch
 
 
 suspend fun main() {
-    CoroutineScope(Dispatchers.vertx(GLOBAL_VERTX_INSTANCE)).launch {
-        val promise = promise<Boolean>()
-//    promise.fail("aa")
-        promise.complete(true)
-        promise.future().coAwait()
-
-        val promise1 = promise<Boolean>()
-        promise1.fail("aa")
-        promise1.future().coAwait()
-    }
+    val p1 = MessageMarkdownParam.create("date", "01/23 024")
+    val p2 = MessageMarkdownParam.create("rw", "通知内容")
+    val chain = MessageChainBuilder().append(
+        MessageMarkdown(
+            "102077167_1706091638",
+            p1.add(p2)
+        ).toMessage()
+    ).setID("8848").build()
+    println(JSON.toJsonString(chain.convertChannelMessage()))
 }

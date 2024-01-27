@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.zimoyin.qqbot.bot.message.EmojiType
+import com.github.zimoyin.qqbot.bot.message.type.MarkdownMessage
+import com.github.zimoyin.qqbot.utils.JSON
+import org.intellij.lang.annotations.Language
 import java.io.Serializable
 import java.net.URL
 import java.time.Instant
@@ -409,28 +412,48 @@ data class MessageReference(
 data class MessageMarkdown(
     /**
      * Markdown 模板 id
+     * 如果你确信你有权限不需要申请模板可以为 null
      */
-    @field:JsonProperty("template_id")
-    val templateId: Int? = null,
+//    @field:JsonProperty("template_id")
+    @field:JsonProperty("custom_template_id")
+    val templateId: String? = null,
 
     /**
      * Markdown 模板参数
      */
     @field:JsonProperty("params")
-    val params: MessageMarkdownParams? = null,
+    val params: List<MessageMarkdownParam>? = null,
 
     /**
      * 原生 Markdown 内容，与 template_id 和 params 参数互斥
      */
     @field:JsonProperty("content")
     val content: String? = null,
-) : Serializable
+) : Serializable {
+    @JsonIgnore
+    fun toMessage(): MarkdownMessage {
+        return MarkdownMessage(this)
+    }
+
+    @JsonIgnore
+    fun toJson(): String {
+        return JSON.toJsonString(this)
+    }
+
+    companion object {
+
+        @JsonIgnore
+        fun create(@Language("JSON") json: String): MessageMarkdown {
+            return JSON.toObject<MessageMarkdown>(json)
+        }
+    }
+}
 
 /**
  * Markdown消息参数
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class MessageMarkdownParams(
+data class MessageMarkdownParam(
     /**
      * Markdown 模板 key
      */
@@ -443,7 +466,25 @@ data class MessageMarkdownParams(
      */
     @field:JsonProperty("values")
     val values: List<String>? = null,
-) : Serializable
+) : Serializable {
+
+    @JsonIgnore
+    fun add(value: MessageMarkdownParam): ArrayList<MessageMarkdownParam> = arrayListOf(this).apply {
+        add(value)
+    }
+
+    companion object {
+        @JsonIgnore
+        fun create(key: String, value: Any): MessageMarkdownParam {
+            return MessageMarkdownParam(key, listOf(value.toString()))
+        }
+
+        @JsonIgnore
+        fun create(@Language("JSON") json: String): MessageMarkdownParam {
+            return JSON.toObject<MessageMarkdownParam>(json)
+        }
+    }
+}
 
 
 data class MessageReaction(
