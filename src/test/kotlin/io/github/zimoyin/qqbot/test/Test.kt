@@ -1,5 +1,6 @@
 import com.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
 import com.github.zimoyin.qqbot.bot.message.MessageChainBuilder
+import com.github.zimoyin.qqbot.bot.message.type.KeyboardMessage
 import com.github.zimoyin.qqbot.net.bean.MessageMarkdown
 import com.github.zimoyin.qqbot.net.bean.MessageMarkdownParam
 import com.github.zimoyin.qqbot.utils.JSON
@@ -19,13 +20,6 @@ import kotlinx.coroutines.launch
 
 
 suspend fun main() {
-    val p1 = MessageMarkdownParam.create("date", "01/23 024")
-    val p2 = MessageMarkdownParam.create("rw", "通知内容")
-    val chain = MessageChainBuilder().append(
-        MessageMarkdown(
-            "102077167_1706091638",
-            p1.add(p2)
-        ).toMessage()
-    ).setID("8848").build()
-    println(JSON.toJsonString(chain.convertChannelMessage()))
+
+    KeyboardMessage("{}")
 }

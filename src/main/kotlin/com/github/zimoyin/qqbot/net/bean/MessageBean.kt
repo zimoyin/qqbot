@@ -77,6 +77,7 @@ data class SendMessageBean(
      */
     @field:JsonProperty("markdown")
     val markdown: MessageMarkdown? = null,
+    val keyboard: String?,
 )
 
 /**

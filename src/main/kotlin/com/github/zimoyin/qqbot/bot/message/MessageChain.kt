@@ -273,15 +273,17 @@ class MessageChain(
         val ark = internalItems.filterIsInstance<ArkMessage>().lastOrNull()?.ark
         val embed = internalItems.filterIsInstance<EmbedMessage>().lastOrNull()?.embed
         val md = internalItems.filterIsInstance<MarkdownMessage>().lastOrNull()?.markdown
+        val kb = internalItems.filterIsInstance<KeyboardMessage>().lastOrNull()?.keyboard
 
         return SendMessageBean(
-            id = if (md != null) null else this.id,
+            id = if (md != null || kb != null) null else this.id,
             messageReference = reference,
             content = if (sb.isEmpty()) null else sb.toString(),
             image = image,
             ark = ark, //TODO 未构建与测试[权限不足]
             embed = embed, //TODO 未构建与测试[权限不足]
-            markdown = md //TODO 未构建与测试[权限不足]
+            markdown = md,
+            keyboard = kb
         )
     }
     //TODO 单聊/群聊 -> 信息bean 构建
