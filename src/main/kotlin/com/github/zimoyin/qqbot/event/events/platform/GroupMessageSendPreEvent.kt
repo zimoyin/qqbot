@@ -17,7 +17,7 @@ import com.github.zimoyin.qqbot.event.handler.NoneEventHandler
  *
  * 如果相对发送的信息进行审核使用 MessageSendPreEvent.interceptor 方法进行拦截，方法返回 true 则继续发送，否则不发送
  */
-@EventAnnotation.EventMetaType("Platform_ChannelMessageSendPreEvent")
+@EventAnnotation.EventMetaType("Platform_GroupMessageSendPreEvent")
 @EventAnnotation.EventHandler(NoneEventHandler::class, true)
 data class GroupMessageSendPreEvent(
     override val metadata: String = "Platform_GroupMessageSendPreEvent",

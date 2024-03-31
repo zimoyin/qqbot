@@ -16,7 +16,7 @@ import com.github.zimoyin.qqbot.event.handler.NoneEventHandler
  * 该事件为全局事件，只从全局事件总线中传递
  * 注意该事件只是作为一个通知，尽量不要使用该事件拦截与修改待发送的信息
  */
-@EventAnnotation.EventMetaType("Platform_MessageSendEvent")
+@EventAnnotation.EventMetaType("Platform_GroupMessageSendEvent")
 @EventAnnotation.EventHandler(NoneEventHandler::class, true)
 data class GroupMessageSendEvent(
     override val metadata: String = "Platform_GroupMessageSendEvent",
