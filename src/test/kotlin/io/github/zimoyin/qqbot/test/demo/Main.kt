@@ -50,25 +50,12 @@ suspend fun main() {
         //用于复用会话
         context["SESSION_ID"] = "60a176e1-2790-4bf0-85cd-c123763981ea"
         onEvent<MessageEvent> {
-            val dateFormatter = DateTimeFormatter.ofPattern("MM/dd yyyy")
-            val formattedDate = LocalDateTime.now().format(dateFormatter)
-
-            val p1 = MessageMarkdownParam.create("date", formattedDate)
-            val p2 = MessageMarkdownParam.create("rw", it.messageChain.content())
-            val chain = MessageChainBuilder(it.msgID).append(
-                MessageMarkdown(
-                    "102077167_1706091638",
-                    p1.add(p2)
-                ).toMessage()
-            ).setID(it.msgID).build()
-            println(JSON.toJsonString(chain.convertChannelMessage()))
             val contact = it.windows
-            it.reply(chain)
             it.reply("123").onSuccess {
                 sleep(1000)
                 contact.recall(it.id!!)
             }
-            println("Bot -> " + it.messageChain.toString())
+            println("Bot -> " + it.messageChain.content())
         }
         login()
     }
