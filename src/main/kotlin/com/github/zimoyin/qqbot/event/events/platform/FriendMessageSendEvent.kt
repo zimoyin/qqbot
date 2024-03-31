@@ -18,10 +18,10 @@ import com.github.zimoyin.qqbot.event.handler.NoneEventHandler
  */
 @EventAnnotation.EventMetaType("Platform_MessageSendEvent")
 @EventAnnotation.EventHandler(NoneEventHandler::class, true)
-data class ChannelMessageSendEvent(
-    override val metadata: String = "Platform_ChannelMessageSendEvent",
-    override val metadataType: String = "Platform_ChannelMessageSendEvent",
-    override val contact: Channel,
+data class FriendMessageSendEvent(
+    override val metadata: String = "Platform_FriendMessageSendEvent",
+    override val metadataType: String = "Platform_FriendMessageSendEvent",
+    override val contact: Friend,
     override val botInfo: BotInfo = contact.botInfo,
     override val msgID: String,
     override val messageChain: MessageChain,

@@ -1,22 +1,19 @@
 package io.github.zimoyin.qqbot.test.demo
 
 
+import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.Bot
 import com.github.zimoyin.qqbot.bot.message.MessageChainBuilder
+import com.github.zimoyin.qqbot.bot.message.type.ImageMessage
 import com.github.zimoyin.qqbot.bot.onEvent
 import com.github.zimoyin.qqbot.event.events.message.MessageEvent
 import com.github.zimoyin.qqbot.net.Intents
-import com.github.zimoyin.qqbot.net.bean.MessageMarkdown
-import com.github.zimoyin.qqbot.net.bean.MessageMarkdownParam
-import com.github.zimoyin.qqbot.utils.JSON
-import kotlinx.coroutines.delay
 import openDebug
 import token
-import java.lang.Thread.sleep
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import java.io.File
 
 
+@OptIn(UntestedApi::class)
 suspend fun main() {
     openDebug()
 
@@ -36,8 +33,8 @@ suspend fun main() {
 //    //拦截发送的信息
 //    MessageSendPreEvent.interceptor {
 //        return@interceptor it.apply {
-//            intercept = false
-//            messageChain = messageChain
+//            intercept = true
+//            messageChain = MessageChainBuilder(messageChain.id).append("修改后").build()
 //        }
 //    }
 
@@ -50,12 +47,17 @@ suspend fun main() {
         //用于复用会话
         context["SESSION_ID"] = "60a176e1-2790-4bf0-85cd-c123763981ea"
         onEvent<MessageEvent> {
-            val contact = it.windows
-            it.reply("123").onSuccess {
-                sleep(1000)
-                contact.recall(it.id!!)
-            }
-            println("Bot -> " + it.messageChain.content())
+           val c =  MessageChainBuilder(it.msgID).apply {
+                append(ImageMessage.create(File("C:\\Users\\zimoa\\Pictures\\QQ图片20240313163158.jpg")))
+                append("图片来了")
+            }.build()
+//            it.reply(it.messageChain).onSuccess {
+//                println(it.content())
+//            }.onFailure {
+//                it.printStackTrace()
+//            }
+
+            it.reply(c)
         }
         login()
     }

@@ -38,7 +38,7 @@ open class MessageSendPreEvent(
     /**
      * 是否拦截
      */
-    var intercept:Boolean = false
+    var intercept: Boolean = false,
 ) : PlatformEvent {
     companion object {
         private val Interceptors = ArrayList<(event: MessageSendPreEvent) -> MessageSendPreEvent>()

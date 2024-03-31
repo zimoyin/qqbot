@@ -29,6 +29,8 @@ interface Contact : Serializable {
      * 主动消息审核，可以通过 Intents 中审核事件 MESSAGE_AUDIT 返回 MessageAudited 对象获取结果。
      * @link https://bot.q.qq.com/wiki/develop/api-v2/server-inter/message/template/model.html#messageaudited
      * 发送信息到某个会话/联系人中，注意机器人在主动发送信息上具有限制。如果需要被动回复请在 MessageChain 中设置信息ID
+     *
+     * 注意该方法可以发送主动，被动，引用等信息，具体类型请根据协议自定构建信息体. 只有 MessageEvent 类中 信息回复部分 会提供其他方式的直接实现
      */
     fun send(message: MessageChain): Future<MessageChain>
 

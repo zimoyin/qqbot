@@ -1,12 +1,10 @@
-package com.github.zimoyin.qqbot.net.http.api.channel
+package com.github.zimoyin.qqbot.net.http.api.friend
 
-import com.github.zimoyin.qqbot.bot.contact.Channel
+import com.github.zimoyin.qqbot.bot.BotInfo
+import com.github.zimoyin.qqbot.bot.contact.Friend
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.event.events.MessageStartAuditEvent
-import com.github.zimoyin.qqbot.event.events.platform.ChannelMessageSendEvent
-import com.github.zimoyin.qqbot.event.events.platform.ChannelMessageSendPreEvent
-import com.github.zimoyin.qqbot.event.events.platform.MessageSendInterceptEvent
-import com.github.zimoyin.qqbot.event.events.platform.MessageSendPreEvent
+import com.github.zimoyin.qqbot.event.events.platform.*
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.exception.HttpClientException
 import com.github.zimoyin.qqbot.net.bean.Message
@@ -19,37 +17,19 @@ import io.vertx.core.buffer.Buffer
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.client.HttpRequest
 import io.vertx.ext.web.client.HttpResponse
-import io.vertx.ext.web.multipart.MultipartForm
 import java.util.*
 
 
 /**
- *
- * @author : zimo
- * @date : 2023/12/21
- */
-/**
  * 在频道里面发送信息
- * @param channel 频道
+ * @param friend
  * @param message 消息
  */
-fun HttpAPIClient.sendChannelMessageAsync(
-    channel: Channel,
+fun HttpAPIClient.sendFriendMessage(
+    friend: Friend,
     message: MessageChain,
 ): Future<MessageChain> {
-    return sendChannelMessageAsync0(channel, channel.channelID!!, message, API.SendChannelMessage)
-}
-
-/**
- * 在频道里面发送私信信息
- * @param channel 频道
- * @param message 消息
- */
-fun HttpAPIClient.sendChannelPrivateMessageAsync(
-    channel: Channel,
-    message: MessageChain,
-): Future<MessageChain> {
-    return sendChannelMessageAsync0(channel, channel.guildID, message, API.SendChannelPrivateMessage)
+    return sendFriendMessage(friend, friend.id, message, API.SendChannelMessage)
 }
 
 
@@ -60,21 +40,21 @@ fun HttpAPIClient.sendChannelPrivateMessageAsync(
  * @param message 消息
  * @param client 发送消息的请求
  */
-private fun HttpAPIClient.sendChannelMessageAsync0(
-    channel: Channel,
+private fun HttpAPIClient.sendFriendMessage(
+    friend: Friend,
     id: String,
     message: MessageChain,
     client: HttpRequest<Buffer>,
 ): Future<MessageChain> {
-    val token = channel.botInfo.token
+    val token = friend.botInfo.token
     var intercept: Boolean = true
     var message0: MessageChain
 
     //发送前广播一个事件，该事件为 信息发送前 ChannelMessageSendPreEvent
-    ChannelMessageSendPreEvent(
+    FriendMessageSendPreEvent(
         msgID = message.id ?: "",
         messageChain = message,
-        contact = channel
+        contact = friend
     ).let {
         GlobalEventBus.broadcastAuto(it)
         val result = MessageSendPreEvent.result(it)
@@ -90,65 +70,61 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
             MessageSendInterceptEvent(
                 msgID = message.id ?: "",
                 messageChain = message,
-                contact = channel,
+                contact = friend,
             )
         )
         promise.tryFail(HttpClientException("发送消息被拦截"))
         return promise.future()
     }
     //发送信息处理
-    val finalMessage = message0.convertChannelMessage()
+    val finalMessage = message0.convertChannelMessage().apply {
+        when {
+            content != null -> {
+                msg_type = 0
+            }
+
+            markdown != null -> {
+                msg_type = 2
+            }
+
+            ark != null -> {
+                msg_type = 3
+            }
+
+            embed != null -> {
+                msg_type = 4
+            }
+
+            media != null -> {
+                msg_type = 7
+            }
+        }
+    }
     val finalMessageJson = finalMessage.toJson()
-
-
-    val form = MultipartForm.create()
-    finalMessageJson.forEach {
-        if (it.key != null && it.value != null)
-            form.attribute(it.key, it.value.toString())
-    }
-    if (finalMessage.channelFile != null) {
-        form.binaryFileUpload(
-            "file_image",
-            UUID.randomUUID().toString(),
-            finalMessage.channelFile.path,
-            "file"
-        )
-    } else if (finalMessage.channelFileInputStream != null) {
-        form.binaryFileUpload(
-            "file_image",
-            UUID.randomUUID().toString(),
-            Buffer.buffer(finalMessage.channelFileInputStream.readBytes()),
-            "file"
-        )
-    }
 
     //发送信息
     client.addRestfulParam(id)
         .putHeaders(token.getHeaders())
-//        .sendJsonObject(finalMessageJson).onFailure {
-//            promise.fail(it)
-//            logError("sendChannelPrivateMessageAsync", "网络错误: 发送消息失败", it)
-//        }
-        .sendMultipartForm(form).onFailure {
+        .sendJsonObject(finalMessageJson).onFailure {
             promise.fail(it)
-            logError("sendChannelPrivateMessageAsync", "网络错误: 发送消息失败", it)
+            logError("sendFriendMessage", "网络错误: 发送消息失败", it)
         }
         .onSuccess { resp ->
-            httpSuccess(resp, channel, message, promise)
+            httpSuccess(resp, friend, message, promise)
         }
     return promise.future()
 }
 
 private fun HttpAPIClient.httpSuccess(
     resp: HttpResponse<Buffer>,
-    channel: Channel,
+    friend: Friend,
     message: MessageChain,
     promise: Promise<MessageChain>,
 ) {
     kotlin.runCatching {
         resp.bodyAsJsonObject()
     }.onSuccess {
-        parseJsonSuccess(it, channel, message, promise)
+        parseJsonSuccess(it, friend, message, promise)
     }.onFailure {
         logError(
             "sendChannelMessage",
@@ -161,18 +137,18 @@ private fun HttpAPIClient.httpSuccess(
 
 private fun HttpAPIClient.parseJsonSuccess(
     it: JsonObject,
-    channel: Channel,
+    friend: Friend,
     message: MessageChain,
     promise: Promise<MessageChain>,
 ) {
     if (it.containsKey("code")) when (it.getInteger("code")) {
         304023 -> {
             //信息审核事件推送
-            broadcastChannelMessageAuditEvent(it, channel)
+            broadcastChannelMessageAuditEvent(it, friend.botInfo)
             //发送成功广播一个事件该事件为 广播后 通过返回值获取构建事件
             val chain = kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }
                 .getOrDefault(MessageChain())
-            broadcastChannelMessageSendEvent(message, channel, chain)
+            broadcastChannelMessageSendEvent(message, friend, chain)
             promise.tryComplete(chain)
             logDebug("sendChannelMessage", "信息审核事件中: $it")
         }
@@ -188,7 +164,7 @@ private fun HttpAPIClient.parseJsonSuccess(
         //发送成功广播一个事件该事件为 广播后 通过返回值获取构建事件
         val chain = kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }
             .getOrDefault(MessageChain())
-        broadcastChannelMessageSendEvent(message, channel, chain)
+        broadcastChannelMessageSendEvent(message, friend, chain)
         promise.tryComplete(chain)
     }
 }
@@ -196,26 +172,26 @@ private fun HttpAPIClient.parseJsonSuccess(
 
 private fun HttpAPIClient.broadcastChannelMessageAuditEvent(
     it: JsonObject,
-    channel: Channel,
+    botInfo: BotInfo,
 ) {
     GlobalEventBus.broadcastAuto(
         MessageStartAuditEvent(
             metadata = it.toString(),
-            botInfo = channel.botInfo
+            botInfo = botInfo
         )
     )
 }
 
 private fun HttpAPIClient.broadcastChannelMessageSendEvent(
     message: MessageChain,
-    channel: Channel,
+    friend: Friend,
     it: MessageChain,
 ) {
     GlobalEventBus.broadcastAuto(
-        ChannelMessageSendEvent(
+        FriendMessageSendEvent(
             msgID = message.id ?: "",
             messageChain = message,
-            contact = channel,
+            contact = friend,
             result = it
         )
     )

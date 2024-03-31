@@ -57,7 +57,7 @@ fun HttpAPIClient.recallChannelPrivateMessage(
     callback: ((Boolean) -> Unit)? = null,
 ): Future<Boolean> {
     val promise = promise<Boolean>()
-    API.RecallChannelPrivateMessage
+    API.RecallChannelMyPrivateMessage
         .putHeaders(channel.botInfo.token.getHeaders())
         .addRestfulParam(channel.guildID, messageID)
         .addQueryParam("hidetip", hidetip.toString())

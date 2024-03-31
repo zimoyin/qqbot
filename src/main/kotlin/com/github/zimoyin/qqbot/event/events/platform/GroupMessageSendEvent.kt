@@ -3,7 +3,7 @@ package com.github.zimoyin.qqbot.event.events.platform
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.contact.Channel
-import com.github.zimoyin.qqbot.bot.contact.Friend
+import com.github.zimoyin.qqbot.bot.contact.Group
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.event.handler.NoneEventHandler
 
@@ -18,10 +18,10 @@ import com.github.zimoyin.qqbot.event.handler.NoneEventHandler
  */
 @EventAnnotation.EventMetaType("Platform_MessageSendEvent")
 @EventAnnotation.EventHandler(NoneEventHandler::class, true)
-data class ChannelMessageSendEvent(
-    override val metadata: String = "Platform_ChannelMessageSendEvent",
-    override val metadataType: String = "Platform_ChannelMessageSendEvent",
-    override val contact: Channel,
+data class GroupMessageSendEvent(
+    override val metadata: String = "Platform_GroupMessageSendEvent",
+    override val metadataType: String = "Platform_GroupMessageSendEvent",
+    override val contact: Group,
     override val botInfo: BotInfo = contact.botInfo,
     override val msgID: String,
     override val messageChain: MessageChain,

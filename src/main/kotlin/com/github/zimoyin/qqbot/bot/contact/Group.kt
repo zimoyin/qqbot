@@ -1,8 +1,12 @@
 package com.github.zimoyin.qqbot.bot.contact
 
-import com.github.zimoyin.qqbot.net.bean.Message
+import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.message.MessageChain
+import com.github.zimoyin.qqbot.net.bean.Message
+import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
+import com.github.zimoyin.qqbot.net.http.api.group.recallGroupMessage
+import com.github.zimoyin.qqbot.net.http.api.group.sendGroupMessage
 import io.vertx.core.Future
 
 /**
@@ -13,6 +17,15 @@ import io.vertx.core.Future
 interface Group : Contact {
     override val id: String
     override val botInfo: BotInfo
+
+    @OptIn(UntestedApi::class)
+    override fun recall(messageID: String): Future<Boolean> {
+        return HttpAPIClient.recallGroupMessage(this, messageID)
+    }
+
+    override fun send(message: MessageChain): Future<MessageChain> {
+        return HttpAPIClient.sendGroupMessage(this, message)
+    }
 }
 
 data class GroupImpl(
@@ -25,8 +38,5 @@ data class GroupImpl(
             botInfo = botInfo,
             id = message.groupID!!
         )
-    }
-    override fun send(message: MessageChain): Future<MessageChain> {
-        TODO("Not yet implemented")
     }
 }

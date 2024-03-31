@@ -2,8 +2,7 @@ package com.github.zimoyin.qqbot.event.events.platform
 
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.BotInfo
-import com.github.zimoyin.qqbot.bot.contact.Channel
-import com.github.zimoyin.qqbot.bot.contact.Friend
+import com.github.zimoyin.qqbot.bot.contact.Group
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.event.handler.NoneEventHandler
 
@@ -14,24 +13,24 @@ import com.github.zimoyin.qqbot.event.handler.NoneEventHandler
  *
  * 信息向服务器推送前触发该事件
  * 该事件为全局事件，只从全局事件总线中传递
- * 注意该事件只是作为一个通知，尽量不要使用该事件拦截与修改待发送的信息
+ * 注意该事件只是作为一个通知，不要使用该事件拦截与修改待发送的信息,该事件无法做到
+ *
+ * 如果相对发送的信息进行审核使用 MessageSendPreEvent.interceptor 方法进行拦截，方法返回 true 则继续发送，否则不发送
  */
-@EventAnnotation.EventMetaType("Platform_MessageSendEvent")
+@EventAnnotation.EventMetaType("Platform_ChannelMessageSendPreEvent")
 @EventAnnotation.EventHandler(NoneEventHandler::class, true)
-data class ChannelMessageSendEvent(
-    override val metadata: String = "Platform_ChannelMessageSendEvent",
-    override val metadataType: String = "Platform_ChannelMessageSendEvent",
-    override val contact: Channel,
+data class GroupMessageSendPreEvent(
+    override val metadata: String = "Platform_GroupMessageSendPreEvent",
+    override val metadataType: String = "Platform_GroupMessageSendPreEvent",
+    override val contact: Group,
     override val botInfo: BotInfo = contact.botInfo,
     override val msgID: String,
-    override val messageChain: MessageChain,
-    override val result: MessageChain,
-) : MessageSendEvent(
+    override var messageChain: MessageChain,
+) : MessageSendPreEvent(
     metadata = metadata,
     metadataType = metadataType,
     msgID = msgID,
     messageChain = messageChain,
     contact = contact,
     botInfo = botInfo,
-    result = result
 )

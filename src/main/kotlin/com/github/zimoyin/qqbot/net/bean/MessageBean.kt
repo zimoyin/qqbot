@@ -6,7 +6,10 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.zimoyin.qqbot.bot.message.EmojiType
 import com.github.zimoyin.qqbot.bot.message.type.MarkdownMessage
 import com.github.zimoyin.qqbot.utils.JSON
+import io.vertx.core.json.JsonObject
 import org.intellij.lang.annotations.Language
+import java.io.File
+import java.io.InputStream
 import java.io.Serializable
 import java.net.URL
 import java.time.Instant
@@ -32,6 +35,7 @@ import java.time.Instant
 data class SendMessageBean(
     /**
      * 选填，消息内容，文本内容，支持内嵌格式
+     * 【私聊群聊的必填】
      */
     @field:JsonProperty("content")
     val content: String? = null,
@@ -56,12 +60,14 @@ data class SendMessageBean(
 
     /**
      * 选填，引用消息
+     * 注意：私聊与群聊未支持
      */
     @field:JsonProperty("message_reference")
     val messageReference: MessageReference? = null,
 
     /**
      * 选填，图片url地址，平台会转存该图片，用于下发图片消息
+     * 注意：私聊与群聊未支持
      */
     @field:JsonProperty("image")
     val image: String? = null,
@@ -78,7 +84,62 @@ data class SendMessageBean(
     @field:JsonProperty("markdown")
     val markdown: MessageMarkdown? = null,
     val keyboard: String?,
-)
+
+    @JsonIgnore
+    val channelFile: File? = null,
+    @JsonIgnore
+    val channelFileInputStream: InputStream? = null,
+
+
+    /////////////////   群聊和私聊的字段   /////////////////
+
+    /**
+     * 【必填】
+     * 消息类型： 0 文本，2 是 markdown，3 ark 消息，4 embed，7 media 富媒体
+     */
+    var msg_type: Int? = null,
+
+    /**
+     * 富媒体信息
+     * 数据来源"消息收发=>富媒体消息"
+     * 示例： {file_info: ""}
+     */
+    val media: JsonObject? = null,
+    /////////////////   富文本内容: 注意如果不知道如何使用就不要改动   /////////////////
+    /**
+     * 媒体类型：1 图片，2 视频，3 语音，4 文件（暂不开放）
+     * 资源格式要求
+     * 图片：png/jpg，视频：mp4，语音：silk
+     */
+    @field:JsonProperty("file_type")
+    val fileType: Int? = null,
+
+    /**
+     * 需要发送媒体资源的url
+     */
+    val url: String? = null,
+
+    /**
+     * 设置 true 会直接发送消息到目标端，且会占用主动消息频次
+     */
+    val srv_send_msg: Boolean? = null,
+
+    /**
+     * 【暂未支持】
+     */
+    val file_data: String? = null,
+) {
+    @JsonIgnore
+    fun toJson(): JsonObject {
+        val json = JSON.toJsonObject(this)
+        return JsonObject().apply {
+            json.forEach {
+                if (it.key != null && it.value != null)
+                    put(it.key, it.value)
+            }
+        }
+    }
+}
 
 /**
  * 消息对象

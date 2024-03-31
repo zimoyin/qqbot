@@ -270,6 +270,8 @@ class MessageChain(
             if (it is AtChannelOwnerAll) sb.append(it.toMetaContent())
         }
         val image = internalItems.filterIsInstance<ImageMessage>().lastOrNull()?.attachment?.getURL()
+        val imageFile = internalItems.filterIsInstance<ImageMessage>().lastOrNull()?.localFile
+        val imageInput = internalItems.filterIsInstance<ImageMessage>().lastOrNull()?.localFileInputStream
         val ark = internalItems.filterIsInstance<ArkMessage>().lastOrNull()?.ark
         val embed = internalItems.filterIsInstance<EmbedMessage>().lastOrNull()?.embed
         val md = internalItems.filterIsInstance<MarkdownMessage>().lastOrNull()?.markdown
@@ -280,10 +282,12 @@ class MessageChain(
             messageReference = reference,
             content = if (sb.isEmpty()) null else sb.toString(),
             image = image,
-            ark = ark, //TODO 未构建与测试[权限不足]
-            embed = embed, //TODO 未构建与测试[权限不足]
+            ark = ark,
+            embed = embed,
             markdown = md,
-            keyboard = kb
+            keyboard = kb,
+            channelFile = imageFile,
+            channelFileInputStream = imageInput,
         )
     }
     //TODO 单聊/群聊 -> 信息bean 构建

@@ -401,6 +401,7 @@ object API {
     val AddEmoji: HttpRequest<Buffer> by LazyInit {
         DefaultHttpClient.client.put("/channels/{channel_id}/messages/{message_id}/reactions/{type}/{id}")
     }
+
     /**
      * 删除表情
      */
@@ -416,10 +417,24 @@ object API {
     }
 
     /**
-     * 撤回频道私信的信息
+     * 撤回频道私信的信息中我的信息
      */
-    val RecallChannelPrivateMessage: HttpRequest<Buffer> by LazyInit {
+    val RecallChannelMyPrivateMessage: HttpRequest<Buffer> by LazyInit {
         DefaultHttpClient.client.delete("/dms/{guild_id}/messages/{message_id}")
+    }
+
+    /**
+     * 撤回朋友聊天时的我的信息
+     */
+    val RecallFriendMyMessage: HttpRequest<Buffer> by LazyInit {
+        DefaultHttpClient.client.delete("/v2/users/{openid}/messages/{message_id}")
+    }
+
+    /**
+     * 用于撤回机器人发送在当前群 group_openid 的消息 message_id，发送超出2分钟的消息不可撤回
+     */
+    val RecallGroupMyMessage: HttpRequest<Buffer> by LazyInit {
+        DefaultHttpClient.client.delete("/v2/users/{openid}/messages/{message_id}")
     }
 
     private val logger = LoggerFactory.getLogger(API::class.java)
