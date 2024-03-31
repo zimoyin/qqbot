@@ -51,12 +51,6 @@ suspend fun main() {
                 append(ImageMessage.create(File("C:\\Users\\zimoa\\Pictures\\QQ图片20240313163158.jpg")))
                 append("图片来了")
             }.build()
-//            it.reply(it.messageChain).onSuccess {
-//                println(it.content())
-//            }.onFailure {
-//                it.printStackTrace()
-//            }
-
             it.reply(c)
         }
         login()
