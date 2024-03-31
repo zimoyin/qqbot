@@ -419,7 +419,7 @@ object API {
      * 撤回频道私信的信息
      */
     val RecallChannelPrivateMessage: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.delete("/dms/{guild_id}/messages/{message_id}?hidetip=false")
+        DefaultHttpClient.client.delete("/dms/{guild_id}/messages/{message_id}")
     }
 
     private val logger = LoggerFactory.getLogger(API::class.java)
@@ -430,11 +430,7 @@ object API {
      */
     private class LazyInit(private val repeat: Boolean = false, private val valueGenerator: () -> HttpRequest<Buffer>) {
         private val client by lazy { valueGenerator() }
-        val uri0: String
-
-        init {
-            uri0 = client.uri()
-        }
+        val uri0: String = client.uri()
 
         operator fun getValue(thisRef: Any?, property: KProperty<*>): HttpRequest<Buffer> {
             val request = if (repeat) {
@@ -442,7 +438,7 @@ object API {
             } else {
                 client.init()
             }
-            logger.debug("Http Request[${request.method()}] ${request.uri()}")
+            logger.debug("Http Request[{}] {}", request.method(), request.uri())
             return request
         }
 

@@ -46,8 +46,8 @@ interface MessageEvent : Event {
      * 被动回复信息
      * 注意无法通过事件发送主动信息，请查询 Content.send 方法
      */
-    fun reply(message: String) {
-        windows.send(MessageChainBuilder(msgID).append(message).build())
+    fun reply(message: String): Future<MessageChain> {
+       return windows.send(MessageChainBuilder(msgID).append(message).build())
     }
 
     /**
@@ -61,6 +61,7 @@ interface MessageEvent : Event {
     /**
      * 被动回复信息
      * 注意无法通过事件发送主动信息，请查询 Content.send 方法
+     * 注: 对于非文本等形式的消息，可能会受限于主动信息推送
      */
     fun reply(message: MessageChain): Future<MessageChain> {
         if (message.id == null && message.count { it is MarkdownMessage } <= 0) {

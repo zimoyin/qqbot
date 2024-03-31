@@ -2,6 +2,7 @@ package com.github.zimoyin.qqbot.net.http.api.channel
 
 import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.contact.Channel
+import com.github.zimoyin.qqbot.exception.HttpClientException
 import com.github.zimoyin.qqbot.net.http.addRestfulParam
 import com.github.zimoyin.qqbot.net.http.api.API
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
@@ -33,7 +34,8 @@ fun HttpAPIClient.recallChannelMessage(
                 promise.complete(true)
                 callback?.let { it1 -> it1(true) }
             } else {
-                promise.complete(false)
+                //                promise.complete(false)
+                promise.fail(HttpClientException(it.errorMessage ?: "未知错误,导致撤回失败"))
                 callback?.let { it1 -> it1(false) }
             }
         }
@@ -55,7 +57,7 @@ fun HttpAPIClient.recallChannelPrivateMessage(
     callback: ((Boolean) -> Unit)? = null,
 ): Future<Boolean> {
     val promise = promise<Boolean>()
-    API.RecallChannelMessage
+    API.RecallChannelPrivateMessage
         .putHeaders(channel.botInfo.token.getHeaders())
         .addRestfulParam(channel.guildID, messageID)
         .addQueryParam("hidetip", hidetip.toString())
@@ -65,7 +67,8 @@ fun HttpAPIClient.recallChannelPrivateMessage(
                 promise.complete(true)
                 callback?.let { it1 -> it1(true) }
             } else {
-                promise.complete(false)
+//                promise.complete(false)
+                promise.fail(HttpClientException(it.errorMessage ?: "未知错误,导致撤回失败"))
                 callback?.let { it1 -> it1(false) }
             }
         }

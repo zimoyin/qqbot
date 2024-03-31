@@ -13,8 +13,10 @@ import org.slf4j.LoggerFactory
  * API 访问入口
  */
 object HttpAPIClient {
-
     val logger: Logger by lazy { LoggerFactory.getLogger(API::class.java) }
+    init {
+        logger.info("API Client 日志框架准备完成，如果需要关闭该日志请手段排除该路径")
+    }
     fun logError(apiName: String, msg: String, it: Throwable) {
         logger.error("API Client [$apiName]: $msg", HttpClientException(it))
     }
@@ -60,7 +62,7 @@ object HttpAPIClient {
     ): Future<HttpResponse<Buffer>> {
         return this.onSuccess {
             logDebug(apiName, "API Response Code: ${it.statusCode()}")
-            onSuccess0<T>(promise, apiName, errorMessage, it, callback)
+            onSuccess0(promise, apiName, errorMessage, it, callback)
         }.onFailure {
             logError(apiName, errorMessage, it)
         }
@@ -80,6 +82,8 @@ object HttpAPIClient {
             var code: Int? = -1
             var message: String? = null
             var accessFailed: Boolean = false
+
+            // 尝试解析json
             kotlin.runCatching {
                 json = response.bodyAsJsonObject()
                 code = json?.getInteger("code")
@@ -88,13 +92,15 @@ object HttpAPIClient {
                     accessFailed = true
                 }
             }
+
+            // 解析失败
             if (accessFailed) {
                 logError(
-                    "apiName", "result -> [$code] $message"
+                    apiName, "result -> [$code] $message"
                 )
                 kotlin.runCatching {
                     //处理API访问失败的情况，callback 需要使用 promise 告知处理结果，否则会在下个流程抛出异常
-                    callback(APIJsonResult(json, false, response))
+                    callback(APIJsonResult(json, false, response, errorMessage = message?:"未知错误: API 访问失败"))
                 }.onFailure {
                     logError(apiName, callbackErrorMessage, it)
                     promise.tryFail(HttpClientException(it)) //callback 执行失败，保险机制
@@ -104,7 +110,8 @@ object HttpAPIClient {
                 return@runCatching
             }
 
-            if (status < 200 || status >= 300) {
+            // 访问失败，状态码错误
+            if (status < 200 || status >= 400) {
 //            if (status != 200 && status != 204) {
                 if (code != null) logError(
                     "apiName", "result -> [$code] $message"
@@ -113,7 +120,7 @@ object HttpAPIClient {
                 )
                 kotlin.runCatching {
                     //处理API访问失败的情况，callback 需要使用 promise 告知处理结果，否则会在下个流程抛出异常
-                    callback(APIJsonResult(json, false, response))
+                    callback(APIJsonResult(json, false, response, errorMessage = message?:"未知错误: API 访问失败"))
                 }.onFailure {
                     logError(apiName, callbackErrorMessage, it)
                     promise.tryFail(HttpClientException(it)) //保险机制
@@ -129,7 +136,7 @@ object HttpAPIClient {
                 callback(APIJsonResult(json, true, response))
             }.onFailure {
                 logError(apiName, errorMessage, it)
-                promise.tryFail(HttpClientException(it)) //保险机制
+                promise.tryFail(HttpClientException("API access successful, an internal exception occurred during API result callback call",it)) //保险机制
             }
             //保险机制
             promise.tryFail(HttpClientException("严重错误，API访问成功，由于 callback 未能使用 promise 告知处理结果，导致流程卡住"))
@@ -150,6 +157,7 @@ object HttpAPIClient {
         val result: Boolean,
         val httpResponse: HttpResponse<Buffer>,
         val body: Buffer = httpResponse.body() ?: Buffer.buffer(),
+        val errorMessage: String? = null,
     )
 
 

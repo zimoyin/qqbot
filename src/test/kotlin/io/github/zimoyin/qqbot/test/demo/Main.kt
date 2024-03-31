@@ -9,8 +9,10 @@ import com.github.zimoyin.qqbot.net.Intents
 import com.github.zimoyin.qqbot.net.bean.MessageMarkdown
 import com.github.zimoyin.qqbot.net.bean.MessageMarkdownParam
 import com.github.zimoyin.qqbot.utils.JSON
+import kotlinx.coroutines.delay
 import openDebug
 import token
+import java.lang.Thread.sleep
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -39,27 +41,33 @@ suspend fun main() {
 //        }
 //    }
 
-    Bot.INSTANCE.createBot(token) {
+    Bot.createBot(token) {
 //        setIntents(github.zimoyin.net.Intents.Presets.PUBLIC_INTENTS)
         setIntents(Intents.Presets.PRIVATE_INTENTS)
     }.apply {
         println(this.botInfo)
+        context.getRecord("key")
         //用于复用会话
-//        context["SESSION_ID"] = "e71aa992-7c53-4e00-8c2b-13b4dcfb8630"
+        context["SESSION_ID"] = "60a176e1-2790-4bf0-85cd-c123763981ea"
         onEvent<MessageEvent> {
             val dateFormatter = DateTimeFormatter.ofPattern("MM/dd yyyy")
             val formattedDate = LocalDateTime.now().format(dateFormatter)
 
             val p1 = MessageMarkdownParam.create("date", formattedDate)
             val p2 = MessageMarkdownParam.create("rw", it.messageChain.content())
-            val chain = MessageChainBuilder().append(
+            val chain = MessageChainBuilder(it.msgID).append(
                 MessageMarkdown(
                     "102077167_1706091638",
                     p1.add(p2)
                 ).toMessage()
             ).setID(it.msgID).build()
             println(JSON.toJsonString(chain.convertChannelMessage()))
+            val contact = it.windows
             it.reply(chain)
+            it.reply("123").onSuccess {
+                sleep(1000)
+                contact.recall(it.id!!)
+            }
             println("Bot -> " + it.messageChain.toString())
         }
         login()

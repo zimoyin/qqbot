@@ -1,7 +1,9 @@
 package com.github.zimoyin.qqbot.bot.contact
 
+import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.contact.channel.*
-import com.github.zimoyin.qqbot.net.bean.*
+import com.github.zimoyin.qqbot.net.bean.ChannelBean
+import com.github.zimoyin.qqbot.net.bean.GuildBean
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.*
 import com.github.zimoyin.qqbot.utils.ex.promise
@@ -46,6 +48,39 @@ interface Channel : Contact {
      */
     val isChannel: Boolean
         get() = channelID != null && channelID != guildID
+
+
+    /**
+     * 是否是私聊
+     */
+    val isPrivateChat: Boolean
+        get() = currentID.isNotEmpty() && channelID != currentID && currentID != guildID
+
+    /**
+     * 撤回消息
+     * @param messageID 消息ID
+     */
+    @OptIn(UntestedApi::class)
+    override fun recall(messageID: String): Future<Boolean> {
+        val promise = promise<Boolean>()
+
+        // 撤回频道私聊内的信息
+        if (isPrivateChat) HttpAPIClient.recallChannelPrivateMessage(this, messageID, false).onSuccess {
+            promise.tryComplete(it)
+        }.onFailure {
+            promise.fail(it)
+        }
+        // 撤回通道内的信息
+        else HttpAPIClient.recallChannelMessage(this, messageID, false).onSuccess {
+            promise.complete(it)
+        }.onFailure {
+            promise.fail(it)
+        }
+
+
+
+        return promise.future()
+    }
 
     /**
      * 获取频道详情

@@ -32,4 +32,11 @@ interface Contact : Serializable {
      */
     fun send(message: MessageChain): Future<MessageChain>
 
+    /**
+     * 撤回消息
+     * @param messageID 消息ID
+     */
+    fun recall(messageID: String): Future<Boolean> {
+        TODO("This method has not been implemented")
+    }
 }
