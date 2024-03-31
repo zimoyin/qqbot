@@ -60,8 +60,17 @@ interface Channel : Contact {
      * 撤回消息
      * @param messageID 消息ID
      */
-    @OptIn(UntestedApi::class)
     override fun recall(messageID: String): Future<Boolean> {
+        return recall(messageID, false)
+    }
+
+    /**
+     * 撤回消息
+     * @param messageID 消息ID
+     * @param hide 是否隐藏撤回信息的小灰条提示
+     */
+    @OptIn(UntestedApi::class)
+    fun recall(messageID: String, hide: Boolean = true): Future<Boolean> {
         val promise = promise<Boolean>()
 
         // 撤回频道私聊内的信息
@@ -71,13 +80,11 @@ interface Channel : Contact {
             promise.fail(it)
         }
         // 撤回通道内的信息
-        else HttpAPIClient.recallChannelMessage(this, messageID, false).onSuccess {
+        else HttpAPIClient.recallChannelMessage(this, messageID, hide).onSuccess {
             promise.complete(it)
         }.onFailure {
             promise.fail(it)
         }
-
-
 
         return promise.future()
     }
