@@ -38,7 +38,7 @@ data class ImageMessage(val name: String?, val attachment: MessageAttachment) : 
         @UntestedApi
         fun create(file: InputStream): ImageMessage {
            return ImageMessage(UUID.randomUUID().toString(), MessageAttachment()).apply {
-                localFileBytes = file.readAllBytes()
+                localFileBytes = file.readBytes()
             }
         }
 
