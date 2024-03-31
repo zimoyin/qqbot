@@ -6,7 +6,9 @@ import com.github.zimoyin.qqbot.bot.Bot
 import com.github.zimoyin.qqbot.bot.message.MessageChainBuilder
 import com.github.zimoyin.qqbot.bot.message.type.ImageMessage
 import com.github.zimoyin.qqbot.bot.onEvent
+import com.github.zimoyin.qqbot.event.events.Event
 import com.github.zimoyin.qqbot.event.events.message.MessageEvent
+import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.net.Intents
 import openDebug
 import token
@@ -26,9 +28,9 @@ suspend fun main() {
 //    }
 //
 //    //全局事件监听
-//    GlobalEventBus.onEvent<Event> {
-//        println("全局事件监听: " + it.metadataType)
-//    }
+    GlobalEventBus.onEvent<Event> {
+        println("全局事件监听: " + it.metadataType)
+    }
 //
 //    //拦截发送的信息
 //    MessageSendPreEvent.interceptor {

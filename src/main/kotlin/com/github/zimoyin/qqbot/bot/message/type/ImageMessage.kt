@@ -17,7 +17,7 @@ data class ImageMessage(val name: String?, val attachment: MessageAttachment) : 
     var localFile: File? = null
 
     @JsonIgnore
-    var localFileInputStream: InputStream? = null
+    var localFileBytes: ByteArray? = null
 
     companion object {
         /**
@@ -28,7 +28,6 @@ data class ImageMessage(val name: String?, val attachment: MessageAttachment) : 
         fun create(file: File): ImageMessage {
             return ImageMessage(file.name, MessageAttachment()).apply {
                 localFile = file
-                localFileInputStream = file.inputStream()
             }
         }
 
@@ -39,7 +38,7 @@ data class ImageMessage(val name: String?, val attachment: MessageAttachment) : 
         @UntestedApi
         fun create(file: InputStream): ImageMessage {
            return ImageMessage(UUID.randomUUID().toString(), MessageAttachment()).apply {
-                localFileInputStream = file
+                localFileBytes = file.readAllBytes()
             }
         }
 

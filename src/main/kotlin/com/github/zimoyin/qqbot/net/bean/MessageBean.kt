@@ -88,7 +88,7 @@ data class SendMessageBean(
     @JsonIgnore
     val channelFile: File? = null,
     @JsonIgnore
-    val channelFileInputStream: InputStream? = null,
+    val channelFileBytes: ByteArray? = null,
 
 
     /////////////////   群聊和私聊的字段   /////////////////
@@ -138,6 +138,53 @@ data class SendMessageBean(
                     put(it.key, it.value)
             }
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is SendMessageBean) return false
+
+        if (content != other.content) return false
+        if (embed != other.embed) return false
+        if (ark != other.ark) return false
+        if (messageReference != other.messageReference) return false
+        if (image != other.image) return false
+        if (id != other.id) return false
+        if (markdown != other.markdown) return false
+        if (keyboard != other.keyboard) return false
+        if (channelFile != other.channelFile) return false
+        if (channelFileBytes != null) {
+            if (other.channelFileBytes == null) return false
+            if (!channelFileBytes.contentEquals(other.channelFileBytes)) return false
+        } else if (other.channelFileBytes != null) return false
+        if (msg_type != other.msg_type) return false
+        if (media != other.media) return false
+        if (fileType != other.fileType) return false
+        if (url != other.url) return false
+        if (srv_send_msg != other.srv_send_msg) return false
+        if (file_data != other.file_data) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = content?.hashCode() ?: 0
+        result = 31 * result + (embed?.hashCode() ?: 0)
+        result = 31 * result + (ark?.hashCode() ?: 0)
+        result = 31 * result + (messageReference?.hashCode() ?: 0)
+        result = 31 * result + (image?.hashCode() ?: 0)
+        result = 31 * result + (id?.hashCode() ?: 0)
+        result = 31 * result + (markdown?.hashCode() ?: 0)
+        result = 31 * result + (keyboard?.hashCode() ?: 0)
+        result = 31 * result + (channelFile?.hashCode() ?: 0)
+        result = 31 * result + (channelFileBytes?.contentHashCode() ?: 0)
+        result = 31 * result + (msg_type ?: 0)
+        result = 31 * result + (media?.hashCode() ?: 0)
+        result = 31 * result + (fileType ?: 0)
+        result = 31 * result + (url?.hashCode() ?: 0)
+        result = 31 * result + (srv_send_msg?.hashCode() ?: 0)
+        result = 31 * result + (file_data?.hashCode() ?: 0)
+        return result
     }
 }
 

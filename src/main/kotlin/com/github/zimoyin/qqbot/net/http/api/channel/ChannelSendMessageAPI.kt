@@ -113,11 +113,11 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
             finalMessage.channelFile.path,
             "file"
         )
-    } else if (finalMessage.channelFileInputStream != null) {
+    } else if (finalMessage.channelFileBytes != null) {
         form.binaryFileUpload(
             "file_image",
             UUID.randomUUID().toString(),
-            Buffer.buffer(finalMessage.channelFileInputStream.readBytes()),
+            Buffer.buffer(finalMessage.channelFileBytes),
             "file"
         )
     }

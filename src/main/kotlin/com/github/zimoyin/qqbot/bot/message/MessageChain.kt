@@ -280,7 +280,7 @@ class MessageChain(
         }
         val image = internalItems.filterIsInstance<ImageMessage>().lastOrNull()?.attachment?.getURL()
         val imageFile = internalItems.filterIsInstance<ImageMessage>().lastOrNull()?.localFile
-        val imageInput = internalItems.filterIsInstance<ImageMessage>().lastOrNull()?.localFileInputStream
+        val imageInput = internalItems.filterIsInstance<ImageMessage>().lastOrNull()?.localFileBytes
         val ark = internalItems.filterIsInstance<ArkMessage>().lastOrNull()?.ark
         val embed = internalItems.filterIsInstance<EmbedMessage>().lastOrNull()?.embed
         val md = internalItems.filterIsInstance<MarkdownMessage>().lastOrNull()?.markdown
@@ -296,7 +296,7 @@ class MessageChain(
             markdown = md,
             keyboard = kb,
             channelFile = imageFile,
-            channelFileInputStream = imageInput,
+            channelFileBytes = imageInput,
         )
     }
     //TODO 单聊/群聊 -> 信息bean 构建
