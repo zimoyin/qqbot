@@ -1,4 +1,4 @@
-### 登录
+### 1. 登录
 登录方式很多种，以下为通用的登录方式。
 > 其余方式见 [Bot](src%2Fmain%2Fkotlin%2Fgithub%2Fzimoyin%2Fbot%2FBot.kt) 提供的各种 createBot 方法的重载
 
@@ -18,12 +18,12 @@ Bot bot = Bot.INSTANCE.createBot(config -> {
 });
 bot.login();
 ```
-### 选择鉴权方式
+### 2. 选择鉴权方式
 鉴权是通过 [Token.kt](src%2Fmain%2Fkotlin%2Fgithub%2Fzimoyin%2Fnet%2FToken.kt) 进行的，他会根据选择鉴权版本信息(token 与 appsecret 允许各选其一)来进行 Token 获取与更新
 
-### 事件监听
+### 3. 事件监听
 事件监听方式分为全局Bot全局监听与Bot全局监听
-#### 全局监听
+#### 3.1 全局监听
 注意对全局事件进行监听只能监听来自于同一个 Vertx 的事件，如果想要跨 Vertx 监听需要自行组件Vert 集群（请自行查阅资料）
 Kotlin:
 ```kotlin
@@ -46,7 +46,7 @@ GlobalEventBus.INSTANCE.onEvent(Event.class, event -> {
 });
 //省略 bot 方式
 ```
-#### Bot监听
+#### 3.2 Bot监听
 Kotlin:
 ```kotlin
 //监听该BOT的全局事件
@@ -70,7 +70,7 @@ GlobalEventBus.INSTANCE.onBotEvent(token.appID,Event.class, event -> {
 });
 //省略其他
 ```
-### 关于框架中的 HTTP API 返回的不是值而是一个 Future
+### 4. 关于框架中的 HTTP API 返回的不是值而是一个 Future
 为了系统的性能所有操作都是异步的，如果你需要阻塞等待结果你可以使用 `await()` 方法或者 `awaitToCompleteExceptionally()` 方法。前者是阻塞协程，后者阻塞线程。
 
 对于 java 来说没有任何等待函数，或许以后 awaitToCompleteExceptionally 会在工具类中出现方便 java 使用。
@@ -80,7 +80,7 @@ future.toCompletionStage().toCompletableFuture().get() //阻塞线程并获取�
 
 ```
 
-### 关于自定义事件
+### 5. 关于自定义事件
 [前往文档](CustomEvent.md)
 
 ### 关于如何主动的复用 Session 进行重连服务器
@@ -91,15 +91,19 @@ bot.context["SESSION_ID"] = "SessionID"
 bot.login()
 ```
 
-### bot 上下文
+### 6. bot 上下文
 对于Session的复用是通过对bot 上下文进行设置后进行的，那么上面是bot上下文？
 Bot上下文是Bot的全局变量每个Bot都有自己的上下文，你可以在任何地方使用，他可以存储信息等，方便你跨事件数据传输或者报错。
 Bot提供了 set/get 方法来报错每一个信息。
 Bot 还提供的`设置栈`方法，提供该方法，你可以查找到是哪个位置设置的该上下文.
+```kotlin
+// 通过该方法可以查看设置记录，如最后一次记录的堆栈位置
+context.getRecord("key")
+```
 
 [源码](..%2Fsrc%2Fmain%2Fkotlin%2Fcom%2Fgithub%2Fzimoyin%2Fqqbot%2Fbot%2FBotContent.kt)
 
-### 信息类型
+### 7. 信息类型
 已经支持的信息类型:
 信息类型列表: https://bot.q.qq.com/wiki/develop/api-v2/server-inter/message/type/text.html
 

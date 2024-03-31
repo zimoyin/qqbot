@@ -2,7 +2,7 @@
 - [Maven](#maven)
 - [Gradle](#gradle)
 - [GradleKts](#gradleKt)
-- [Version](https://jitpack.io/com/github/zimoyin/qqbot/) 列表
+- [Version](https://jitpack.io/com/github/zimoyin/qqbot/) 列表: 请查看该列表并选择一个新的版本
 ---
 
 #### <a name="maven"></a>Maven
