@@ -254,4 +254,7 @@ class BotContent : Serializable {
         return contentInternal.containsKey(key = key)
     }
 
+    override fun toString(): String {
+        return contentInternal.toString()
+    }
 }
