@@ -10,6 +10,7 @@ import com.github.zimoyin.qqbot.event.events.platform.MessageSendPreEvent
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.exception.HttpClientException
 import com.github.zimoyin.qqbot.net.bean.Message
+import com.github.zimoyin.qqbot.net.bean.SendMessageBean
 import com.github.zimoyin.qqbot.net.http.addRestfulParam
 import com.github.zimoyin.qqbot.net.http.api.API
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
@@ -97,7 +98,7 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
         return promise.future()
     }
     //发送信息处理
-    val finalMessage = message0.convertChannelMessage()
+    val finalMessage: SendMessageBean = message0.convertChannelMessage()
     val finalMessageJson = finalMessage.toJson()
 
 
@@ -122,6 +123,7 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
         )
     }
 
+    logDebug("sendChannelMessageAsync", "发送消息: ${finalMessage.toStrings()}")
     //发送信息
     client.addRestfulParam(id)
         .putHeaders(token.getHeaders())
