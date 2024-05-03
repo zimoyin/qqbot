@@ -179,6 +179,9 @@ private fun HttpAPIClient.parseJsonSuccess(
             logDebug("sendChannelMessage", "信息审核事件中: $it")
         }
 
+        304003 ->{
+            logError("sendChannelMessage", "result -> [${it.getInteger("code")}] ${it.getString("message")} : 发送的信息中出现了类似或者近似于域名的链接，请检查信息是否包含类似域名的链接，并在机器人平台报备。如果不是请将英文句号进行替换，推荐替换成‘∙’ 或者‘,’")
+        }
         else -> {
             logError(
                 "sendChannelMessage",
