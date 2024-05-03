@@ -9,7 +9,6 @@ import com.github.zimoyin.qqbot.utils.JSON
 import io.vertx.core.json.JsonObject
 import org.intellij.lang.annotations.Language
 import java.io.File
-import java.io.InputStream
 import java.io.Serializable
 import java.net.URL
 import java.time.Instant
@@ -185,6 +184,10 @@ data class SendMessageBean(
         result = 31 * result + (srv_send_msg?.hashCode() ?: 0)
         result = 31 * result + (file_data?.hashCode() ?: 0)
         return result
+    }
+
+    fun toStrings(): String {
+        return "{\"content\":  \"$content\", ${if (embed != null) "\"embed\":  $embed, " else ""}${if (ark != null) "\"ark\":  $ark, " else ""}${if (messageReference != null) "\"message_reference\":  $messageReference, " else ""}${if (image != null) "\"image\":  \"$image\", " else ""}${if (id != null) "\"msg_id\":  \"$id\", " else ""}${if (markdown != null) "\"markdown\":  $markdown, " else ""}${if (keyboard != null) "\"keyboard\":  \"$keyboard\", " else ""}${if (channelFile != null) "\"channel_file\":  $channelFile, " else ""}${if (channelFileBytes != null) "\"channel_file_bytes\":  $channelFileBytes, " else ""}${if (msg_type != null) "\"msg_type\":  $msg_type, " else ""}${if (media != null) "\"media\":  $media, " else ""}${if (fileType != null) "\"file_type\":  $fileType, " else ""}${if (url != null) "\"url\":  \"$url\", " else ""}${if (srv_send_msg != null) "\"srv_send_msg\":  $srv_send_msg, " else ""}${if (file_data != null) "\"file_data\":  \"$file_data\" " else ""}}"
     }
 }
 
