@@ -95,6 +95,7 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
                         handler.handle(buffer)
                     }.onFailure {
                         when (it) {
+                            // 接收到处理器发出的重连申请
                             is WebSocketReconnectException -> {
                                 logger.debug("WebSocket[${ws.hashCode()}]  准备重连 -> HttpClosedException: ${it.message}")
                                 //广播机器人下线事件
