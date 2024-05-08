@@ -26,7 +26,7 @@ fun HttpAPIClient.accessTokenUpdateAsync(token: Token): Future<String> {
             }
             token.accessToken = json.getString("access_token")
             token.expiresIn = json.getString("expires_in").toInt()
-            logDebug("AccessToken", "Token 更新成功")
+//            logDebug("AccessToken", "Token 更新成功")
             json.encode()
         }.onFailure {
             promise.tryFail(it)
