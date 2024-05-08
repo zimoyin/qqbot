@@ -1,13 +1,13 @@
 package com.github.zimoyin.qqbot.net.websocket
 
-import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
-import com.github.zimoyin.qqbot.net.websocket.handler.PayloadCmdHandler
 import com.github.zimoyin.qqbot.bot.Bot
 import com.github.zimoyin.qqbot.bot.BotSection
 import com.github.zimoyin.qqbot.event.events.platform.bot.BotOfflineEvent
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.exception.WebSocketReconnectException
+import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.gatewayV2Async
+import com.github.zimoyin.qqbot.net.websocket.handler.PayloadCmdHandler
 import com.github.zimoyin.qqbot.utils.ex.await
 import com.github.zimoyin.qqbot.utils.ex.executeBlockingKt
 import com.github.zimoyin.qqbot.utils.ex.toUrl
@@ -53,17 +53,23 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
         logger.info("WebSocketClient[${client.hashCode()}] 配置完成 -> 绑定 Bot AppID : ${bot.config.token.appID}")
         logger.debug("心跳周期为: ${headerCycle / 1000.0}s")
         //准备 服务器地址
-        if (bot.config.shards == BotSection()) {
+        val gatewayURLByContent = bot.context.getString("gatewayURL")
+        if (gatewayURLByContent != null) {
+            //为了方便，在没有分片的情况下使用默认的硬编码的URL。但是可能回出现BUG，因为这是一个不再维护的使用
+            if (bot.config.shards != BotSection()) logger.warn("自定义WSS接入点的分片非默认值")
+            logger.warn("你正在使用自定义WSS接入点请在正式环境中停止使用，否则可能会导致不可预测的BUG: $gatewayURLByContent")
             bot.context["shards"] = 1
-            //为了方便，在没有分片的情况下使用默认的硬编码的URL，如果未来发生变动的时候需要手动修改代码
-            gatewayURL = "wss://api.sgroup.qq.com/websocket/"
+            gatewayURL = gatewayURLByContent
         } else {
             val gateway = HttpAPIClient.gatewayV2Async(bot.config.token).await()
-            bot.context["shards"] = gateway.getInteger("shards") //推荐分片数
+            gateway.getInteger("code")?.apply {
+                check(gateway.getString("message") != "Token错误") { "无法获取到登录点,原因为 Token / AppID / Secret 错误" }
+                throw IllegalStateException("无法获取到登录点,原因为: " + gateway.getString("message"))
+            }
+            bot.context["shards"] = gateway.getInteger("shards") ?: 1 //推荐分片数
             //获取 ws 地址
             gatewayURL = gateway.getString("url")
             gatewayURL ?: throw NullPointerException("无法获取到 WSS 接入点")
-
         }
         bot.context["internal.headerCycle"] = bot.context.getOrDefault<Long>("internal.headerCycle", headerCycle)
         connect(client!!, bot.config.reconnect, bot.config.retry)
@@ -105,7 +111,7 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
                                         bot.context.get<Throwable>(throwableKey)
                                     )
                                 )
-                                reconnect(client, reconnect, retry+1)
+                                reconnect(client, reconnect, retry + 1)
                             }
 
                             else -> logger.error(
@@ -150,7 +156,7 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
         logger.debug("WebSocketClient[${client.hashCode()}] 是否允许重连: $reconnect")
         if (retry > 0 && reconnect) {
             reconnectHandler(client, retry).handle(0)
-        }else{
+        } else {
             logger.warn("WebSocketClient[${client.hashCode()}] 重连达到极限，不再允许重连")
         }
     }
