@@ -83,7 +83,7 @@ enum class Intents(val code: Int) {
     /**
      * 群聊事件
      */
-    @Deprecated("新版API文档中被移除")
+//    @Deprecated("新版API文档中被移除")
     GROUP_INTENTS(1 shl 25),
 
     /**
@@ -154,7 +154,8 @@ enum class Intents(val code: Int) {
         /**
          * 私域机器人订阅推荐
          */
-        PRIVATE_INTENTS(1007162883);
+        PRIVATE_INTENTS(1007162883),
+        PRIVATE_GROUP_INTENTS(1007162883 or (1 shl 25));
     }
 
     /**
