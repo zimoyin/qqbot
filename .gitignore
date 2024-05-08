@@ -187,3 +187,5 @@ nbdist/
 /.idea/sonarlint/
 /.idea/sonarlint
 /token_file
+/token_file_*
+/logs/

@@ -1,4 +1,4 @@
-package io.github.zimoyin.qqbot.test.demo
+package io.github.zimoyin.qqbot.test
 
 
 import com.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
@@ -26,6 +26,7 @@ suspend fun main() {
     val logger = LoggerFactory.getLogger("Main")
 
     token.version = 1
+    // TODO V2 出现BUG
 //    token.version = 2
 
     //监听该BOT的全局事件
@@ -56,10 +57,27 @@ suspend fun main() {
     // TODO 添加沙盒环境选项
     DefaultHttpClient.isSandBox = true
     Bot.createBot(token) {
-        setIntents(Intents.Presets.PRIVATE_INTENTS)
-//        setIntents(Intents.Presets.PRIVATE_GROUP_INTENTS)
+//        setIntents(Intents.Presets.PRIVATE_INTENTS)
+        setIntents(Intents.Presets.PRIVATE_GROUP_INTENTS)
+//        setIntents(0)
     }.apply {
+        //用于复用会话
+//        context["SESSION_ID"] = "60a176e1-2790-4bf0-85cd-c123763981ea"
+//        context["SESSION_ID_Failure_Reconnection"] = true // 会话ID 过去则重连
+        context["gatewayURL"] = "wss://sandbox.api.sgroup.qq.com/websocket/" // 硬编码设置wss接入点同时shards设置为1.不推荐使用
+        // 内部日志打印细节
+        context["PAYLOAD_CMD_HANDLER_DEBUG_LOG"] = false // 命令处理器日志
+        context["PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG"] = false // 命令元数据日志
+        context["PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT"] = false // 心跳日志,不能单独开启应该与上面两个其中一个一并开启
+
         onEvent<MessageEvent> {
+//           val c =  MessageChainBuilder(it.msgID).apply {
+//                append(ImageMessage.create(File("C:\\Users\\zimoa\\Pictures\\QQ图片20240313163158.jpg")))
+//                append("图片来了")
+//            }.build()
+//            it.reply(c)
+
+//            it.reply(context.toString())
             it.reply("你好".replace(".","∙"))
         }
         login().onSuccess {
@@ -68,5 +86,10 @@ suspend fun main() {
             logger.error("BOT登录失败", it)
             GLOBAL_VERTX_INSTANCE.close()
         }
+        context.getRecord("vertx")?.apply {
+            logger.debug("机器人所在 vertx 添加到上下文时候的最后一次位置: {}", this)
+        }
+        context["BOT_INFO"] = this.botInfo
+        logger.debug("机器人上下文信息: {}", context)
     }
 }
