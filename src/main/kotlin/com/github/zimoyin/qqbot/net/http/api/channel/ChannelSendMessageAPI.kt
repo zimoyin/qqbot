@@ -122,6 +122,10 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
             "file"
         )
     }
+    if (finalMessage.audioURI != null || finalMessage.videoURI != null){
+        promise.fail(IllegalArgumentException("AudioURI and videoURI cannot be used for resource sending in channels"))
+        return promise.future()
+    }
 
     logDebug("sendChannelMessageAsync", "发送消息: ${finalMessage.toStrings()}")
     //发送信息

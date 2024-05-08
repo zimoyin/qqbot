@@ -81,6 +81,21 @@ object API {
     }
 
     /**
+     * 上传群组媒体资源
+     */
+    val uploadGroupMediaResource: HttpRequest<Buffer> by LazyInit {
+        DefaultHttpClient.client.post("/v2/groups/{group_openid}/files")
+    }
+
+
+    /**
+     * 上传好友媒体资源
+     */
+    val uploadFriendMediaResource: HttpRequest<Buffer> by LazyInit {
+        DefaultHttpClient.client.post("/v2/users/{openid}/files")
+    }
+
+    /**
      * 获取机器人信息
      */
     val BotInfo: HttpRequest<Buffer> by LazyInit {

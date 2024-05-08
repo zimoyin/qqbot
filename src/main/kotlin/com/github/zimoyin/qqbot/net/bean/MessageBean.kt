@@ -30,6 +30,7 @@ import java.time.Instant
  * 发送消息接口要求机器人接口需要连接到 websocket 上保持在线状态
  * 有关主动消息审核，可以通过 Intents 中审核事件 MESSAGE_AUDIT 返回 MessageAudited 对象获取结果。
  */
+// TODO 分解文件所有类到 com.github.zimoyin.qqbot.net.bean.message 包中
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SendMessageBean(
     /**
@@ -69,7 +70,7 @@ data class SendMessageBean(
      * 注意：私聊与群聊未支持
      */
     @field:JsonProperty("image")
-    val image: String? = null,
+    val imageURI: String? = null,
 
     /**
      * 选填，要回复的消息id(Message.id), 在 AT_CREATE_MESSAGE 事件中获取。
@@ -88,6 +89,10 @@ data class SendMessageBean(
     val channelFile: File? = null,
     @JsonIgnore
     val channelFileBytes: ByteArray? = null,
+    @JsonIgnore
+    val videoURI: String? = null,
+    @JsonIgnore
+    val audioURI: String? = null,
 
 
     /////////////////   群聊和私聊的字段   /////////////////
@@ -96,38 +101,61 @@ data class SendMessageBean(
      * 【必填】
      * 消息类型： 0 文本，2 是 markdown，3 ark 消息，4 embed，7 media 富媒体
      */
-    var msg_type: Int? = null,
+    @field:JsonProperty("msg_type")
+    var msgType: Int? = null,
 
     /**
      * 富媒体信息
      * 数据来源"消息收发=>富媒体消息"
      * 示例： {file_info: ""}
      */
-    val media: JsonObject? = null,
-    /////////////////   富文本内容: 注意如果不知道如何使用就不要改动   /////////////////
-    /**
-     * 媒体类型：1 图片，2 视频，3 语音，4 文件（暂不开放）
-     * 资源格式要求
-     * 图片：png/jpg，视频：mp4，语音：silk
-     */
-    @field:JsonProperty("file_type")
-    val fileType: Int? = null,
-
-    /**
-     * 需要发送媒体资源的url
-     */
-    val url: String? = null,
-
-    /**
-     * 设置 true 会直接发送消息到目标端，且会占用主动消息频次
-     */
-    val srv_send_msg: Boolean? = null,
-
-    /**
-     * 【暂未支持】
-     */
-    val file_data: String? = null,
+    var media: MediaMessageBean? = null,
 ) {
+    /**
+     * 推断消息类型
+     */
+    @JsonIgnore
+    fun inferMsgType(): SendMessageBean {
+        return this.apply {
+            when {
+                media != null -> msgType = MSG_TYPE_MEDIA
+                imageURI != null -> msgType = MSG_TYPE_MEDIA
+                audioURI != null -> msgType = MSG_TYPE_MEDIA
+                videoURI != null -> msgType = MSG_TYPE_MEDIA
+                content != null -> msgType = MSG_TYPE_TEXT
+                markdown != null -> msgType = MSG_TYPE_MARKDOWN
+                ark != null -> msgType = MSG_TYPE_ARK
+                embed != null -> msgType = MSG_TYPE_EMBED
+            }
+        }
+    }
+
+    /**
+     * 将 SendMessageBean 转为 MediaBean
+     * 该方法只能构建图片的信息
+     */
+    @JsonIgnore
+    fun toMediaBean(): SendMediaBean {
+        require(!(channelFile != null || channelFileBytes != null)) { "ChannelFile and channelFileBytes must be null" }
+        require(!(imageURI == null && audioURI == null && videoURI == null)) { "ImageURI, audioURI, and videoURI cannot all be null" }
+        return when {
+            imageURI != null -> SendMediaBean(
+                fileType = SendMediaBean.FILE_TYPE_IMAGE,
+                url = imageURI,
+            )
+
+            audioURI != null -> SendMediaBean(
+                fileType = SendMediaBean.FILE_TYPE_AUDIO,
+                url = audioURI,
+            )
+
+            else -> SendMediaBean(
+                fileType = SendMediaBean.FILE_TYPE_VIDEO,
+                url = videoURI,
+            )
+        }
+    }
+
     @JsonIgnore
     fun toJson(): JsonObject {
         val json = JSON.toJsonObject(this)
@@ -147,7 +175,7 @@ data class SendMessageBean(
         if (embed != other.embed) return false
         if (ark != other.ark) return false
         if (messageReference != other.messageReference) return false
-        if (image != other.image) return false
+        if (imageURI != other.imageURI) return false
         if (id != other.id) return false
         if (markdown != other.markdown) return false
         if (keyboard != other.keyboard) return false
@@ -156,12 +184,12 @@ data class SendMessageBean(
             if (other.channelFileBytes == null) return false
             if (!channelFileBytes.contentEquals(other.channelFileBytes)) return false
         } else if (other.channelFileBytes != null) return false
-        if (msg_type != other.msg_type) return false
+        if (msgType != other.msgType) return false
         if (media != other.media) return false
-        if (fileType != other.fileType) return false
-        if (url != other.url) return false
-        if (srv_send_msg != other.srv_send_msg) return false
-        if (file_data != other.file_data) return false
+//        if (fileType != other.fileType) return false
+//        if (url != other.url) return false
+//        if (srv_send_msg != other.srv_send_msg) return false
+//        if (file_data != other.file_data) return false
 
         return true
     }
@@ -171,25 +199,100 @@ data class SendMessageBean(
         result = 31 * result + (embed?.hashCode() ?: 0)
         result = 31 * result + (ark?.hashCode() ?: 0)
         result = 31 * result + (messageReference?.hashCode() ?: 0)
-        result = 31 * result + (image?.hashCode() ?: 0)
+        result = 31 * result + (imageURI?.hashCode() ?: 0)
         result = 31 * result + (id?.hashCode() ?: 0)
         result = 31 * result + (markdown?.hashCode() ?: 0)
         result = 31 * result + (keyboard?.hashCode() ?: 0)
         result = 31 * result + (channelFile?.hashCode() ?: 0)
         result = 31 * result + (channelFileBytes?.contentHashCode() ?: 0)
-        result = 31 * result + (msg_type ?: 0)
+        result = 31 * result + (msgType ?: 0)
         result = 31 * result + (media?.hashCode() ?: 0)
-        result = 31 * result + (fileType ?: 0)
-        result = 31 * result + (url?.hashCode() ?: 0)
-        result = 31 * result + (srv_send_msg?.hashCode() ?: 0)
-        result = 31 * result + (file_data?.hashCode() ?: 0)
+//        result = 31 * result + (fileType ?: 0)
+//        result = 31 * result + (url?.hashCode() ?: 0)
+//        result = 31 * result + (srv_send_msg?.hashCode() ?: 0)
+//        result = 31 * result + (file_data?.hashCode() ?: 0)
         return result
     }
 
     fun toStrings(): String {
-        return "{\"content\":  \"$content\", ${if (embed != null) "\"embed\":  $embed, " else ""}${if (ark != null) "\"ark\":  $ark, " else ""}${if (messageReference != null) "\"message_reference\":  $messageReference, " else ""}${if (image != null) "\"image\":  \"$image\", " else ""}${if (id != null) "\"msg_id\":  \"$id\", " else ""}${if (markdown != null) "\"markdown\":  $markdown, " else ""}${if (keyboard != null) "\"keyboard\":  \"$keyboard\", " else ""}${if (channelFile != null) "\"channel_file\":  $channelFile, " else ""}${if (channelFileBytes != null) "\"channel_file_bytes\":  $channelFileBytes, " else ""}${if (msg_type != null) "\"msg_type\":  $msg_type, " else ""}${if (media != null) "\"media\":  $media, " else ""}${if (fileType != null) "\"file_type\":  $fileType, " else ""}${if (url != null) "\"url\":  \"$url\", " else ""}${if (srv_send_msg != null) "\"srv_send_msg\":  $srv_send_msg, " else ""}${if (file_data != null) "\"file_data\":  \"$file_data\" " else ""}}"
+//        return "{\"content\":  \"$content\", ${if (embed != null) "\"embed\":  $embed, " else ""}${if (ark != null) "\"ark\":  $ark, " else ""}${if (messageReference != null) "\"message_reference\":  $messageReference, " else ""}${if (image != null) "\"image\":  \"$image\", " else ""}${if (id != null) "\"msg_id\":  \"$id\", " else ""}${if (markdown != null) "\"markdown\":  $markdown, " else ""}${if (keyboard != null) "\"keyboard\":  \"$keyboard\", " else ""}${if (channelFile != null) "\"channel_file\":  $channelFile, " else ""}${if (channelFileBytes != null) "\"channel_file_bytes\":  $channelFileBytes, " else ""}${if (msg_type != null) "\"msg_type\":  $msg_type, " else ""}${if (media != null) "\"media\":  $media, " else ""}${if (fileType != null) "\"file_type\":  $fileType, " else ""}${if (url != null) "\"url\":  \"$url\", " else ""}${if (srv_send_msg != null) "\"srv_send_msg\":  $srv_send_msg, " else ""}${if (file_data != null) "\"file_data\":  \"$file_data\" " else ""}}"
+        return "{\"content\":  \"$content\", ${if (embed != null) "\"embed\":  $embed, " else ""}${if (ark != null) "\"ark\":  $ark, " else ""}${if (messageReference != null) "\"message_reference\":  $messageReference, " else ""}${if (imageURI != null) "\"image\":  \"$imageURI\", " else ""}${if (id != null) "\"msg_id\":  \"$id\", " else ""}${if (markdown != null) "\"markdown\":  $markdown, " else ""}${if (keyboard != null) "\"keyboard\":  \"$keyboard\", " else ""}${if (channelFile != null) "\"channel_file\":  $channelFile, " else ""}${if (channelFileBytes != null) "\"channel_file_bytes\":  $channelFileBytes, " else ""}${if (msgType != null) "\"msg_type\":  $msgType, " else ""}${if (media != null) "\"media\":  $media, " else ""}]}"
+    }
+
+
+    companion object {
+        const val MSG_TYPE_TEXT = 0
+        const val MSG_TYPE_MARKDOWN = 2
+        const val MSG_TYPE_ARK = 3
+        const val MSG_TYPE_EMBED = 4
+        const val MSG_TYPE_MEDIA = 7
     }
 }
+
+/**
+ * 富文本内容
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class SendMediaBean(
+    /**
+     * 媒体类型：1 图片，2 视频，3 语音，4 文件（暂不开放）
+     * 资源格式要求
+     * 图片：png/jpg，视频：mp4，语音：silk
+     */
+    @field:JsonProperty("file_type")
+    val fileType: Int? = null,
+
+    /**
+     * 需要发送媒体资源的url
+     */
+    val url: String? = null,
+
+    /**
+     * 设置 true 会直接发送消息到目标端，且会占用主动消息频次
+     */
+    val srv_send_msg: Boolean? = false,
+
+    /**
+     * 【暂未支持】
+     */
+    val file_data: String? = null,
+) {
+    companion object {
+        const val FILE_TYPE_IMAGE = 1
+        const val FILE_TYPE_VIDEO = 2
+        const val FILE_TYPE_AUDIO = 3
+    }
+}
+
+/**
+ * SendMediaBean 请求后返回的 Bean
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class MediaMessageBean(
+    /**
+     * 文件 ID
+     */
+    @JsonProperty("file_uuid")
+    val fileUUID: String? = null,
+
+    /**
+     * 文件信息，用于发消息接口的 media 字段使用
+     */
+    @JsonProperty("file_info")
+    val fileInfo: String? = null,
+
+    /**
+     * 有效期，表示剩余多少秒到期，到期后 file_info 失效，当等于 0 时，表示可长期使用
+     */
+    @JsonProperty("ttl")
+    val ttl: Int? = null,
+
+    /**
+     * 发送消息的唯一ID，当srv_send_msg设置为true时返回
+     */
+    @JsonProperty("id")
+    val id: String? = null,
+)
 
 /**
  * 消息对象

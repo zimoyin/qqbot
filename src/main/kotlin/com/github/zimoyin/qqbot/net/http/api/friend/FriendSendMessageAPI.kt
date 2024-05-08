@@ -2,15 +2,21 @@ package com.github.zimoyin.qqbot.net.http.api.friend
 
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.contact.Friend
+import com.github.zimoyin.qqbot.bot.contact.Group
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.event.events.MessageStartAuditEvent
 import com.github.zimoyin.qqbot.event.events.platform.*
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.exception.HttpClientException
+import com.github.zimoyin.qqbot.net.Token
+import com.github.zimoyin.qqbot.net.bean.MediaMessageBean
 import com.github.zimoyin.qqbot.net.bean.Message
+import com.github.zimoyin.qqbot.net.bean.SendMediaBean
+import com.github.zimoyin.qqbot.net.bean.SendMessageBean
 import com.github.zimoyin.qqbot.net.http.addRestfulParam
 import com.github.zimoyin.qqbot.net.http.api.API
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
+import com.github.zimoyin.qqbot.utils.JSON
 import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.buffer.Buffer
@@ -21,7 +27,7 @@ import java.util.*
 
 
 /**
- * 在频道里面发送信息
+ * 给好友发私信
  * @param friend
  * @param message 消息
  */
@@ -34,8 +40,8 @@ fun HttpAPIClient.sendFriendMessage(
 
 
 /**
- * 在频道里面发送（私）信息
- * @param channel 频道
+ * 给好友发私信
+ * @param friend 好友
  * @param id channelID/guildID
  * @param message 消息
  * @param client 发送消息的请求
@@ -77,41 +83,74 @@ private fun HttpAPIClient.sendFriendMessage(
         return promise.future()
     }
     //发送信息处理
-    val finalMessage = message0.convertChannelMessage().apply {
-        when {
-            content != null -> {
-                msg_type = 0
-            }
-
-            markdown != null -> {
-                msg_type = 2
-            }
-
-            ark != null -> {
-                msg_type = 3
-            }
-
-            embed != null -> {
-                msg_type = 4
-            }
-
-            media != null -> {
-                msg_type = 7
-            }
-        }
+    val finalMessage = message0.convertChannelMessage().inferMsgType()
+    if (finalMessage.channelFileBytes != null || finalMessage.channelFile != null) {
+        promise.fail(IllegalArgumentException("ChannelFileBytes or ChannelFile cannot be used for resource sending in group chats or friends"))
+        return promise.future()
     }
-    val finalMessageJson = finalMessage.toJson()
+    if (finalMessage.msgType == SendMessageBean.MSG_TYPE_MEDIA && finalMessage.media == null) {
+        uploadMedia(id, token, finalMessage.toMediaBean()).onSuccess {
+            sendFirendMessage0(finalMessage, client, id, token, promise, friend, message, it)
+        }.onFailure {
+            promise.tryFail(HttpClientException("Uploading media resources to server failed", it))
+            logError("sendFirendMessage0", "上传资源到服务器失败", it)
+        }
+    } else {
+        sendFirendMessage0(finalMessage, client, id, token, promise, friend, message)
+    }
+    return promise.future()
+}
 
-    logDebug("sendFriendMessage", "发送消息: $finalMessageJson")
+
+private fun HttpAPIClient.sendFirendMessage0(
+    finalMessage: SendMessageBean,
+    client: HttpRequest<Buffer>,
+    id: String,
+    token: Token,
+    promise: Promise<MessageChain>,
+    friend: Friend,
+    message: MessageChain,
+    mediaMsg: MediaMessageBean? = null,
+) {
+    // 构建适用于群聊或者单聊的消息体
+    val finalMessageJson = finalMessage.apply {
+        if (msgType == SendMessageBean.MSG_TYPE_MEDIA) media = mediaMsg // 媒体消息
+    }.toJson().apply {
+        remove("image") // 移除image字段,因为不适用于Group和 单聊
+    }
+
+    logDebug("sendFirendMessage0", "发送消息: $finalMessageJson")
     //发送信息
     client.addRestfulParam(id)
         .putHeaders(token.getHeaders())
         .sendJsonObject(finalMessageJson).onFailure {
             promise.fail(it)
-            logError("sendFriendMessage", "网络错误: 发送消息失败", it)
+            logError("sendFirendMessage0", "网络错误: 发送消息失败", it)
         }
         .onSuccess { resp ->
             httpSuccess(resp, friend, message, promise)
+        }
+}
+
+/**
+ * 上传媒体资源
+ */
+private fun HttpAPIClient.uploadMedia(id: String, token: Token, mediaBean: SendMediaBean): Future<MediaMessageBean> {
+    val promise = Promise.promise<MediaMessageBean>()
+    logDebug("sendFirendMessage0", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url}")
+    API.uploadFriendMediaResource.addRestfulParam(id)
+        .putHeaders(token.getHeaders())
+        .sendJsonObject(JSON.toJsonObject(mediaBean))
+        .onSuccess {
+            runCatching {
+                it.bodyAsJsonObject().mapTo(MediaMessageBean::class.java)
+            }.onSuccess {
+                promise.complete(it)
+            }.onFailure {
+                promise.tryFail(it)
+            }
+        }.onFailure {
+            promise.tryFail(it)
         }
     return promise.future()
 }

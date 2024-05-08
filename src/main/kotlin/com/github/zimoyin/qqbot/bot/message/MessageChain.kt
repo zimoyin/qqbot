@@ -281,6 +281,8 @@ class MessageChain(
         val image = internalItems.filterIsInstance<ImageMessage>().lastOrNull()?.attachment?.getURL()
         val imageFile = internalItems.filterIsInstance<ImageMessage>().lastOrNull()?.localFile
         val imageInput = internalItems.filterIsInstance<ImageMessage>().lastOrNull()?.localFileBytes
+        val audioURL = internalItems.filterIsInstance<ProactiveAudioMessage>().lastOrNull()?.attachment?.getURL()
+        val videoURL = internalItems.filterIsInstance<ProactiveVideoMessage>().lastOrNull()?.attachment?.getURL()
         val ark = internalItems.filterIsInstance<ArkMessage>().lastOrNull()?.ark
         val embed = internalItems.filterIsInstance<EmbedMessage>().lastOrNull()?.embed
         val md = internalItems.filterIsInstance<MarkdownMessage>().lastOrNull()?.markdown
@@ -290,15 +292,19 @@ class MessageChain(
             id = if (md != null || kb != null) null else this.id,
             messageReference = reference,
             content = if (sb.isEmpty()) null else sb.toString(),
-            image = image,
+            imageURI = image,
             ark = ark,
             embed = embed,
             markdown = md,
             keyboard = kb,
             channelFile = imageFile,
             channelFileBytes = imageInput,
+            videoURI = videoURL,
+            audioURI = audioURL,
         )
     }
+
     //TODO 单聊/群聊 -> 信息bean 构建
+
 }
 

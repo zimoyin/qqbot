@@ -1,16 +1,6 @@
-import com.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
-import com.github.zimoyin.qqbot.bot.message.MessageChainBuilder
-import com.github.zimoyin.qqbot.bot.message.type.KeyboardMessage
-import com.github.zimoyin.qqbot.net.bean.MessageMarkdown
-import com.github.zimoyin.qqbot.net.bean.MessageMarkdownParam
-import com.github.zimoyin.qqbot.utils.JSON
-import com.github.zimoyin.qqbot.utils.ex.promise
-import com.github.zimoyin.qqbot.utils.vertx
-import io.vertx.core.json.JsonObject
-import io.vertx.kotlin.coroutines.coAwait
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.github.zimoyin.qqbot.utils.ex.toJsonObject
+import java.net.URI
 
 /**
  *
@@ -20,6 +10,8 @@ import kotlinx.coroutines.launch
 
 
 suspend fun main() {
-
-    KeyboardMessage("{}")
+    val uri = URI.create("http://cdn.pixabay.com/video/2023/08/11/175587-853887900_large.mp4?a")
+    println(
+        "${uri.host?:""}${uri.path?:""}${uri.query?.let { "?$it" }?:""}"
+    )
 }
