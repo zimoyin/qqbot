@@ -18,8 +18,31 @@ Bot bot = Bot.INSTANCE.createBot(config -> {
 });
 bot.login();
 ```
+#### 1.1 退出登录
+1. 退出登录
+通关 `login()` 获取到的 `WebSocketClient` 实例，调用 `close()` 方法关闭连接
+2. 退出程序
+如果没有自己创建 Vertx 的话，使用 `GLOBAL_VERTX_INSTANCE.close()` 即可关闭
+
+
 ### 2. 选择鉴权方式
 鉴权是通过 [Token.kt](src%2Fmain%2Fkotlin%2Fgithub%2Fzimoyin%2Fnet%2FToken.kt) 进行的，他会根据选择鉴权版本信息(token 与 appsecret 允许各选其一)来进行 Token 获取与更新
+
+#### 2.1 设置 Intents
+```kotlin
+Bot.createBot(token) {
+    // 设置 公域权限 Intents
+    setIntents(Intents.Presets.PUBLIC_INTENTS)
+    // 设置 私域权限 Intents
+    setIntents(Intents.Presets.PRIVATE_INTENTS)
+    // 设置 群域权限 Intents
+    setIntents(Intents.Presets.PUBLIC_GROUP_INTENTS)
+    // 自定义 Intents
+    setIntents(Intents.START + Intents.DIRECT_MESSAGE) // 注意导入 com.github.zimoyin.qqbot.net.plus
+    // 设置自定义 Intents 并且十进制值
+    setIntents(0)
+}
+```
 
 ### 3. 事件监听
 事件监听方式分为全局Bot全局监听与Bot全局监听
@@ -99,6 +122,17 @@ Bot 还提供的`设置栈`方法，提供该方法，你可以查找到是哪�
 ```kotlin
 // 通过该方法可以查看设置记录，如最后一次记录的堆栈位置
 context.getRecord("key")
+```
+框架提供的可修改默认上下文参数
+```kotlin
+bot.context["SESSION_ID"] = "60a176e1-2790-4bf0-85cd-c123763981ea" // 设置Session ID 用于复用已经存在的会话。注意：适用于沙盒环境，正式环境请谨慎使用
+bot.context["SESSION_ID_Failure_Reconnection"] = true // 会话ID 过去则重连
+bot.context["gatewayURL"] = "wss://sandbox.api.sgroup.qq.com/websocket/" // 硬编码设置wss接入点同时shards设置为1.不推荐使用
+//bot.context["gatewayURL"] = "wss://api.sgroup.qq.com/websocket/" // 硬编码设置wss接入点同时shards设置为1.不推荐使用
+// 内部日志打印细节
+bot.context["PAYLOAD_CMD_HANDLER_DEBUG_LOG"] = true // 命令处理器日志
+bot.context["PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG"] = true // 命令元数据日志
+bot.context["PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT"] = false // 心跳日志,不能单独开启应该与上面两个其中一个一并开启
 ```
 
 [源码](..%2Fsrc%2Fmain%2Fkotlin%2Fcom%2Fgithub%2Fzimoyin%2Fqqbot%2Fbot%2FBotContent.kt)
