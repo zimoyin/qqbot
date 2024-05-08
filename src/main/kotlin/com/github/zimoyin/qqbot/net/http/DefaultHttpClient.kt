@@ -41,10 +41,11 @@ object DefaultHttpClient {
      * 使用 head 查看服务器是否支持 SSL
      */
     var headSSL = true
+    var isSandBox = false
     private val options: WebClientOptions by lazy {
         WebClientOptions()
             .setUserAgent("java_qqbot_gf:0.0.1")
-            .setDefaultHost("api.sgroup.qq.com")
+            .setDefaultHost(if (isSandBox) "sandbox.api.sgroup.qq.com" else "api.sgroup.qq.com")
             .setConnectTimeout(5000)
             .setKeepAlive(true)
             .setSsl(true)

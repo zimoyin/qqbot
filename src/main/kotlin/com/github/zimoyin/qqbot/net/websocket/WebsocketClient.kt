@@ -5,6 +5,7 @@ import com.github.zimoyin.qqbot.bot.BotSection
 import com.github.zimoyin.qqbot.event.events.platform.bot.BotOfflineEvent
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.exception.WebSocketReconnectException
+import com.github.zimoyin.qqbot.net.http.DefaultHttpClient
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.gatewayV2Async
 import com.github.zimoyin.qqbot.net.websocket.handler.PayloadCmdHandler
@@ -21,6 +22,7 @@ import io.vertx.kotlin.coroutines.CoroutineVerticle
 import org.slf4j.LoggerFactory
 import java.net.InetAddress
 import java.net.SocketException
+import kotlin.math.log
 
 private const val s = "internal.handler"
 
@@ -57,6 +59,7 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
         if (gatewayURLByContent != null) {
             //为了方便，在没有分片的情况下使用默认的硬编码的URL。但是可能回出现BUG，因为这是一个不再维护的使用
             if (bot.config.shards != BotSection()) logger.warn("自定义WSS接入点的分片非默认值")
+            if (!DefaultHttpClient.isSandBox) logger.warn("当前环境不是沙盒环境，请将环境设置为沙盒环境 > DefaultHttpClient.isSandBox = true")
             logger.warn("你正在使用自定义WSS接入点请在正式环境中停止使用，否则可能会导致不可预测的BUG: $gatewayURLByContent")
             bot.context["shards"] = 1
             gatewayURL = gatewayURLByContent
@@ -64,6 +67,7 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
             val gateway = HttpAPIClient.gatewayV2Async(bot.config.token).await()
             gateway.getInteger("code")?.apply {
                 check(gateway.getString("message") != "Token错误") { "无法获取到登录点,原因为 Token / AppID / Secret 错误" }
+                check(gateway.getString("message") != "接口访问源IP不在白名单") { "无法获取到登录点,原因为当前环境为正式环境(非沙盒环境)，请将当前服务器IP 添加到QQ开发平台的IP白名单中。或者设置环境为沙盒环境(测试环境) > DefaultHttpClient.isSandBox = true" }
                 throw IllegalStateException("无法获取到登录点,原因为: " + gateway.getString("message"))
             }
             bot.context["shards"] = gateway.getInteger("shards") ?: 1 //推荐分片数
