@@ -29,7 +29,7 @@ fun HttpAPIClient.sendFriendMessage(
     friend: Friend,
     message: MessageChain,
 ): Future<MessageChain> {
-    return sendFriendMessage(friend, friend.id, message, API.SendChannelMessage)
+    return sendFriendMessage(friend, friend.id, message, API.SendFriendMessage)
 }
 
 
@@ -102,6 +102,7 @@ private fun HttpAPIClient.sendFriendMessage(
     }
     val finalMessageJson = finalMessage.toJson()
 
+    logDebug("sendFriendMessage", "发送消息: $finalMessageJson")
     //发送信息
     client.addRestfulParam(id)
         .putHeaders(token.getHeaders())

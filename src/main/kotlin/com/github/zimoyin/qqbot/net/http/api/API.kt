@@ -52,6 +52,21 @@ object API {
     }
 
     /**
+     * 给人发送信息
+     */
+    val SendFriendMessage: HttpRequest<Buffer> by LazyInit {
+        DefaultHttpClient.client.post("/v2/users/{openid}/messages")
+    }
+
+
+    /**
+     * 在群组里面发送信息
+     */
+    val SendGroupMessage: HttpRequest<Buffer> by LazyInit {
+        DefaultHttpClient.client.post("/v2/groups/{group_openid}/messages")
+    }
+
+    /**
      * 在频道里面发送信息
      */
     val SendChannelMessage: HttpRequest<Buffer> by LazyInit {

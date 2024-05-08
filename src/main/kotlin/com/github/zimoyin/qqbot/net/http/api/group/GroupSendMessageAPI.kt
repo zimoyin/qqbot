@@ -29,7 +29,7 @@ fun HttpAPIClient.sendGroupMessage(
     group: Group,
     message: MessageChain,
 ): Future<MessageChain> {
-    return sendGroupMessage(group, group.id, message, API.SendChannelMessage)
+    return sendGroupMessage(group, group.id, message, API.SendGroupMessage)
 }
 
 
@@ -102,6 +102,7 @@ private fun HttpAPIClient.sendGroupMessage(
     }
     val finalMessageJson = finalMessage.toJson()
 
+    logDebug("sendGroupMessage", "发送消息: $finalMessageJson")
     //发送信息
     client.addRestfulParam(id)
         .putHeaders(token.getHeaders())
