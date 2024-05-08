@@ -6,6 +6,7 @@ import com.github.zimoyin.qqbot.event.events.friend.AddFriendEvent
 import com.github.zimoyin.qqbot.event.supporter.AbsEventHandler
 
 import com.github.zimoyin.qqbot.utils.JSON
+import java.time.Instant
 
 /**
  *
@@ -18,7 +19,7 @@ class AddFriendHandler : AbsEventHandler<AddFriendEvent>() {
         return AddFriendEvent(
             metadata = payload.metadata,
             botInfo = BotInfo.create(payload.appID!!),
-            timestamp = json.getInstant("timestamp"),
+            timestamp = Instant.ofEpochSecond(json.getLong("timestamp")),
             friendID = json.getString("openid"),
         )
     }

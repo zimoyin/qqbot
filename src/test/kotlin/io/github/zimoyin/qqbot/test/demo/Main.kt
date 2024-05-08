@@ -28,36 +28,16 @@ suspend fun main() {
     token.version = 1
 //    token.version = 2
 
-    //监听该BOT的全局事件
-    GlobalEventBus.onBotEvent<Event>(token.appID) {
-//        logger.debug("BOT全局事件监听: ${it.metadataType}")
-    }
-
     //全局事件监听
     GlobalEventBus.onEvent<Event> {
         logger.debug("全局事件监听: ${it.metadataType}")
     }
 
-    //拦截发送的信息
-    MessageSendPreEvent.interceptor {
-        // 如果含有拦截关键字，拦截
-        if (it.messageChain.content().contains("拦截")) {
-            return@interceptor it.apply {
-                intercept = true
-//                messageChain = MessageChainBuilder(messageChain.id).append("拦截该信息【新构建信息】").build()
-                messageChain = MessageChainBuilder(it.messageChain).append("拦截该信息【修改源信息】").build()
-            }
-        }
-        // 否则不拦截
-        return@interceptor it
-    }
 
-    // TODO 添加企业机器人 IP 白名单提示
-    // TODO 添加沙盒环境选项
     DefaultHttpClient.isSandBox = true
     Bot.createBot(token) {
-        setIntents(Intents.Presets.PRIVATE_INTENTS)
-//        setIntents(Intents.Presets.PRIVATE_GROUP_INTENTS)
+//        setIntents(Intents.Presets.PRIVATE_INTENTS)
+        setIntents(Intents.Presets.PRIVATE_GROUP_INTENTS)
     }.apply {
         onEvent<MessageEvent> {
             it.reply("你好".replace(".","∙"))

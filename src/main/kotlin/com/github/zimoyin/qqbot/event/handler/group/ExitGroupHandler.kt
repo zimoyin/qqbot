@@ -2,10 +2,11 @@ package com.github.zimoyin.qqbot.event.handler.group
 
 import com.github.zimoyin.qqbot.net.bean.Payload
 import com.github.zimoyin.qqbot.bot.BotInfo
-import com.github.zimoyin.qqbot.event.events.group.ExitGroupEvent
+import com.github.zimoyin.qqbot.event.events.group.member.ExitGroupEvent
 import com.github.zimoyin.qqbot.event.supporter.AbsEventHandler
 
 import com.github.zimoyin.qqbot.utils.JSON
+import java.time.Instant
 
 /**
  *
@@ -18,7 +19,7 @@ class ExitGroupHandler : AbsEventHandler<ExitGroupEvent>() {
         return ExitGroupEvent(
             metadata = payload.metadata,
             botInfo = BotInfo.create(payload.appID!!),
-            timestamp = json.getInstant("timestamp"),
+            timestamp = Instant.ofEpochSecond(json.getLong("timestamp")),
             groupID = json.getString("group_openid"),
             opMemberOpenid = json.getString("op_member_openid"),
         )

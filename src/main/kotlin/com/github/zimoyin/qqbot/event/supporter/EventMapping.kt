@@ -22,16 +22,27 @@ import com.github.zimoyin.qqbot.event.events.channel.guild.BotGuildUpdatedEvent
 import com.github.zimoyin.qqbot.event.events.channel.guild.BotJoinedGuildEvent
 import com.github.zimoyin.qqbot.event.events.channel.guild.BotLeftGuildEvent
 import com.github.zimoyin.qqbot.event.events.channel.guild.GuildOperate
+import com.github.zimoyin.qqbot.event.events.channel.member.GuildMemberAddEvent
+import com.github.zimoyin.qqbot.event.events.channel.member.GuildMemberDeleteEvent
+import com.github.zimoyin.qqbot.event.events.channel.member.GuildMemberEvent
+import com.github.zimoyin.qqbot.event.events.channel.member.GuildMemberUpdateEvent
 import com.github.zimoyin.qqbot.event.events.channel.sub.SubChannelCreateEvent
 import com.github.zimoyin.qqbot.event.events.channel.sub.SubChannelDeleteEvent
 import com.github.zimoyin.qqbot.event.events.channel.sub.SubChannelEvent
 import com.github.zimoyin.qqbot.event.events.channel.sub.SubChannelUpdateEvent
 import com.github.zimoyin.qqbot.event.events.friend.*
 import com.github.zimoyin.qqbot.event.events.group.*
+import com.github.zimoyin.qqbot.event.events.group.member.AddGroupEvent
+import com.github.zimoyin.qqbot.event.events.group.member.ExitGroupEvent
+import com.github.zimoyin.qqbot.event.events.group.member.GroupMemberUpdateEvent
+import com.github.zimoyin.qqbot.event.events.group.operation.CloseGroupBotEvent
+import com.github.zimoyin.qqbot.event.events.group.operation.GroupBotOperationEvent
+import com.github.zimoyin.qqbot.event.events.group.operation.OpenGroupBotEvent
 import com.github.zimoyin.qqbot.event.events.message.MessageEvent
 import com.github.zimoyin.qqbot.event.events.message.PrivateChannelMessageEvent
 import com.github.zimoyin.qqbot.event.events.message.at.AtMessageEvent
 import com.github.zimoyin.qqbot.event.events.message.at.ChannelAtMessageEvent
+import com.github.zimoyin.qqbot.event.events.message.at.GroupAtMessageEvent
 import com.github.zimoyin.qqbot.event.events.message.direct.ChannelPrivateMessageEvent
 import com.github.zimoyin.qqbot.event.events.message.direct.PrivateMessageEvent
 import com.github.zimoyin.qqbot.event.events.message.direct.UserPrivateMessageEvent
@@ -79,6 +90,13 @@ object EventMapping {
             //AT
             AtMessageEvent::class.java,
             ChannelAtMessageEvent::class.java,
+            GroupAtMessageEvent::class.java,
+
+            // GUILD_MEMBER
+            GuildMemberEvent::class.java,
+            GuildMemberAddEvent::class.java,
+            GuildMemberDeleteEvent::class.java,
+            GuildMemberUpdateEvent::class.java,
 
             //Channel 操作信息
             ChannelEvent::class.java,

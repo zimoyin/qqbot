@@ -72,4 +72,13 @@ data class GuildBean(
      */
     @field:JsonProperty("op_user_id")
     val opUserId: String? = null,
+
+
+    /**
+     * 操作者ID，通常用于频道管理
+     */
+    @field:JsonProperty("union_appid")
+    val unionAppID: String? = null,
+
+
 ) : Serializable

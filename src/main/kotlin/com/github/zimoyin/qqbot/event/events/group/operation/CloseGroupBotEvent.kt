@@ -1,4 +1,4 @@
-package com.github.zimoyin.qqbot.event.events.group
+package com.github.zimoyin.qqbot.event.events.group.operation
 
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.BotInfo

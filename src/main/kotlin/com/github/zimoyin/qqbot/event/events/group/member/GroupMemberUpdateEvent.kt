@@ -1,6 +1,7 @@
-package com.github.zimoyin.qqbot.event.events.group
+package com.github.zimoyin.qqbot.event.events.group.member
 
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
+import com.github.zimoyin.qqbot.event.events.group.GroupEvent
 
 /**
  *
