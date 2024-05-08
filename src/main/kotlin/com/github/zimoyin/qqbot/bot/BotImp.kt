@@ -1,12 +1,12 @@
 package com.github.zimoyin.qqbot.bot
 
-import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
-import com.github.zimoyin.qqbot.net.websocket.WebsocketClient
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.exception.HttpClientException
 import com.github.zimoyin.qqbot.net.Token
+import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.accessTokenUpdateAsync
 import com.github.zimoyin.qqbot.net.http.api.botInfo
+import com.github.zimoyin.qqbot.net.websocket.WebsocketClient
 import com.github.zimoyin.qqbot.utils.ex.awaitToCompleteExceptionally
 import io.vertx.core.Future
 import io.vertx.core.Promise
@@ -39,33 +39,35 @@ class BotImp(
     init {
         try {
             val user = HttpAPIClient.botInfo(token).awaitToCompleteExceptionally()
-            avatar = user.avatar!!
+            avatar = user.avatar ?: ""
             nick = user.username
             unionOpenid = user.unionOpenID ?: ""
             unionUserAccount = user.unionUserAccount ?: ""
             id = user.id
         } catch (e: NullPointerException) {
-            throw HttpClientException("Unable to provide specific information about the robot",e)
+            throw HttpClientException("Unable to provide specific information about the robot", e)
         }
     }
 
 
     override fun login(): Future<WebSocket> {
-        if (websocketClient != null) {
-            throw IllegalStateException("Web socket has already been started")
-        }
         val promise = Promise.promise<WebSocket>()
+        if (websocketClient != null) {
+            return Future.failedFuture(IllegalStateException("Web socket has already been started"))
+        }
         this.context["internal.promise"] = promise
         if (token.version > 1) {
             HttpAPIClient.accessTokenUpdateAsync(token).onSuccess {
                 websocketClient = WebsocketClient(this)
                 vertx.deployVerticle(websocketClient)
             }.onFailure {
-                logger.error("无法获取到 Access Token，禁止启动 ws 客户端", it)
+                if (!promise.tryFail(it)) logger.error("无法获取到 Access Token，禁止启动 ws 客户端", it)
             }
         } else {
             websocketClient = WebsocketClient(this)
-            vertx.deployVerticle(websocketClient)
+            vertx.deployVerticle(websocketClient).onFailure {
+                if (!promise.tryFail(it)) logger.error("无法启动 ws 客户端", it)
+            }
         }
         this.context["internal.websocketClient"] = websocketClient!!
         return promise.future()
