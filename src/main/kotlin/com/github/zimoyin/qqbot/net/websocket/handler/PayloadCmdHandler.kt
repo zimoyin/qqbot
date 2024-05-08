@@ -120,9 +120,15 @@ class PayloadCmdHandler(private val bot: Bot) {
 
     private fun handle(payload: Payload) {
         if (payload.opcode == 11) {
-            if (debugMataData && debugHeartbeat) logger.debug("WebSocket[${ws.hashCode()}][MataData] ws receive(${payload.opcode}): {}", payload)
+            if (debugMataData && debugHeartbeat) logger.debug(
+                "WebSocket[${ws.hashCode()}][MataData] ws receive(${payload.opcode}): {}",
+                payload
+            )
         } else {
-            if (debugMataData) logger.debug("WebSocket[${ws.hashCode()}][MataData] ws receive(${payload.opcode}): {}", payload)
+            if (debugMataData) logger.debug(
+                "WebSocket[${ws.hashCode()}][MataData] ws receive(${payload.opcode}): {}",
+                payload
+            )
         }
         if (payload.hid != null) id = payload.hid
 //      id = id?.plus(1) ?: 0
@@ -145,6 +151,9 @@ class PayloadCmdHandler(private val bot: Bot) {
 
     private fun opcode9(payload: Payload) {
         if (newconnecting) {
+            if (bot.context.getString("gatewayURL") != null) {
+                logger.error("WebSocket[${ws.hashCode()}] 你使用了自定义WSS接入点，这导致对 Token / AppID / Secret 的检查放在了登录后。请排除令牌等是否正确")
+            }
             logger.error("WebSocket[${ws.hashCode()}] Intents是不合法的，你没有这个Intent的权限。请检查该Bot[${payload.appID}]的权限")
         } else {
             val isRecon = bot.context.get<Boolean>("SESSION_ID_Failure_Reconnection")
@@ -316,10 +325,16 @@ class PayloadCmdHandler(private val bot: Bot) {
     }
 
     private fun send(payload: Payload) {
-        if (payload.opcode == 1){
-            if (debugMataData && debugHeartbeat) logger.debug("WebSocket[${ws.hashCode()}][MataData] ws send(${payload.opcode}): {}", payload)
-        }else{
-            if (debugMataData) logger.debug("WebSocket[${ws.hashCode()}][MataData] ws send(${payload.opcode}): {}", payload)
+        if (payload.opcode == 1) {
+            if (debugMataData && debugHeartbeat) logger.debug(
+                "WebSocket[${ws.hashCode()}][MataData] ws send(${payload.opcode}): {}",
+                payload
+            )
+        } else {
+            if (debugMataData) logger.debug(
+                "WebSocket[${ws.hashCode()}][MataData] ws send(${payload.opcode}): {}",
+                payload
+            )
         }
         ws.writeTextMessage(payload.toJsonString())
     }
