@@ -18,7 +18,7 @@ data class Token(
     @field:JsonIgnore
     val token: String = "",
     @field:JsonProperty("clientSecret")
-    val appSecret: String = "",
+    val clientSecret: String = "",
     /**
      * 请求 AccessToken 以获取和更新
      */
@@ -30,18 +30,19 @@ data class Token(
     /**
      * 用户选择的鉴权版本
      */
+    @field:JsonIgnore
     var version: Int = -1,
 ) : Serializable {
 
     init {
         if (version == -1) {
             version = if (token.isNotEmpty()) 1
-            else if (appSecret.isNotEmpty()) 2
+            else if (clientSecret.isNotEmpty()) 2
             else throw IllegalArgumentException("Token authentication method not specified")
         }
     }
 
-
+    @JsonIgnore
     fun getHeaders(): HeadersMultiMap {
         return when (version) {
             1 -> getHeadersV1()
@@ -53,6 +54,7 @@ data class Token(
     /**
      * 老版本鉴权
      */
+    @JsonIgnore
     private fun getHeadersV1(): HeadersMultiMap = hashMapOf(
         "Authorization" to "Bot $appID.$token",
     ).toHeaders()
@@ -60,6 +62,7 @@ data class Token(
     /**
      * 使用最新的鉴权方式，注意需要频繁更新 accessToken
      */
+    @JsonIgnore
     private fun getHeadersV2(): HeadersMultiMap = hashMapOf(
         "Authorization" to "QQBot $accessToken",
         "X-Union-Appid" to "QQBot $appID"

@@ -1,7 +1,8 @@
 package com.github.zimoyin.qqbot.net.http.api
 
-import com.github.zimoyin.qqbot.net.bean.BotUser
+import com.github.zimoyin.qqbot.exception.HttpClientException
 import com.github.zimoyin.qqbot.net.Token
+import com.github.zimoyin.qqbot.net.bean.BotUser
 import com.github.zimoyin.qqbot.utils.JSON
 import com.github.zimoyin.qqbot.utils.ex.mapTo
 import com.github.zimoyin.qqbot.utils.ex.promise
@@ -20,6 +21,9 @@ fun HttpAPIClient.accessTokenUpdateAsync(token: Token): Future<String> {
     API.AccessToken.sendJsonObject(JSON.toJsonObject(token)).onSuccess {
         runCatching {
             val json = it.bodyAsJsonObject()
+            if (json.getInteger("code") != null) {
+                throw HttpClientException("[AccessToken] Token 更新失败: ${json.getString("message")}")
+            }
             token.accessToken = json.getString("access_token")
             token.expiresIn = json.getString("expires_in").toInt()
             logDebug("AccessToken", "Token 更新成功")
