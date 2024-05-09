@@ -59,9 +59,7 @@ private fun HttpAPIClient.sendGroupMessage(
 
     //发送前广播一个事件，该事件为 信息发送前 ChannelMessageSendPreEvent
     GroupMessageSendPreEvent(
-        msgID = message.id ?: "",
-        messageChain = message,
-        contact = group
+        msgID = message.id ?: "", messageChain = message, contact = group
     ).let {
         GlobalEventBus.broadcastAuto(it)
         val result = MessageSendPreEvent.result(it)
@@ -80,21 +78,27 @@ private fun HttpAPIClient.sendGroupMessage(
                 contact = group,
             )
         )
+        logDebug("sendGroupMessage", "发送消息被拦截")
         promise.tryFail(HttpClientException("发送消息被拦截"))
         return promise.future()
     }
     //发送信息处理
     val finalMessage = message0.convertChannelMessage().inferMsgType()
     if (finalMessage.channelFileBytes != null || finalMessage.channelFile != null) {
-        promise.fail(IllegalArgumentException("ChannelFileBytes or ChannelFile cannot be used for resource sending in group chats or friends"))
+        logError("sendGroupMessage", "ChannelFileBytes or ChannelFile 不能在群组和私聊中使用")
+        promise.tryFail(IllegalArgumentException("ChannelFileBytes or ChannelFile cannot be used for resource sending in group chats or friends"))
         return promise.future()
     }
     if (finalMessage.msgType == SendMessageBean.MSG_TYPE_MEDIA && finalMessage.media == null) {
         uploadMediaToGroup(id, token, finalMessage.toMediaBean()).onSuccess {
             sendGroupMessage0(finalMessage, client, id, token, promise, group, message, it)
         }.onFailure {
-            promise.tryFail(HttpClientException("Uploading media resources to server failed", it))
-            logError("sendGroupMessage", "上传资源到服务器失败", it)
+            logPreError(promise, "sendGroupMessage", "上传资源到服务器失败", it).let { isLog ->
+                promise.tryFail(HttpClientException("Uploading media resources to server failed", it)).apply {
+                    if (!this && !isLog) logError("sendGroupMessage", "上传资源到服务器失败", it)
+                }
+            }
+
         }
     } else {
         sendGroupMessage0(finalMessage, client, id, token, promise, group, message)
@@ -121,15 +125,16 @@ private fun HttpAPIClient.sendGroupMessage0(
 
     logDebug("sendGroupMessage", "发送消息: $finalMessageJson")
     //发送信息
-    client.addRestfulParam(id)
-        .putHeaders(token.getHeaders())
-        .sendJsonObject(finalMessageJson).onFailure {
-            promise.fail(it)
-            logError("sendGroupMessage", "网络错误: 发送消息失败", it)
+    client.addRestfulParam(id).putHeaders(token.getHeaders()).sendJsonObject(finalMessageJson).onFailure {
+        logPreError(promise, "sendGroupMessage", "发送消息失败", it).let { isLog ->
+            if (!promise.tryFail(it)) {
+                if (!isLog) logError("sendGroupMessage", "网络错误: 发送消息失败", it)
+            }
         }
-        .onSuccess { resp ->
-            httpSuccess(resp, group, message, promise)
-        }
+
+    }.onSuccess { resp ->
+        httpSuccess(resp, group, message, promise)
+    }
 }
 
 /**
@@ -138,19 +143,35 @@ private fun HttpAPIClient.sendGroupMessage0(
 fun HttpAPIClient.uploadMediaToGroup(id: String, token: Token, mediaBean: SendMediaBean): Future<MediaMessageBean> {
     val promise = Promise.promise<MediaMessageBean>()
     logDebug("sendGroupMessage", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url}")
-    API.uploadGroupMediaResource.addRestfulParam(id)
-        .putHeaders(token.getHeaders())
-        .sendJsonObject(JSON.toJsonObject(mediaBean))
-        .onSuccess {
+    API.uploadGroupMediaResource.addRestfulParam(id).putHeaders(token.getHeaders())
+        .sendJsonObject(JSON.toJsonObject(mediaBean)).onSuccess {
             runCatching {
                 it.bodyAsJsonObject().mapTo(MediaMessageBean::class.java)
             }.onSuccess {
                 promise.complete(it)
             }.onFailure {
-                promise.tryFail(it)
+                logPreError(
+                    promise, "sendGroupMessage", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 失败", it
+                ).let { isLog ->
+                    if (!promise.tryFail(it)) {
+                        if (!isLog) logError(
+                            "sendGroupMessage", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 失败", it
+                        )
+                    }
+                }
+
             }
         }.onFailure {
-            promise.tryFail(it)
+            logPreError(
+                promise, "sendGroupMessage", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 失败", it
+            ).let { isLog ->
+                if (!promise.tryFail(it)) {
+                    if (!isLog) logError(
+                        "sendGroupMessage", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 失败", it
+                    )
+                }
+            }
+
         }
     return promise.future()
 }
@@ -166,12 +187,16 @@ private fun HttpAPIClient.httpSuccess(
     }.onSuccess {
         parseJsonSuccess(it, group, message, promise)
     }.onFailure {
-        logError(
-            "sendGroupMessage",
-            "API does not meet expectations; resp:[${resp.bodyAsString()}]",
-            it
-        )
-        promise.fail(it)
+        logPreError(
+            promise, "sendGroupMessage", "API does not meet expectations; resp:[${resp.bodyAsString()}]"
+        ).let { isLog0 ->
+            promise.tryFail(it).apply {
+                if (!this && !isLog0) logError(
+                    "sendGroupMessage", "API does not meet expectations; resp:[${resp.bodyAsString()}]", it
+                )
+            }
+        }
+
     }
 }
 
@@ -186,24 +211,29 @@ private fun HttpAPIClient.parseJsonSuccess(
             //信息审核事件推送
             broadcastChannelMessageAuditEvent(it, group.botInfo)
             //发送成功广播一个事件该事件为 广播后 通过返回值获取构建事件
-            val chain = kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }
-                .getOrDefault(MessageChain())
+            val chain =
+                kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }.getOrDefault(MessageChain())
             broadcastChannelMessageSendEvent(message, group, chain)
             promise.tryComplete(chain)
             logDebug("sendGroupMessage", "信息审核事件中: $it")
         }
 
         else -> {
-            logError(
-                "sendGroupMessage",
-                "result -> [${it.getInteger("code")}] ${it.getString("message")}"
-            )
-            promise.tryFail(HttpClientException("The server does not receive this value: $it"))
+            logPreError(
+                promise, "sendGroupMessage", "result -> [${it.getInteger("code")}] ${it.getString("message")}"
+            ).let { isLog ->
+                promise.tryFail(HttpClientException("The server does not receive this value: $it")).apply {
+                    if (!this && !isLog) logError(
+                        "sendGroupMessage", "result -> [${it.getInteger("code")}] ${it.getString("message")}"
+                    )
+                }
+            }
+
         }
     } else {
         //发送成功广播一个事件该事件为 广播后 通过返回值获取构建事件
-        val chain = kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }
-            .getOrDefault(MessageChain())
+        val chain =
+            kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }.getOrDefault(MessageChain())
         broadcastChannelMessageSendEvent(message, group, chain)
         promise.tryComplete(chain)
     }
@@ -216,8 +246,7 @@ private fun HttpAPIClient.broadcastChannelMessageAuditEvent(
 ) {
     GlobalEventBus.broadcastAuto(
         MessageStartAuditEvent(
-            metadata = it.toString(),
-            botInfo = botInfo
+            metadata = it.toString(), botInfo = botInfo
         )
     )
 }
@@ -229,10 +258,7 @@ private fun HttpAPIClient.broadcastChannelMessageSendEvent(
 ) {
     GlobalEventBus.broadcastAuto(
         GroupMessageSendEvent(
-            msgID = message.id ?: "",
-            messageChain = message,
-            contact = group,
-            result = it
+            msgID = message.id ?: "", messageChain = message, contact = group, result = it
         )
     )
 }

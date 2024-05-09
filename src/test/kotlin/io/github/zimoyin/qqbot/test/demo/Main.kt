@@ -43,7 +43,10 @@ suspend fun main() {
         setIntents(Intents.Presets.PRIVATE_GROUP_INTENTS)
     }.apply {
         onEvent<MessageEvent> {
-            it.reply("你好".replace(".", "∙"))
+            it.reply("http:test.cn").onFailure {
+                it.printStackTrace()
+            }
+            it.reply("http:test.com")
         }
         login().onSuccess {
             logger.info("BOT登录成功")

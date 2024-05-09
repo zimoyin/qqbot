@@ -1,6 +1,9 @@
 package com.github.zimoyin.qqbot.net.http.api
 
 import com.github.zimoyin.qqbot.exception.HttpClientException
+import com.github.zimoyin.qqbot.exception.HttpHandlerException
+import com.github.zimoyin.qqbot.exception.HttpStateCodeException
+import com.github.zimoyin.qqbot.utils.ex.isInitialStage
 import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.buffer.Buffer
@@ -14,9 +17,11 @@ import org.slf4j.LoggerFactory
  */
 object HttpAPIClient {
     val logger: Logger by lazy { LoggerFactory.getLogger(API::class.java) }
+
     init {
         logger.info("API Client 日志框架准备完成，如果需要关闭该日志请手段排除该路径")
     }
+
     fun logError(apiName: String, msg: String, it: Throwable) {
         logger.error("API Client [$apiName]: $msg", HttpClientException(it))
     }
@@ -27,6 +32,28 @@ object HttpAPIClient {
 
     fun logError(apiName: String, msg: String) {
         logger.error("API Client [$apiName]: $msg")
+    }
+
+    /**
+     * 如果当前promise 中处于初始状态，则输出错误日志
+     */
+    fun <T> logPreError(promise: Promise<T>, apiName: String, msg: String): Boolean {
+        if (promise.isInitialStage()) {
+            logError(apiName, msg)
+            return true
+        }
+        return false
+    }
+
+    /**
+     * 如果当前promise 中处于初始状态，则输出错误日志
+     */
+    fun <T> logPreError(promise: Promise<T>, apiName: String, msg: String, e: Throwable): Boolean {
+        if (promise.isInitialStage()) {
+            logError(apiName, msg, e)
+            return true
+        }
+        return false
     }
 
     fun apiError(apiName: String, result: JsonObject) {
@@ -54,6 +81,10 @@ object HttpAPIClient {
         return this
     }
 
+    /**
+     * 处理响应
+     * @param errorMessage 上层指定的错误信息
+     */
     fun <T> Future<HttpResponse<Buffer>>.bodyJsonHandle(
         promise: Promise<T>,
         apiName: String,
@@ -64,7 +95,7 @@ object HttpAPIClient {
             logDebug(apiName, "API Response Code: ${it.statusCode()}")
             onSuccess0(promise, apiName, errorMessage, it, callback)
         }.onFailure {
-            logError(apiName, errorMessage, it)
+            if (!promise.tryFail(it)) logError(apiName, errorMessage, it)
         }
     }
 
@@ -95,59 +126,98 @@ object HttpAPIClient {
 
             // 解析失败
             if (accessFailed) {
-                logError(
-                    apiName, "result -> [$code] $message"
-                )
                 kotlin.runCatching {
                     //处理API访问失败的情况，callback 需要使用 promise 告知处理结果，否则会在下个流程抛出异常
-                    callback(APIJsonResult(json, false, response, errorMessage = message?:"未知错误: API 访问失败"))
+                    callback(APIJsonResult(json, false, response, errorMessage = message ?: "未知错误: API 访问失败"))
                 }.onFailure {
-                    logError(apiName, callbackErrorMessage, it)
-                    promise.tryFail(HttpClientException(it)) //callback 执行失败，保险机制
+                    //callback 执行失败，保险机制
+                    logPreError(promise, apiName, callbackErrorMessage, it)
+                    if (!promise.tryFail(HttpClientException(it))) {
+                        logError(apiName, callbackErrorMessage, it)
+                    }
                 }
                 //避免 callback 不promise 告知处理结果，导致流程卡住
-                promise.tryFail(HttpClientException("API 错误 -> [$code] $message"))
+                logPreError(promise, apiName, "API 错误 -> [$code] $message").let { isLog ->
+                    if (!promise.tryFail(HttpHandlerException("API 错误 -> [$code] $message"))) {
+                        if (!isLog) logError(apiName, "API 错误 -> [$code] $message")
+                    }
+                }
+
                 return@runCatching
             }
 
             // 访问失败，状态码错误
             if (status < 200 || status >= 400) {
-//            if (status != 200 && status != 204) {
-                if (code != null) logError(
-                    "apiName", "result -> [$code] $message"
-                ) else logError(
-                    "apiName", "API 访问失败"
-                )
                 kotlin.runCatching {
                     //处理API访问失败的情况，callback 需要使用 promise 告知处理结果，否则会在下个流程抛出异常
-                    callback(APIJsonResult(json, false, response, errorMessage = message?:"未知错误: API 访问失败"))
+                    callback(APIJsonResult(json, false, response, errorMessage = message ?: "未知错误: API 访问失败"))
                 }.onFailure {
-                    logError(apiName, callbackErrorMessage, it)
-                    promise.tryFail(HttpClientException(it)) //保险机制
+                    //保险机制
+                    logPreError(promise, apiName, callbackErrorMessage, it).let { isLog ->
+                        if (!promise.tryFail(HttpStateCodeException(it))) {
+                            if (!isLog) logError(apiName, callbackErrorMessage, it)
+                        }
+                    }
                 }
+
                 //避免 callback 不promise 告知处理结果，导致流程卡住
-                if (code != null || message != null) promise.tryFail(HttpClientException("API 错误 -> [$code] $message"))
-                promise.tryFail(HttpClientException("API 错误 -> Http Code : $status"))
+                // 如果 JSON 返回了 code  和 message
+                // 否则 返回 Http Code
+                logPreError(promise, apiName, "API 错误(HttpCode: $status) -> [$code] $message").let { isLog ->
+                    if ((code != null || message != null) && !promise.tryFail(HttpClientException("API 错误 -> [$code] $message"))) {
+                        if (!isLog) logError(apiName, "API 错误 -> [$code] $message")
+                    } else if (!promise.tryFail(HttpStateCodeException("API 错误 -> Http Code : $status"))) {
+                        if (!isLog) logError(apiName, "API 错误 -> Http Code : $status")
+                    }
+                }
                 return@runCatching
             }
 
+            // 处理API访问成功的情况
             kotlin.runCatching {
                 //处理API访问成功的情况，callback 需要使用 promise 告知处理结果，否则会在下个流程抛出异常
                 callback(APIJsonResult(json, true, response))
             }.onFailure {
-                logError(apiName, errorMessage, it)
-                promise.tryFail(HttpClientException("API access successful, an internal exception occurred during API result callback call",it)) //保险机制
+                logPreError(promise, apiName, "API 错误 -> [$code] $message").let { isLog ->
+                    promise.tryFail(
+                        HttpHandlerException(
+                            "API access successful, an internal exception occurred during API result callback call", it
+                        )
+                    ).apply {
+                        if (!this && !isLog) logError(apiName, errorMessage, it)
+                    }
+                }
             }
             //保险机制
-            promise.tryFail(HttpClientException("严重错误，API访问成功，由于 callback 未能使用 promise 告知处理结果，导致流程卡住"))
+            logPreError(
+                promise, apiName, "API 访问成功，由于 callback 未能使用 promise 告知处理结果，导致流程卡住"
+            ).let { isLog ->
+                promise.tryFail(HttpClientException("严重错误，API访问成功，由于 callback 未能使用 promise 告知处理结果，导致流程卡住"))
+                    .apply {
+                        if (!this && !isLog) logError(
+                            apiName, "API 访问成功，由于 callback 未能使用 promise 告知处理结果，导致流程卡住"
+                        )
+                    }
+            }
+
         }.onFailure {
             kotlin.runCatching {
                 callback(APIJsonResult(null, false, response))
-            }.onFailure {
-                logError(apiName, callbackErrorMessage, it)
+            }.onFailure { e ->
+                e.addSuppressed(it)
+                logPreError(promise, apiName, callbackErrorMessage, it).let { isLog ->
+                    if (!promise.tryFail(HttpClientException(e))) {
+                        if (!isLog) logError(apiName, errorMessage, e)
+                    }
+                }
             }
-            logError(apiName, errorMessage, it)
-            promise.tryFail(HttpClientException(it))
+
+            logPreError(promise, apiName, "API 访问失败 -> ${it.message}").let { isLog ->
+                if (!promise.tryFail(HttpClientException(it))) {
+                    if (!isLog) logError(apiName, errorMessage, it)
+                }
+            }
+
         }
     }
 

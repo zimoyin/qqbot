@@ -73,9 +73,7 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
 
     //发送前广播一个事件，该事件为 信息发送前 ChannelMessageSendPreEvent
     ChannelMessageSendPreEvent(
-        msgID = message.id ?: "",
-        messageChain = message,
-        contact = channel
+        msgID = message.id ?: "", messageChain = message, contact = channel
     ).let {
         GlobalEventBus.broadcastAuto(it)
         val result = MessageSendPreEvent.result(it)
@@ -94,6 +92,7 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
                 contact = channel,
             )
         )
+        logDebug("sendChannelMessageAsync0", "发送信息被拦截")
         promise.tryFail(HttpClientException("发送消息被拦截"))
         return promise.future()
     }
@@ -104,42 +103,37 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
 
     val form = MultipartForm.create()
     finalMessageJson.forEach {
-        if (it.key != null && it.value != null)
-            form.attribute(it.key, it.value.toString())
+        if (it.key != null && it.value != null) form.attribute(it.key, it.value.toString())
     }
     if (finalMessage.channelFile != null) {
         form.binaryFileUpload(
-            "file_image",
-            UUID.randomUUID().toString(),
-            finalMessage.channelFile.path,
-            "file"
+            "file_image", UUID.randomUUID().toString(), finalMessage.channelFile.path, "file"
         )
     } else if (finalMessage.channelFileBytes != null) {
         form.binaryFileUpload(
-            "file_image",
-            UUID.randomUUID().toString(),
-            Buffer.buffer(finalMessage.channelFileBytes),
-            "file"
+            "file_image", UUID.randomUUID().toString(), Buffer.buffer(finalMessage.channelFileBytes), "file"
         )
     }
-    if (finalMessage.audioURI != null || finalMessage.videoURI != null){
-        promise.fail(IllegalArgumentException("AudioURI and videoURI cannot be used for resource sending in channels"))
+    if (finalMessage.audioURI != null || finalMessage.videoURI != null) {
+        logError("sendChannelMessageAsync", "AudioURI 和 videoURI 不能在频道中使用")
+        promise.tryFail(IllegalArgumentException("AudioURI and videoURI cannot be used for resource sending in channels"))
         return promise.future()
     }
 
     logDebug("sendChannelMessageAsync", "发送消息: ${finalMessage.toStrings()}")
     //发送信息
-    client.addRestfulParam(id)
-        .putHeaders(token.getHeaders())
-//        .sendJsonObject(finalMessageJson).onFailure {
+    client.addRestfulParam(id).putHeaders(token.getHeaders())
+//        .sendJsonObject(finalMessageJson).onFailure { // JSON 方式发送
 //            promise.fail(it)
 //            logError("sendChannelPrivateMessageAsync", "网络错误: 发送消息失败", it)
 //        }
         .sendMultipartForm(form).onFailure {
-            promise.fail(it)
-            logError("sendChannelPrivateMessageAsync", "网络错误: 发送消息失败", it)
-        }
-        .onSuccess { resp ->
+            logPreError(promise, "sendChannelPrivateMessageAsync", "网络错误: 发送消息失败", it).let { isLog ->
+                if (!promise.tryFail(it)) {
+                    if (!isLog) logError("sendChannelPrivateMessageAsync", "网络错误: 发送消息失败", it)
+                }
+            }
+        }.onSuccess { resp ->
             httpSuccess(resp, channel, message, promise)
         }
     return promise.future()
@@ -156,12 +150,16 @@ private fun HttpAPIClient.httpSuccess(
     }.onSuccess {
         parseJsonSuccess(it, channel, message, promise)
     }.onFailure {
-        logError(
-            "sendChannelMessage",
-            "API does not meet expectations; resp:[${resp.bodyAsString()}]",
-            it
-        )
-        promise.fail(it)
+        logPreError(
+            promise, "sendChannelMessage", "API does not meet expectations; resp:[${resp.bodyAsString()}]"
+        ).let { isLog ->
+            if (!promise.tryFail(it)) {
+                if (!isLog) logError(
+                    "sendChannelMessage", "API does not meet expectations; resp:[${resp.bodyAsString()}]", it
+                )
+            }
+        }
+
     }
 }
 
@@ -176,27 +174,41 @@ private fun HttpAPIClient.parseJsonSuccess(
             //信息审核事件推送
             broadcastChannelMessageAuditEvent(it, channel)
             //发送成功广播一个事件该事件为 广播后 通过返回值获取构建事件
-            val chain = kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }
-                .getOrDefault(MessageChain())
+            val chain =
+                kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }.getOrDefault(MessageChain())
             broadcastChannelMessageSendEvent(message, channel, chain)
             promise.tryComplete(chain)
             logDebug("sendChannelMessage", "信息审核事件中: $it")
         }
 
-        304003 ->{
-            logError("sendChannelMessage", "result -> [${it.getInteger("code")}] ${it.getString("message")} : 发送的信息中出现了类似或者近似于域名的链接，请检查信息是否包含类似域名的链接，并在机器人平台报备。如果不是请将英文句号进行替换，推荐替换成‘∙’ 或者‘,’")
+        304003 -> {
+            logPreError(promise, "sendChannelMessage", "发送信息中包含链接").let { isLog ->
+                promise.tryFail(HttpClientException("The server does not receive this value: $it")).apply {
+                    if (!this && !isLog) logError(
+                        "sendChannelMessage",
+                        "result -> [${it.getInteger("code")}] ${it.getString("message")} : 发送的信息中出现了类似或者近似于域名的链接，请检查信息是否包含类似域名的链接，并在机器人平台报备。如果不是请将英文句号进行替换，推荐替换成‘∙’ 或者‘,’"
+                    )
+                }
+            }
+
         }
+
         else -> {
-            logError(
-                "sendChannelMessage",
-                "result -> [${it.getInteger("code")}] ${it.getString("message")}"
-            )
-            promise.tryFail(HttpClientException("The server does not receive this value: $it"))
+            logPreError(
+                promise, "sendChannelMessage", "result -> [${it.getInteger("code")}] ${it.getString("message")}"
+            ).let { isLog ->
+                promise.tryFail(HttpClientException("The server does not receive this value: $it")).apply {
+                    if (!this && !isLog) logError(
+                        "sendChannelMessage", "result -> [${it.getInteger("code")}] ${it.getString("message")}"
+                    )
+                }
+            }
+
         }
     } else {
         //发送成功广播一个事件该事件为 广播后 通过返回值获取构建事件
-        val chain = kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }
-            .getOrDefault(MessageChain())
+        val chain =
+            kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }.getOrDefault(MessageChain())
         broadcastChannelMessageSendEvent(message, channel, chain)
         promise.tryComplete(chain)
     }
@@ -209,8 +221,7 @@ private fun HttpAPIClient.broadcastChannelMessageAuditEvent(
 ) {
     GlobalEventBus.broadcastAuto(
         MessageStartAuditEvent(
-            metadata = it.toString(),
-            botInfo = channel.botInfo
+            metadata = it.toString(), botInfo = channel.botInfo
         )
     )
 }
@@ -222,10 +233,7 @@ private fun HttpAPIClient.broadcastChannelMessageSendEvent(
 ) {
     GlobalEventBus.broadcastAuto(
         ChannelMessageSendEvent(
-            msgID = message.id ?: "",
-            messageChain = message,
-            contact = channel,
-            result = it
+            msgID = message.id ?: "", messageChain = message, contact = channel, result = it
         )
     )
 }

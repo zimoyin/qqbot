@@ -32,7 +32,16 @@ fun HttpAPIClient.recallGroupMessage(
                 callback?.let { it1 -> it1(true) }
             } else {
                 //                promise.complete(false)
-                promise.fail(HttpClientException(it.errorMessage ?: "未知错误,导致撤回失败"))
+                logPreError(
+                    promise, "recallGroupMessage", it.errorMessage ?: "未知错误,导致撤回失败"
+
+                ).let { isLog ->
+                    if (!promise.tryFail(HttpClientException(it.errorMessage ?: "未知错误,导致撤回失败"))) {
+                        if (!isLog) logError(
+                            "recallGroupMessage", "撤回消息失败", it.errorMessage ?: "未知错误,导致撤回失败"
+                        )
+                    }
+                }
                 callback?.let { it1 -> it1(false) }
             }
         }

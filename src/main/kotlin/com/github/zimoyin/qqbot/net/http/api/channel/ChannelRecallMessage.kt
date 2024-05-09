@@ -35,7 +35,12 @@ fun HttpAPIClient.recallChannelMessage(
                 callback?.let { it1 -> it1(true) }
             } else {
                 //                promise.complete(false)
-                promise.fail(HttpClientException(it.errorMessage ?: "未知错误,导致撤回失败"))
+                logPreError(promise,"recallChannelProvateMessage", it.errorMessage ?: "未知错误,导致撤回失败").let { isLog->
+                    if (!promise.tryFail(HttpClientException(it.errorMessage ?: "未知错误,导致撤回失败"))) {
+                        logError("recallChannelProvateMessage", it.errorMessage ?: "未知错误,导致撤回失败")
+                    }
+                }
+
                 callback?.let { it1 -> it1(false) }
             }
         }
@@ -68,7 +73,11 @@ fun HttpAPIClient.recallChannelPrivateMessage(
                 callback?.let { it1 -> it1(true) }
             } else {
 //                promise.complete(false)
-                promise.fail(HttpClientException(it.errorMessage ?: "未知错误,导致撤回失败"))
+                logPreError(promise,"recallChannelMyProvateMessage", it.errorMessage ?: "未知错误,导致撤回失败").let { isLog->
+                    if (!promise.tryFail(HttpClientException(it.errorMessage ?: "未知错误,导致撤回失败"))) {
+                        logError("recallChannelMyProvateMessage", it.errorMessage ?: "未知错误,导致撤回失败")
+                    }
+                }
                 callback?.let { it1 -> it1(false) }
             }
         }

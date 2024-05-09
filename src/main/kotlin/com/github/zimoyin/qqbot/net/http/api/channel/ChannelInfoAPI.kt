@@ -2,8 +2,8 @@ package com.github.zimoyin.qqbot.net.http.api.channel
 
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.contact.Channel
-import com.github.zimoyin.qqbot.bot.contact.channel.ChannelImpl
 import com.github.zimoyin.qqbot.bot.contact.ChannelUser
+import com.github.zimoyin.qqbot.bot.contact.channel.ChannelImpl
 import com.github.zimoyin.qqbot.exception.HttpClientException
 import com.github.zimoyin.qqbot.net.bean.ChannelBean
 import com.github.zimoyin.qqbot.net.bean.GuildBean
@@ -13,7 +13,10 @@ import com.github.zimoyin.qqbot.net.http.addRestfulParam
 import com.github.zimoyin.qqbot.net.http.api.API
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.utils.JSON
-import com.github.zimoyin.qqbot.utils.ex.*
+import com.github.zimoyin.qqbot.utils.ex.await
+import com.github.zimoyin.qqbot.utils.ex.mapTo
+import com.github.zimoyin.qqbot.utils.ex.promise
+import com.github.zimoyin.qqbot.utils.ex.writeToText
 import com.github.zimoyin.qqbot.utils.mapTo
 import com.github.zimoyin.qqbot.utils.task
 import io.vertx.core.Future
@@ -256,8 +259,9 @@ fun HttpAPIClient.getGuildMembers(
                 id = beans.last().user!!.uid
             }
         }.onFailure {
-            logError("ChannelMembers", "获取频道成员失败", it)
-            promise.fail(it)
+            logPreError(promise, "ChannelMembers", "获取频道成员失败", it).let { isLog ->
+                if (!promise.tryFail(it) && !isLog) logError("ChannelMembers", "获取频道成员失败", it)
+            }
         }.onSuccess {
             val result = list.toList().map { it.mapToChannelUser(channel) }
             promise.complete(result)
@@ -290,8 +294,12 @@ fun HttpAPIClient.getChannelOnlineMemberSize(
                     promise.complete(count)
                     callback?.let { it1 -> it1(count) }
                 } else {
-                    promise.fail(HttpClientException("The API returned unexpected content: ${it.body.writeToText()}"))
-                    apiError("ChannelOnlineMemberSize", it.body.toJsonObject())
+                    val e = HttpClientException("The API returned unexpected content: ${it.body.writeToText()}")
+                    logPreError(promise, "ChannelOnlineMemberSize", "获取频道在线人数失败", e).let { isLog ->
+                        if (!promise.tryFail(e)) {
+                            if (!isLog) apiError("ChannelOnlineMemberSize", it.body.toJsonObject())
+                        }
+                    }
                 }
             }
         }
@@ -322,8 +330,12 @@ fun HttpAPIClient.getGuildRoles(
                     promise.complete(rolesBean)
                     callback?.let { it1 -> it1(rolesBean) }
                 } else {
-                    promise.fail(HttpClientException("The API returned unexpected content: ${it.body.writeToText()}"))
-                    apiError("GuildRoles", it.body.toJsonObject())
+                    val e = HttpClientException("The API returned unexpected content: ${it.body.writeToText()}")
+                    logPreError(promise, "GuildRoles", "获取身分组信息失败", e).let { isLog ->
+                        if (!promise.tryFail(e)) {
+                            if (!isLog) apiError("GuildRoles", it.body.toJsonObject())
+                        }
+                    }
                 }
 
             }
@@ -367,16 +379,26 @@ private fun HttpAPIClient.getGuildRoleMembersPage(
                     promise.complete(json)
                     callback?.let { it1 -> it1(json) }
                 } else {
-                    promise.fail(HttpClientException("The API returned unexpected content: ${resp.bodyAsString()}"))
-                    apiError("GuildRoles", resp.bodyAsJsonObject())
+                    val e = HttpClientException("The API returned unexpected content: ${resp.bodyAsString()}")
+                    logPreError(promise, "GuildRoleMembersPage", "获取频道身份组成员失败", e).let { isLog ->
+                        promise.tryFail(e).apply {
+                            if (!this) apiError("GuildRoles", resp.bodyAsJsonObject())
+                        }
+                    }
                 }
             }.onFailure {
-                logError("GuildRoleMembersPage", "获取频道身份组成员失败", it)
-                promise.tryFail(it)
+                logPreError(promise, "GuildRoleMembersPage", "获取频道身份组成员失败", it).let { isLog ->
+                    if (!promise.tryFail(it)) {
+                        if (!isLog) logError("GuildRoleMembersPage", "获取频道身份组成员失败", it)
+                    }
+                }
             }
         }.onFailure {
-            logError("GuildRoleMembersPage", "获取频道身份组成员失败", it)
-            promise.tryFail(it)
+            logPreError(promise, "GuildRoleMembersPage", "获取频道身份组成员失败", it).let { isLog ->
+                if (!promise.tryFail(it)) {
+                    if (!isLog) logError("GuildRoleMembersPage", "获取频道身份组成员失败", it)
+                }
+            }
         }
     return promise.future()
 }
@@ -420,8 +442,11 @@ fun HttpAPIClient.getGuildRoleMembers(
                 next = tempNext
             }
         }.onFailure {
-            logError("ChannelMembers", "获取频道成员失败", it)
-            promise.fail(it)
+            logPreError(promise, "ChannelMembers", "获取频道成员失败", it).let { isLog ->
+                if (!promise.tryFail(it)) {
+                    if (!isLog) logError("ChannelMembers", "获取频道成员失败", it)
+                }
+            }
         }.onSuccess {
             val beans = list.toList().map { it.mapToChannelUser(channel) }
             promise.complete(beans)

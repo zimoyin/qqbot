@@ -22,17 +22,24 @@ fun HttpAPIClient.recallFriendMessage(
     callback: ((Boolean) -> Unit)? = null,
 ): Future<Boolean> {
     val promise = promise<Boolean>()
-    API.RecallFriendMyMessage
-        .putHeaders(friend.botInfo.token.getHeaders())
-        .addRestfulParam(friend.id, messageID)
-        .send()
+    API.RecallFriendMyMessage.putHeaders(friend.botInfo.token.getHeaders()).addRestfulParam(friend.id, messageID).send()
         .bodyJsonHandle(promise, "recallFriendMessage", "撤回消息失败") {
             if (it.result) {
                 promise.complete(true)
                 callback?.let { it1 -> it1(true) }
             } else {
                 //                promise.complete(false)
-                promise.fail(HttpClientException(it.errorMessage ?: "未知错误,导致撤回失败"))
+                logPreError(
+                    promise, "recallFriendMessage", it.errorMessage ?: "未知错误,导致撤回失败"
+
+                ).let { isLog ->
+                    if (!promise.tryFail(HttpClientException(it.errorMessage ?: "未知错误,导致撤回失败"))) {
+                        if (!isLog) logError(
+                            "recallFriendMessage", "撤回消息失败", it.errorMessage ?: "未知错误,导致撤回失败"
+                        )
+                    }
+                }
+
                 callback?.let { it1 -> it1(false) }
             }
         }

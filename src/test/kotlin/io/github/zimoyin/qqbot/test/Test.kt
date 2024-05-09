@@ -1,6 +1,8 @@
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.zimoyin.qqbot.utils.ex.toJsonObject
-import java.net.URI
+import com.github.zimoyin.qqbot.utils.ex.isCompleted
+import com.github.zimoyin.qqbot.utils.ex.isInitialStage
+import com.github.zimoyin.qqbot.utils.ex.isNotListener
+import com.github.zimoyin.qqbot.utils.ex.promise
+import io.vertx.core.impl.future.PromiseImpl
 
 /**
  *
@@ -10,8 +12,15 @@ import java.net.URI
 
 
 suspend fun main() {
-    val uri = URI.create("http://cdn.pixabay.com/video/2023/08/11/175587-853887900_large.mp4?a")
-    println(
-        "${uri.host?:""}${uri.path?:""}${uri.query?.let { "?$it" }?:""}"
-    )
+    val promise = promise<String>()
+    val future = promise.future()
+    println(future::class.java)
+    future.onFailure {
+        println("58")
+    }
+//    promise.tryFail("")
+
+
+
+    println(promise.isInitialStage())
 }

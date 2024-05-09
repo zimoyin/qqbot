@@ -4,7 +4,10 @@ import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.contact.Friend
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.event.events.MessageStartAuditEvent
-import com.github.zimoyin.qqbot.event.events.platform.*
+import com.github.zimoyin.qqbot.event.events.platform.FriendMessageSendEvent
+import com.github.zimoyin.qqbot.event.events.platform.FriendMessageSendPreEvent
+import com.github.zimoyin.qqbot.event.events.platform.MessageSendInterceptEvent
+import com.github.zimoyin.qqbot.event.events.platform.MessageSendPreEvent
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.exception.HttpClientException
 import com.github.zimoyin.qqbot.net.Token
@@ -56,9 +59,7 @@ private fun HttpAPIClient.sendFriendMessage(
 
     //发送前广播一个事件，该事件为 信息发送前 ChannelMessageSendPreEvent
     FriendMessageSendPreEvent(
-        msgID = message.id ?: "",
-        messageChain = message,
-        contact = friend
+        msgID = message.id ?: "", messageChain = message, contact = friend
     ).let {
         GlobalEventBus.broadcastAuto(it)
         val result = MessageSendPreEvent.result(it)
@@ -77,21 +78,26 @@ private fun HttpAPIClient.sendFriendMessage(
                 contact = friend,
             )
         )
+        logDebug("sendFriendMessage", "发送消息被拦截")
         promise.tryFail(HttpClientException("发送消息被拦截"))
         return promise.future()
     }
     //发送信息处理
     val finalMessage = message0.convertChannelMessage().inferMsgType()
     if (finalMessage.channelFileBytes != null || finalMessage.channelFile != null) {
-        promise.fail(IllegalArgumentException("ChannelFileBytes or ChannelFile cannot be used for resource sending in group chats or friends"))
+        logError("sendFirendMessage0", "ChannelFileBytes or ChannelFile 不能在群组或者私聊中使用")
+        promise.tryFail(IllegalArgumentException("ChannelFileBytes or ChannelFile cannot be used for resource sending in group chats or friends"))
         return promise.future()
     }
     if (finalMessage.msgType == SendMessageBean.MSG_TYPE_MEDIA && finalMessage.media == null) {
         uploadMedia(id, token, finalMessage.toMediaBean()).onSuccess {
             sendFirendMessage0(finalMessage, client, id, token, promise, friend, message, it)
         }.onFailure {
-            promise.tryFail(HttpClientException("Uploading media resources to server failed", it))
-            logError("sendFirendMessage0", "上传资源到服务器失败", it)
+            logPreError(promise, "sendFirendMessage0", "上传资源到服务器失败", it).let { isLog ->
+                promise.tryFail(HttpClientException("Uploading media resources to server failed", it)).apply {
+                    if (!this && !isLog) logError("sendFirendMessage0", "上传资源到服务器失败", it)
+                }
+            }
         }
     } else {
         sendFirendMessage0(finalMessage, client, id, token, promise, friend, message)
@@ -119,15 +125,16 @@ private fun HttpAPIClient.sendFirendMessage0(
 
     logDebug("sendFirendMessage0", "发送消息: $finalMessageJson")
     //发送信息
-    client.addRestfulParam(id)
-        .putHeaders(token.getHeaders())
-        .sendJsonObject(finalMessageJson).onFailure {
-            promise.fail(it)
-            logError("sendFirendMessage0", "网络错误: 发送消息失败", it)
+    client.addRestfulParam(id).putHeaders(token.getHeaders()).sendJsonObject(finalMessageJson).onFailure {
+        logPreError(promise, "sendFirendMessage0", "发送消息失败", it).let { isLog ->
+            if (!promise.tryFail(it)) {
+                if (!isLog) logError("sendFirendMessage0", "网络错误: 发送消息失败", it)
+            }
         }
-        .onSuccess { resp ->
-            httpSuccess(resp, friend, message, promise)
-        }
+
+    }.onSuccess { resp ->
+        httpSuccess(resp, friend, message, promise)
+    }
 }
 
 /**
@@ -136,19 +143,35 @@ private fun HttpAPIClient.sendFirendMessage0(
 private fun HttpAPIClient.uploadMedia(id: String, token: Token, mediaBean: SendMediaBean): Future<MediaMessageBean> {
     val promise = Promise.promise<MediaMessageBean>()
     logDebug("sendFirendMessage0", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url}")
-    API.uploadFriendMediaResource.addRestfulParam(id)
-        .putHeaders(token.getHeaders())
-        .sendJsonObject(JSON.toJsonObject(mediaBean))
-        .onSuccess {
+    API.uploadFriendMediaResource.addRestfulParam(id).putHeaders(token.getHeaders())
+        .sendJsonObject(JSON.toJsonObject(mediaBean)).onSuccess {
             runCatching {
                 it.bodyAsJsonObject().mapTo(MediaMessageBean::class.java)
             }.onSuccess {
                 promise.complete(it)
             }.onFailure {
-                promise.tryFail(it)
+                logPreError(
+                    promise, "sendFirendMessage0", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 失败", it
+                ).let { isLog ->
+                    if (!promise.tryFail(it)) {
+                        if (!isLog) logError(
+                            "sendFirendMessage0", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 失败", it
+                        )
+                    }
+                }
+
             }
         }.onFailure {
-            promise.tryFail(it)
+            logPreError(
+                promise, "sendFirendMessage0", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 失败", it
+            ).let { isLog ->
+                if (!promise.tryFail(it)) {
+                    if (!isLog) logError(
+                        "sendFirendMessage0", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 失败", it
+                    )
+                }
+            }
+
         }
     return promise.future()
 }
@@ -164,12 +187,16 @@ private fun HttpAPIClient.httpSuccess(
     }.onSuccess {
         parseJsonSuccess(it, friend, message, promise)
     }.onFailure {
-        logError(
-            "sendChannelMessage",
-            "API does not meet expectations; resp:[${resp.bodyAsString()}]",
-            it
-        )
-        promise.fail(it)
+        logPreError(
+            promise, "sendFirendMessage0", "API does not meet expectations; resp:[${resp.bodyAsString()}]", it
+        ).let { isLog ->
+            if (!promise.tryFail(it)) {
+                if (!isLog) logError(
+                    "sendChannelMessage", "API does not meet expectations; resp:[${resp.bodyAsString()}]", it
+                )
+            }
+        }
+
     }
 }
 
@@ -184,24 +211,29 @@ private fun HttpAPIClient.parseJsonSuccess(
             //信息审核事件推送
             broadcastChannelMessageAuditEvent(it, friend.botInfo)
             //发送成功广播一个事件该事件为 广播后 通过返回值获取构建事件
-            val chain = kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }
-                .getOrDefault(MessageChain())
+            val chain =
+                kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }.getOrDefault(MessageChain())
             broadcastChannelMessageSendEvent(message, friend, chain)
             promise.tryComplete(chain)
             logDebug("sendChannelMessage", "信息审核事件中: $it")
         }
 
         else -> {
-            logError(
-                "sendChannelMessage",
-                "result -> [${it.getInteger("code")}] ${it.getString("message")}"
-            )
-            promise.tryFail(HttpClientException("The server does not receive this value: $it"))
+            logPreError(
+                promise, "sendFirendMessage0", "API does not meet expectations; resp:[$it]"
+            ).let { isLog ->
+                promise.tryFail(HttpClientException("The server does not receive this value: $it")).apply {
+                    if (!this && !isLog) logError(
+                        "sendChannelMessage", "result -> [${it.getInteger("code")}] ${it.getString("message")}"
+                    )
+                }
+            }
+
         }
     } else {
         //发送成功广播一个事件该事件为 广播后 通过返回值获取构建事件
-        val chain = kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }
-            .getOrDefault(MessageChain())
+        val chain =
+            kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }.getOrDefault(MessageChain())
         broadcastChannelMessageSendEvent(message, friend, chain)
         promise.tryComplete(chain)
     }
@@ -214,8 +246,7 @@ private fun HttpAPIClient.broadcastChannelMessageAuditEvent(
 ) {
     GlobalEventBus.broadcastAuto(
         MessageStartAuditEvent(
-            metadata = it.toString(),
-            botInfo = botInfo
+            metadata = it.toString(), botInfo = botInfo
         )
     )
 }
@@ -227,10 +258,7 @@ private fun HttpAPIClient.broadcastChannelMessageSendEvent(
 ) {
     GlobalEventBus.broadcastAuto(
         FriendMessageSendEvent(
-            msgID = message.id ?: "",
-            messageChain = message,
-            contact = friend,
-            result = it
+            msgID = message.id ?: "", messageChain = message, contact = friend, result = it
         )
     )
 }
