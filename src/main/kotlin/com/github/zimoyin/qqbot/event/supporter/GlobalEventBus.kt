@@ -69,7 +69,9 @@ open class BotEventBus(val bus: EventBus) {
 
     /**
      * 广播事件，能将当前事件（当前事件的Class为基础）广播到当前事件与父事件的接收者。
-     * 将当前的事件以泛型描述的类型进行广播
+     * 将当前的事件以泛型描述的类型进行广播。
+     * 后补的注释：当前事件向上转型到父事件，然后父事件的订阅者就能接收了。这样就能让监听高抽象事件的订阅者能收到子事件的了。
+     * 同时多个事件因为是向上转型，这就意味着高订阅者实际接收到的是当前的事件。不会丢失子事件细节
      */
     inline fun <reified T : Event> broadcast(message: T) {
         var currentClass: Class<*>? = T::class.java

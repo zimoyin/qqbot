@@ -139,7 +139,7 @@ class PayloadCmdHandler(private val bot: Bot) {
                 11 -> opcode11() // 服务器响应心跳
                 7 -> opcode7(payload) // 服务器通知客户端重新连接
                 9 -> opcode9(payload) // 参数错误比如要求的权限不合适
-                else -> logger.warn("WebSocket[${ws.hashCode()}] receive(unknown) : {}", payload)
+                else -> logger.error("WebSocket[${ws.hashCode()}] receive(unknown) : {}", payload)
             }
         } catch (e: Exception) {
             logger.error(
@@ -193,7 +193,7 @@ class PayloadCmdHandler(private val bot: Bot) {
      */
     private fun opcode0(payload: Payload) {
         openHeartbeat()
-        if (debugLog) logger.debug("WebSocket[${ws.hashCode()}] receive(0): MataData")
+        // 链接服务器事件
         if (payload.eventType == "READY") {
             promise.complete(ws)
             sessionID = JSON.toJsonObject(payload.metadata).getJsonObject("d").let {
@@ -224,8 +224,10 @@ class PayloadCmdHandler(private val bot: Bot) {
 
     private fun broadcast(payload: Payload) {
         payload.eventType?.apply {// 获取元事件类型
+            if (debugLog) logger.debug("WebSocket[${ws.hashCode()}] receive(0) 元事件类型: $this")
             EventMapping.get(this)?.apply {// 获取注册的元事件
                 eventHandler.getDeclaredConstructor().newInstance().apply { // 获取该事件类型的处理器
+                    if (debugLog) logger.debug("WebSocket[{}] receive(0) 事件处理器: {}", ws.hashCode(), this::class.java.typeName)
                     try {
                         eventBus.broadcastAuto(handle(payload)) //广播事件
                     } catch (e: Exception) {
