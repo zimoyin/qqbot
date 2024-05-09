@@ -2,7 +2,7 @@ package com.github.zimoyin.qqbot.net
 
 /**
  * 事件的 intents 是一个标记位，每一位都代表不同的事件，如果需要接收某类事件，就将该位置为 1。
- * 该文件大部分代码来自于 @author github.kloping 的 github.com/Kloping/qqpd-bot-java 项目
+ *
  */
 enum class Intents(val code: Int) {
     /**
@@ -175,17 +175,12 @@ enum class Intents(val code: Int) {
         return code0
     }
 
-    /**
-     * 使用按位或运算将多个 [Intents] 组合成一个整数代码，作为订阅事件的起始点。
-     *
-     * 该函数接受可变数量的 [Intents] 参数，并使用按位或运算将它们各自的代码组合成一个整数，
-     * 作为订阅 Discord 事件的起始点。通常用于创建一个复合代码，以同时订阅多个 Discord 事件。
-     *
-     * @param intents 要使用按位或运算组合的 [Intents]。
-     * @return 表示组合 [Intents] 的整数代码，作为订阅事件的起始点。
-     */
-    fun create(vararg intents: Intents): Int {
-        return START.and(*intents)
+    fun and(vararg intents: Int): Int {
+        var code0 = code
+        for (intent in intents) {
+            code0 = code0 or intent
+        }
+        return code0
     }
 
 
@@ -203,6 +198,25 @@ enum class Intents(val code: Int) {
 
     companion object {
         /**
+         * 使用按位或运算将多个 [Intents] 组合成一个整数代码，作为订阅事件的起始点。
+         *
+         * 该函数接受可变数量的 [Intents] 参数，并使用按位或运算将它们各自的代码组合成一个整数，
+         * 作为订阅 Discord 事件的起始点。通常用于创建一个复合代码，以同时订阅多个 Discord 事件。
+         *
+         * @param intents 要使用按位或运算组合的 [Intents]。
+         * @return 表示组合 [Intents] 的整数代码，作为订阅事件的起始点。
+         */
+        @JvmStatic
+        fun create(vararg intents: Intents): Int {
+            return START.and(*intents)
+        }
+
+        @JvmStatic
+        fun create(vararg intents: Int): Int {
+            return START.and(*intents)
+        }
+
+        /**
          * 解析给定的整数代码，返回对应的 [Intents] 配置项集合。
          *
          * 该方法通过按位与运算，解析整数代码并将其映射到对应的 [Intents] 配置项。起始点配置项（START）将被排除在结果集之外。
@@ -210,6 +224,7 @@ enum class Intents(val code: Int) {
          * @param code 要解析的整数代码。
          * @return 包含解析出的 [Intents] 配置项的集合。
          */
+        @JvmStatic
         fun decodeIntents(code: Int): Set<Intents> {
             val result = mutableSetOf<Intents>()
 

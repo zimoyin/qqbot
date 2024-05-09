@@ -51,6 +51,12 @@ data class Token(
         }
     }
 
+    @JvmName("version")
+    fun putVersion(version: Int): Token {
+        this.version = version
+        return this
+    }
+
     /**
      * 老版本鉴权
      */
@@ -69,15 +75,18 @@ data class Token(
     ).toHeaders()
 
     companion object {
+        @JvmStatic
         @JvmOverloads
         fun create(appID: String, token: String, appSecret: String = ""): Token {
             return Token(appID, token, appSecret)
         }
 
+        @JvmStatic
         fun createByToken(appID: String, token: String): Token {
             return Token(appID, token)
         }
 
+        @JvmStatic
         fun createByAppSecret(appID: String, appSecret: String): Token {
             return Token(appID, "", appSecret)
         }

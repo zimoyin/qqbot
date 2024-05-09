@@ -74,6 +74,7 @@ class BotImp(
             val exception = IllegalArgumentException("Unsupported version: ${token.version}")
             if (!promise.tryFail(exception)) logger.error("无法启动 ws 客户端", exception)
         }
+        // 返回
         return promise.future().onSuccess {
             if (websocketClient == null) {
                 promise.tryFail(NullPointerException("websocketClient is null"))

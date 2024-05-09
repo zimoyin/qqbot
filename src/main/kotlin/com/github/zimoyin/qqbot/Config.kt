@@ -45,14 +45,3 @@ val GLOBAL_VERTX_INSTANCE: Vertx by lazy {
 fun createVertx(options: VertxOptions = GLOBAL_VERTX_OPTIONS): Vertx {
     return Vertx.vertx(options)
 }
-
-const val VERSION = "alpha 1.0.0"
-const val VERTX_VERSION = "4.5.0"
-
-fun main() {
-    println("Hello QQ_Bot_Framework!")
-    println("Date: ${System.currentTimeMillis()}")
-    println("Version: $VERSION")
-    println("Vertx version: $VERTX_VERSION")
-    println("JVM version: ${System.getProperty("java.version")}")
-}

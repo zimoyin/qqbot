@@ -40,6 +40,33 @@ interface Bot : Serializable, Contact {
     companion object INSTANCE {
         private val map = HashMap<String, Bot>()
 
+        /**
+         * 创建BOT
+         * @param token Token
+         * @param intents 订阅事件
+         */
+        @JvmStatic
+        fun createBot(token: Token, intents: Int): Bot {
+            val config = BotConfigBuilder().setToken(token).setIntents(intents).build()
+            val botImp = BotImp(config.token, config = config)
+            map[config.token.appID] = botImp
+            return botImp
+        }
+
+        /**
+         * 创建BOT
+         * @param token Token
+         * @param intents 订阅事件
+         */
+        @JvmStatic
+        fun createBot(token: Token, intents: Intents.Presets): Bot {
+            val config = BotConfigBuilder().setToken(token).setIntents(intents).build()
+            val botImp = BotImp(config.token, config = config)
+            map[config.token.appID] = botImp
+            return botImp
+        }
+
+        @Deprecated("Not recommended for use")
         fun createBot(token: Token): Bot {
             val config = BotConfigBuilder().setToken(token).build()
             val botImp = BotImp(config.token, config = config)
@@ -47,7 +74,7 @@ interface Bot : Serializable, Contact {
             return botImp
         }
 
-        @JvmName("nonCreateBot")
+        @JvmName("kotlinCreateBot")
         fun createBot(token: Token, callback: BotConfigBuilder.() -> Unit): Bot {
             val config = BotConfigBuilder().setToken(token).apply { callback() }.build()
             val botImp = BotImp(config.token, config = config)
@@ -55,7 +82,7 @@ interface Bot : Serializable, Contact {
             return botImp
         }
 
-
+        @JvmStatic
         fun createBot(callback: Consumer<BotConfigBuilder>): Bot {
             val config = BotConfigBuilder().apply { callback.accept(this) }.build()
             val botImp = BotImp(config.token, config = config)
@@ -63,7 +90,7 @@ interface Bot : Serializable, Contact {
             return botImp
         }
 
-
+        @JvmStatic
         fun createBot(configBuilder: BotConfigBuilder): Bot {
             val config = configBuilder.build()
             val botImp = BotImp(config.token, config = config)
@@ -159,7 +186,7 @@ interface Bot : Serializable, Contact {
                     kotlin.runCatching {
                         callback.accept(msg.body())
                     }.onFailure {
-                        throw EventBusException(RuntimeException("Caller: $stackTrace",it))
+                        throw EventBusException(RuntimeException("Caller: $stackTrace", it))
                     }
                 }
             }
@@ -179,7 +206,7 @@ interface Bot : Serializable, Contact {
                         kotlin.runCatching {
                             callback.accept(msg.body())
                         }.onFailure {
-                            throw EventBusException(RuntimeException("Caller: $stackTrace",it))
+                            throw EventBusException(RuntimeException("Caller: $stackTrace", it))
                         }
                     }
                 }
@@ -356,7 +383,7 @@ inline fun <reified T : Event> Bot.onVertxEvent(crossinline callback: suspend Me
                 kotlin.runCatching {
                     msg.callback(msg.body())
                 }.onFailure {
-                    throw EventBusException(RuntimeException("Caller: $stackTrace",it))
+                    throw EventBusException(RuntimeException("Caller: $stackTrace", it))
                 }
             }
         }
@@ -377,7 +404,7 @@ inline fun <reified T : Event> Bot.onEvent(crossinline callback: suspend Message
                     kotlin.runCatching {
                         callback(msg, msg.body())
                     }.onFailure {
-                        throw EventBusException(RuntimeException("Caller: $stackTrace",it))
+                        throw EventBusException(RuntimeException("Caller: $stackTrace", it))
                     }
                 }
             }

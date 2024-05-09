@@ -1,4 +1,4 @@
-package io.github.zimoyin.qqbot.test
+package example.kotlin
 
 
 import com.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
@@ -26,7 +26,6 @@ suspend fun main() {
     val logger = LoggerFactory.getLogger("Main")
 
     token.version = 1
-    // TODO V2 出现BUG
 //    token.version = 2
 
     //监听该BOT的全局事件
@@ -53,8 +52,6 @@ suspend fun main() {
         return@interceptor it
     }
 
-    // TODO 添加企业机器人 IP 白名单提示
-    // TODO 添加沙盒环境选项
     DefaultHttpClient.isSandBox = true
     Bot.createBot(token) {
 //        setIntents(Intents.Presets.PRIVATE_INTENTS)
