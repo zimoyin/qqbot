@@ -2,14 +2,13 @@ package com.github.zimoyin.qqbot.net.http.api.channel
 
 import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.contact.Channel
-import com.github.zimoyin.qqbot.net.bean.MessageSetting
+import com.github.zimoyin.qqbot.net.bean.message.MessageSetting
 import com.github.zimoyin.qqbot.net.http.addRestfulParam
 import com.github.zimoyin.qqbot.net.http.api.API
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.utils.ex.mapTo
 import com.github.zimoyin.qqbot.utils.ex.promise
 import com.github.zimoyin.qqbot.utils.ex.toJsonArray
-import com.github.zimoyin.qqbot.utils.ex.writeToText
 import io.vertx.core.Future
 import io.vertx.core.json.JsonObject
 

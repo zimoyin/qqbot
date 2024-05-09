@@ -1,7 +1,7 @@
 package com.github.zimoyin.qqbot.bot.message.type
 
-import com.github.zimoyin.qqbot.net.bean.MediaMessageBean
-import com.github.zimoyin.qqbot.net.bean.SendMediaBean
+import com.github.zimoyin.qqbot.net.bean.message.send.MediaMessageBean
+
 
 /**
  * 主动发送资源消息，只能发不能收

@@ -4,7 +4,7 @@ import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.contact.Channel
 import com.github.zimoyin.qqbot.bot.contact.User
 import com.github.zimoyin.qqbot.net.bean.MemberBean
-import com.github.zimoyin.qqbot.net.bean.MessageSetting
+import com.github.zimoyin.qqbot.net.bean.message.MessageSetting
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.getChannelRate
 import com.github.zimoyin.qqbot.net.http.api.channel.setChannelMute

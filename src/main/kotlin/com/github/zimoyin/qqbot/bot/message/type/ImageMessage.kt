@@ -2,7 +2,7 @@ package com.github.zimoyin.qqbot.bot.message.type
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.github.zimoyin.qqbot.annotation.UntestedApi
-import com.github.zimoyin.qqbot.net.bean.MessageAttachment
+import com.github.zimoyin.qqbot.net.bean.message.MessageAttachment
 import java.io.File
 import java.io.InputStream
 import java.net.URI

@@ -2,17 +2,16 @@ package com.github.zimoyin.qqbot.net.http.api.friend
 
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.contact.Friend
-import com.github.zimoyin.qqbot.bot.contact.Group
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.event.events.MessageStartAuditEvent
 import com.github.zimoyin.qqbot.event.events.platform.*
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.exception.HttpClientException
 import com.github.zimoyin.qqbot.net.Token
-import com.github.zimoyin.qqbot.net.bean.MediaMessageBean
-import com.github.zimoyin.qqbot.net.bean.Message
-import com.github.zimoyin.qqbot.net.bean.SendMediaBean
-import com.github.zimoyin.qqbot.net.bean.SendMessageBean
+import com.github.zimoyin.qqbot.net.bean.message.Message
+import com.github.zimoyin.qqbot.net.bean.message.send.MediaMessageBean
+import com.github.zimoyin.qqbot.net.bean.message.send.SendMediaBean
+import com.github.zimoyin.qqbot.net.bean.message.send.SendMessageBean
 import com.github.zimoyin.qqbot.net.http.addRestfulParam
 import com.github.zimoyin.qqbot.net.http.api.API
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
@@ -23,7 +22,6 @@ import io.vertx.core.buffer.Buffer
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.client.HttpRequest
 import io.vertx.ext.web.client.HttpResponse
-import java.util.*
 
 
 /**

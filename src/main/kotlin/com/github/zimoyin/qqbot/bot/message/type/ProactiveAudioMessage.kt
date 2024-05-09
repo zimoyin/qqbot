@@ -1,6 +1,6 @@
 package com.github.zimoyin.qqbot.bot.message.type
 
-import com.github.zimoyin.qqbot.net.bean.MessageAttachment
+import com.github.zimoyin.qqbot.net.bean.message.MessageAttachment
 import java.net.URI
 
 /**

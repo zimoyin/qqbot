@@ -3,9 +3,9 @@ package com.github.zimoyin.qqbot.bot.message
 
 import com.github.zimoyin.qqbot.bot.contact.Contact
 import com.github.zimoyin.qqbot.bot.message.type.*
-import com.github.zimoyin.qqbot.net.bean.Message
-import com.github.zimoyin.qqbot.net.bean.MessageReference
-import com.github.zimoyin.qqbot.net.bean.SendMessageBean
+import com.github.zimoyin.qqbot.net.bean.message.Message
+import com.github.zimoyin.qqbot.net.bean.message.MessageReference
+import com.github.zimoyin.qqbot.net.bean.message.send.SendMessageBean
 import io.vertx.core.Future
 import org.slf4j.LoggerFactory
 import java.io.Serializable

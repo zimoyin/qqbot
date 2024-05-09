@@ -9,8 +9,8 @@ import com.github.zimoyin.qqbot.event.events.platform.MessageSendInterceptEvent
 import com.github.zimoyin.qqbot.event.events.platform.MessageSendPreEvent
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.exception.HttpClientException
-import com.github.zimoyin.qqbot.net.bean.Message
-import com.github.zimoyin.qqbot.net.bean.SendMessageBean
+import com.github.zimoyin.qqbot.net.bean.message.Message
+import com.github.zimoyin.qqbot.net.bean.message.send.SendMessageBean
 import com.github.zimoyin.qqbot.net.http.addRestfulParam
 import com.github.zimoyin.qqbot.net.http.api.API
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient

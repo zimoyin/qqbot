@@ -4,7 +4,7 @@ import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.contact.Channel
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.net.bean.ChannelBean
-import com.github.zimoyin.qqbot.net.bean.Message
+import com.github.zimoyin.qqbot.net.bean.message.Message
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.sendChannelMessageAsync
 import com.github.zimoyin.qqbot.net.http.api.channel.sendChannelPrivateMessageAsync

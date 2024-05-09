@@ -1,6 +1,6 @@
 package com.github.zimoyin.qqbot.bot.message.type
 
-import com.github.zimoyin.qqbot.net.bean.MessageMarkdown
+import com.github.zimoyin.qqbot.net.bean.message.MessageMarkdown
 import com.github.zimoyin.qqbot.utils.JSON
 
 /**
