@@ -8,6 +8,8 @@ import com.github.zimoyin.qqbot.net.http.api.accessTokenUpdateAsync
 import com.github.zimoyin.qqbot.net.http.api.botInfo
 import com.github.zimoyin.qqbot.net.websocket.WebsocketClient
 import com.github.zimoyin.qqbot.utils.ex.awaitToCompleteExceptionally
+import com.github.zimoyin.qqbot.utils.ex.isInitialStage
+import com.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.http.WebSocket
@@ -56,35 +58,54 @@ class BotImp(
             return Future.failedFuture(IllegalStateException("Web socket has already been started"))
         }
         this.context["internal.promise"] = promise
-        if (token.version == 2) {
-            HttpAPIClient.accessTokenUpdateAsync(token).onSuccess {
+        when (token.version) {
+            2 -> {
+                HttpAPIClient.accessTokenUpdateAsync(token).onSuccess {
+                    websocketClient = WebsocketClient(this)
+                    vertx.deployVerticle(websocketClient).onFailure {
+                        promise.isInitialStage().apply {
+                            promise.tryFail(it)
+                            if (this) logger.error("无法启动 ws 客户端", it)
+                        }
+                    }
+                }.onFailure {
+                    promise.isInitialStage().apply {
+                        promise.tryFail(it)
+                        if (this) logger.error("无法获取到 Access Token，禁止启动 ws 客户端", it)
+                    }
+                }
+            }
+
+            1 -> {
                 websocketClient = WebsocketClient(this)
                 vertx.deployVerticle(websocketClient).onFailure {
-                    if (!promise.tryFail(it)) logger.error("无法启动 ws 客户端", it)
+                    promise.isInitialStage().apply {
+                        promise.tryFail(it)
+                        if (this) logger.error("无法启动 ws 客户端", it)
+                    }
                 }
-            }.onFailure {
-                if (!promise.tryFail(it)) logger.error("无法获取到 Access Token，禁止启动 ws 客户端", it)
             }
-        } else if (token.version == 1) {
-            websocketClient = WebsocketClient(this)
-            vertx.deployVerticle(websocketClient).onFailure {
-                if (!promise.tryFail(it)) logger.error("无法启动 ws 客户端", it)
+
+            else -> {
+                val exception = IllegalArgumentException("Unsupported version: ${token.version}")
+                promise.isInitialStage().apply {
+                    promise.tryFail(exception)
+                    if (this) logger.error("无法获取到 Access Token，禁止启动 ws 客户端", exception)
+                }
             }
+        }
+
+        if (websocketClient == null) {
+            promise.tryFail(NullPointerException("websocketClient is null"))
         } else {
-            val exception = IllegalArgumentException("Unsupported version: ${token.version}")
-            if (!promise.tryFail(exception)) logger.error("无法启动 ws 客户端", exception)
+            this.context["internal.websocketClient"] = websocketClient
         }
         // 返回
-        return promise.future().onSuccess {
-            if (websocketClient == null) {
-                promise.tryFail(NullPointerException("websocketClient is null"))
-            } else {
-                this.context["internal.websocketClient"] = websocketClient
-            }
-        }
+        return promise.future()
     }
 
     override fun close() {
+        val promise = promise<Boolean>()
         if (websocketClient != null) websocketClient!!.close()
         this.context.clear()
         logger.info("the bot[${this.config.token.appID}] 上下文被清空")

@@ -36,8 +36,6 @@ suspend fun main() {
         }
     }
 
-    // TODO 频道以URL形式发送图片
-    // TODO 群聊富文本
     DefaultHttpClient.isSandBox = true
     Bot.createBot(token) {
 //        setIntents(Intents.Presets.PRIVATE_INTENTS)

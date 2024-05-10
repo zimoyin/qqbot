@@ -195,6 +195,9 @@ class MessageChain(
         return internalItems.toList()
     }
 
+    /**
+     * 获取文本消息内容
+     */
     fun content(): String {
         val sb = StringBuilder()
         internalItems.forEach {

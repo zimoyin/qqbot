@@ -68,3 +68,17 @@ class EventBusException(throwable: Throwable? = null) :
 
 class WebSocketReconnectException(throwable: Throwable? = null) :
     RuntimeException("The server requires the client to reconnect", throwable)
+
+open class CommandException(
+    message: String = "An exception occurred when the command was executed",
+    throwable: Throwable? = null,
+) : RuntimeException(message, throwable)
+
+class CommandHandlerException(
+    msg: String = "An exception occurred when the command handler processed the command",
+    throwable: Throwable? = null,
+) :
+    CommandException(msg, throwable)
+
+class CommandNotFoundException(msg: String = "The command was not found", throwable: Throwable? = null) :
+    CommandException(msg, throwable)

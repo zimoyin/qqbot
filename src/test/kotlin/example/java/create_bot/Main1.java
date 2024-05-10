@@ -6,6 +6,7 @@ import com.github.zimoyin.qqbot.event.events.Event;
 import com.github.zimoyin.qqbot.event.events.message.MessageEvent;
 import com.github.zimoyin.qqbot.net.Intents;
 import com.github.zimoyin.qqbot.net.Token;
+import com.github.zimoyin.qqbot.net.http.DefaultHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +21,9 @@ public class Main1 {
     public static String Secret = "xxx";
 
     public static void main(String[] args) {
+        // 设置沙盒环境
+        DefaultHttpClient.INSTANCE.setSandBox(true);
+
         // 创建Token，并使用鉴权方式 1
         Token token = Token.create(AppID, Tokens, Secret).version(1);
 

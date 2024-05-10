@@ -193,6 +193,9 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
         return false // 如果有任何错误发生，假定网络不可用
     }
 
+    /**
+     * 关闭 WebSocketClient
+     */
     fun close() {
         bot.context.get<WebSocket>("ws")?.close()
         client?.close()
