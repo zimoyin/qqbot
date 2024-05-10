@@ -11,7 +11,6 @@ import com.github.zimoyin.qqbot.net.Intents;
 import com.github.zimoyin.qqbot.net.Token;
 import com.github.zimoyin.qqbot.net.http.DefaultHttpClient;
 
-import java.io.File;
 
 /**
  * @author : zimo
