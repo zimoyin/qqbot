@@ -189,3 +189,4 @@ nbdist/
 /token_file
 /token_file_*
 /logs/
+/src/test/kotlin/example/
