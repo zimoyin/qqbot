@@ -42,7 +42,13 @@ object DefaultHttpClient {
      */
     var headSSL = true
     var isSandBox = false
+        set(value) {
+            if (isOptionsInitialized) throw IllegalStateException("Options has been initialized. Please set up the sandbox environment before creating the bot")
+            field = value
+        }
+    private var isOptionsInitialized = false
     private val options: WebClientOptions by lazy {
+        isOptionsInitialized = true
         WebClientOptions()
             .setUserAgent("java_qqbot_gf:0.0.1")
             .setDefaultHost(if (isSandBox) "sandbox.api.sgroup.qq.com" else "api.sgroup.qq.com")
