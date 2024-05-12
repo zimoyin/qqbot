@@ -9,7 +9,6 @@ import com.github.zimoyin.qqbot.net.bean.message.send.SendMessageBean
 import io.vertx.core.Future
 import org.slf4j.LoggerFactory
 import java.io.Serializable
-import java.time.Instant
 import java.util.*
 import java.util.stream.Stream
 
@@ -29,8 +28,8 @@ class MessageChain(
     /**
      * 当前信息创建的时间
      */
-    val timestamp: Instant = Instant.now(),
-    val editedTimestamp: Instant = Instant.now(),
+    val timestamp: Date = Date(),
+    val editedTimestamp: Date = Date(),
     val metaTextContent: String? = null,
 
     private val internalItems: ArrayList<MessageItem> = ArrayList(),
@@ -41,8 +40,8 @@ class MessageChain(
          */
         fun convert(message0: Message): MessageChain = MessageChain(
             id = message0.msgID!!,
-            timestamp = message0.timestamp ?: Instant.now(),
-            editedTimestamp = message0.editedTimestamp ?: Instant.now(),
+            timestamp = message0.timestamp ?: Date(),
+            editedTimestamp = message0.editedTimestamp ?: Date(),
             metaTextContent = message0.content,
         ).apply {
             internalItems.apply {

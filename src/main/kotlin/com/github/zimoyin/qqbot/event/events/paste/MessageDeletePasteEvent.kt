@@ -1,9 +1,9 @@
 package com.github.zimoyin.qqbot.event.events.paste
 
-import com.github.zimoyin.qqbot.net.bean.message.MessageReaction
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.event.handler.message.MessageDeletePasteHandler
+import com.github.zimoyin.qqbot.net.bean.message.MessageReaction
 
 /**
  *

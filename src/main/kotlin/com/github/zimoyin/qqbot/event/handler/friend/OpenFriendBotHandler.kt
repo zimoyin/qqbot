@@ -1,12 +1,11 @@
 package com.github.zimoyin.qqbot.event.handler.friend
 
-import com.github.zimoyin.qqbot.net.bean.Payload
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.event.events.friend.OpenFriendBotEvent
 import com.github.zimoyin.qqbot.event.supporter.AbsEventHandler
-
+import com.github.zimoyin.qqbot.net.bean.Payload
 import com.github.zimoyin.qqbot.utils.JSON
-import java.time.Instant
+import java.util.*
 
 /**
  *
@@ -19,7 +18,7 @@ class OpenFriendBotHandler : AbsEventHandler<OpenFriendBotEvent>() {
         return OpenFriendBotEvent(
             metadata = payload.metadata,
             botInfo = BotInfo.create(payload.appID!!),
-            timestamp = Instant.ofEpochSecond(json.getLong("timestamp")),
+            timestamp = Date(json.getLong("timestamp") * 1000),
             friendID = json.getString("openid"),
         )
     }

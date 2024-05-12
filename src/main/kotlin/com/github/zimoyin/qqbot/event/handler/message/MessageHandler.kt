@@ -1,13 +1,16 @@
 package com.github.zimoyin.qqbot.event.handler.message
 
 import com.github.zimoyin.qqbot.bot.BotInfo
-import com.github.zimoyin.qqbot.bot.contact.*
+import com.github.zimoyin.qqbot.bot.contact.Contact
+import com.github.zimoyin.qqbot.bot.contact.GroupImpl
+import com.github.zimoyin.qqbot.bot.contact.Sender
+import com.github.zimoyin.qqbot.bot.contact.User
 import com.github.zimoyin.qqbot.bot.contact.channel.ChannelImpl
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.event.events.message.MessageEvent
 import com.github.zimoyin.qqbot.event.supporter.AbsEventHandler
-import com.github.zimoyin.qqbot.net.bean.message.Message
 import com.github.zimoyin.qqbot.net.bean.Payload
+import com.github.zimoyin.qqbot.net.bean.message.Message
 import com.github.zimoyin.qqbot.utils.JSON
 
 /**

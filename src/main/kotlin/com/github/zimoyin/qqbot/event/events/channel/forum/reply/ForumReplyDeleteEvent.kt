@@ -1,9 +1,9 @@
 package com.github.zimoyin.qqbot.event.events.channel.forum.reply
 
-import com.github.zimoyin.qqbot.net.bean.ForumReply
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.event.handler.channel.forum.reply.ForumReplyDeleteHandler
+import com.github.zimoyin.qqbot.net.bean.ForumReply
 
 /**
  *

@@ -1,9 +1,9 @@
 package com.github.zimoyin.qqbot.event.events.channel.sub
 
-import com.github.zimoyin.qqbot.net.bean.ChannelBean
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.event.handler.channel.sub.SubChannelDeleteHandler
+import com.github.zimoyin.qqbot.net.bean.ChannelBean
 
 
 /**

@@ -3,7 +3,6 @@ package com.github.zimoyin.qqbot.bot.message
 import com.github.zimoyin.qqbot.bot.message.type.MessageItem
 import com.github.zimoyin.qqbot.bot.message.type.PlainTextMessage
 import com.github.zimoyin.qqbot.bot.message.type.ReferenceMessage
-import java.util.*
 
 /**
  * 信息链构造器

@@ -3,12 +3,12 @@ package com.github.zimoyin.qqbot.net.http.api.channel
 import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.contact.Channel
 import com.github.zimoyin.qqbot.bot.contact.channel.ChannelImpl
+import com.github.zimoyin.qqbot.net.bean.ChannelBean
 import com.github.zimoyin.qqbot.net.http.addRestfulParam
 import com.github.zimoyin.qqbot.net.http.api.API
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.MessageRevokeTimeRange.ALL_MESSAGES
 import com.github.zimoyin.qqbot.net.http.api.channel.MessageRevokeTimeRange.NO_REVOKE
-import com.github.zimoyin.qqbot.net.bean.ChannelBean
 import com.github.zimoyin.qqbot.utils.ex.mapTo
 import com.github.zimoyin.qqbot.utils.ex.promise
 import com.github.zimoyin.qqbot.utils.ex.toJsonObject

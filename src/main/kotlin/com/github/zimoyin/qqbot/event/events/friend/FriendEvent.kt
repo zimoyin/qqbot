@@ -2,7 +2,7 @@ package com.github.zimoyin.qqbot.event.events.friend
 
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.event.events.Event
-import java.time.Instant
+import java.util.*
 
 /**
  *
@@ -13,6 +13,6 @@ import java.time.Instant
 @EventAnnotation.EventHandler(ignore = true)
 interface FriendEvent: Event {
     val friendID :String
-    val timestamp : Instant
-        get() = Instant.now()
+    val timestamp : Date
+        get() = Date()
 }

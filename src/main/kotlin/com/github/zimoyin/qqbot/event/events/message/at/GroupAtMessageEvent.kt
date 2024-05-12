@@ -7,7 +7,7 @@ import com.github.zimoyin.qqbot.bot.contact.User
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.event.events.group.GroupEvent
 import com.github.zimoyin.qqbot.event.handler.message.GroupAtMessageHandler
-import java.time.Instant
+import java.util.*
 
 /**
  *
@@ -28,6 +28,6 @@ class GroupAtMessageEvent(
     override val botInfo: BotInfo,
 
     override val groupID: String,
-    override val timestamp: Instant,
+    override val timestamp: Date,
     override val opMemberOpenid: String,
 ) : GroupEvent, AtMessageEvent

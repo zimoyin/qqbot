@@ -3,7 +3,7 @@ package com.github.zimoyin.qqbot.event.events.friend
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.event.handler.friend.DeleteFriendHandler
-import java.time.Instant
+import java.util.*
 
 /**
  *
@@ -19,6 +19,6 @@ data class DeleteFriendEvent(
     override val metadata: String,
     override val metadataType: String = "FRIEND_DEL",
     override val botInfo: BotInfo,
-    override val timestamp :Instant,
+    override val timestamp : Date,
     override val friendID: String,
 ): FriendUpdateEvent

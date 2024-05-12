@@ -2,9 +2,10 @@ package com.github.zimoyin.qqbot.net.bean.message
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.github.zimoyin.qqbot.net.bean.*
+import com.github.zimoyin.qqbot.net.bean.MemberBean
+import com.github.zimoyin.qqbot.net.bean.User
 import java.io.Serializable
-import java.time.Instant
+import java.util.*
 
 /**
  * 消息对象
@@ -46,13 +47,13 @@ data class Message(
      * 消息创建时间
      */
     @field:JsonProperty("timestamp")
-    val timestamp: Instant? = null,
+    val timestamp: Date? = null,
 
     /**
      * 消息编辑时间
      */
     @field:JsonProperty("edited_timestamp")
-    val editedTimestamp: Instant? = null,
+    val editedTimestamp: Date? = null,
 
     /**
      * 是否是@全员消息

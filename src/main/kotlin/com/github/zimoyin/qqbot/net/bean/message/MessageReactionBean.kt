@@ -3,7 +3,6 @@ package com.github.zimoyin.qqbot.net.bean.message
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.zimoyin.qqbot.bot.message.EmojiType
-import com.github.zimoyin.qqbot.net.bean.message.EmojiBean
 import java.io.Serializable
 
 data class MessageReaction(

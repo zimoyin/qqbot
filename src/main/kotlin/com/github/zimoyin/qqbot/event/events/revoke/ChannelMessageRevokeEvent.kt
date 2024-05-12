@@ -4,7 +4,6 @@ import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.contact.Contact
 import com.github.zimoyin.qqbot.bot.contact.User
-import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.event.handler.message.ChannelMessageRevokeHandler
 
 /**

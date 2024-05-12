@@ -5,7 +5,6 @@ import com.github.zimoyin.qqbot.bot.BotSection
 import com.github.zimoyin.qqbot.event.events.platform.bot.BotOfflineEvent
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.exception.WebSocketReconnectException
-import com.github.zimoyin.qqbot.net.http.DefaultHttpClient
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.TencentOpenApiHttpClient
 import com.github.zimoyin.qqbot.net.http.api.gatewayV2Async
@@ -23,7 +22,6 @@ import io.vertx.kotlin.coroutines.CoroutineVerticle
 import org.slf4j.LoggerFactory
 import java.net.InetAddress
 import java.net.SocketException
-import kotlin.math.log
 
 private const val s = "internal.handler"
 

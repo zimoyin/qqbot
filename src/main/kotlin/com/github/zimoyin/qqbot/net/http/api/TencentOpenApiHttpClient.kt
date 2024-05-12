@@ -1,7 +1,6 @@
 package com.github.zimoyin.qqbot.net.http.api
 
 import com.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
-import com.github.zimoyin.qqbot.net.http.DefaultHttpClient
 import io.vertx.core.http.impl.headers.HeadersMultiMap
 import io.vertx.ext.web.client.WebClient
 import io.vertx.ext.web.client.WebClientOptions

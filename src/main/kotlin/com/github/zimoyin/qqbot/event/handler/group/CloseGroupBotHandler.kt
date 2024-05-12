@@ -1,12 +1,11 @@
 package com.github.zimoyin.qqbot.event.handler.group
 
-import com.github.zimoyin.qqbot.net.bean.Payload
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.event.events.group.operation.CloseGroupBotEvent
 import com.github.zimoyin.qqbot.event.supporter.AbsEventHandler
-
+import com.github.zimoyin.qqbot.net.bean.Payload
 import com.github.zimoyin.qqbot.utils.JSON
-import java.time.Instant
+import java.util.*
 
 /**
  *
@@ -19,7 +18,7 @@ class CloseGroupBotHandler : AbsEventHandler<CloseGroupBotEvent>() {
         return CloseGroupBotEvent(
             metadata = payload.metadata,
             botInfo = BotInfo.create(payload.appID!!),
-            timestamp = Instant.ofEpochSecond(json.getLong("timestamp")),
+            timestamp = Date(json.getLong("timestamp") * 1000),
             groupID = json.getString("group_openid"),
             opMemberOpenid = json.getString("op_member_openid"),
         )

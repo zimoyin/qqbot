@@ -1,14 +1,14 @@
 package com.github.zimoyin.qqbot.event.handler.message
 
 import com.github.zimoyin.qqbot.bot.BotInfo
-import com.github.zimoyin.qqbot.bot.contact.channel.ChannelImpl
 import com.github.zimoyin.qqbot.bot.contact.Sender
+import com.github.zimoyin.qqbot.bot.contact.channel.ChannelImpl
 import com.github.zimoyin.qqbot.event.events.revoke.ChannelPrivateMessageRevokeEvent
 import com.github.zimoyin.qqbot.event.supporter.AbsEventHandler
-import com.github.zimoyin.qqbot.net.bean.message.Message
-
-import com.github.zimoyin.qqbot.utils.JSON
 import com.github.zimoyin.qqbot.net.bean.Payload
+import com.github.zimoyin.qqbot.net.bean.message.Message
+import com.github.zimoyin.qqbot.utils.JSON
+
 /**
  *
  * @author : zimo

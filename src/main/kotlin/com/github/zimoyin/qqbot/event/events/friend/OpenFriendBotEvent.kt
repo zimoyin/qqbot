@@ -3,7 +3,7 @@ package com.github.zimoyin.qqbot.event.events.friend
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.event.handler.friend.OpenFriendBotHandler
-import java.time.Instant
+import java.util.*
 
 /**
  *
@@ -18,6 +18,6 @@ data class OpenFriendBotEvent(
     override val metadata: String,
     override val metadataType: String = "C2C_MSG_RECEIVE",
     override val botInfo: BotInfo,
-    override val timestamp: Instant,
+    override val timestamp: Date,
     override val friendID: String,
 ) : FriendBotOperationEvent

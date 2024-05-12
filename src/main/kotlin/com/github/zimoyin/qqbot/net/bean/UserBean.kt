@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.zimoyin.qqbot.bot.contact.Channel
 import com.github.zimoyin.qqbot.bot.contact.ChannelUser
 import java.io.Serializable
-import java.time.Instant
+import java.util.*
 
 /**
  *
@@ -103,7 +103,7 @@ data class MemberBean(
      * 用户加入频道的时间
      */
     @field:JsonProperty("joined_at")
-    val joinedAt: Instant? = null,
+    val joinedAt: Date? = null,
 ) : Serializable {
 
     /**
@@ -158,7 +158,7 @@ data class MemberWithGuildID(
      * 用户加入频道的时间
      */
     @field:JsonProperty("joined_at")
-    val joinedAt: Instant? = null,
+    val joinedAt: Date? = null,
 
     /**
      * 操作人ID

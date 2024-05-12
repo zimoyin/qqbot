@@ -1,12 +1,12 @@
 package com.github.zimoyin.qqbot.event.handler.message
 
-import com.github.zimoyin.qqbot.net.bean.MessageAuditBean
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.event.events.MessageAuditPassEvent
 import com.github.zimoyin.qqbot.event.supporter.AbsEventHandler
-
-import com.github.zimoyin.qqbot.utils.JSON
+import com.github.zimoyin.qqbot.net.bean.MessageAuditBean
 import com.github.zimoyin.qqbot.net.bean.Payload
+import com.github.zimoyin.qqbot.utils.JSON
+
 /**
  *
  * @author : zimo

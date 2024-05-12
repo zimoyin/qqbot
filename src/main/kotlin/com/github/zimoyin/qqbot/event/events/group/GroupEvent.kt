@@ -2,7 +2,7 @@ package com.github.zimoyin.qqbot.event.events.group
 
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.event.events.Event
-import java.time.Instant
+import java.util.*
 
 /**
  *
@@ -15,6 +15,6 @@ interface GroupEvent : Event {
     val groupID :String
     val opMemberOpenid :String
         get() = "none"
-    val timestamp : Instant
-        get() = Instant.now()
+    val timestamp : Date
+        get() = Date()
 }

@@ -11,7 +11,7 @@ import com.github.zimoyin.qqbot.net.http.api.channel.*
 import com.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Future
 import java.io.Serializable
-import java.time.Instant
+import java.util.*
 
 /**
  * 频道与群聊中抽象出的用户类
@@ -39,7 +39,7 @@ interface User : Friend {
      *  用户加入群聊的时间
      *  用户添加机器人的时间
      */
-    val joinedAt: Instant
+    val joinedAt: Date
 
     /**
      * 特殊关联应用的 openid
@@ -75,7 +75,7 @@ open class Sender(
     override val isBot: Boolean,
     override val avatar: String,
     override val roles: List<String>,
-    override val joinedAt: Instant,
+    override val joinedAt: Date,
     override val unionOpenID: String?,
     override val unionUserAccount: String?,
     override val botInfo: BotInfo,
@@ -89,7 +89,7 @@ open class Sender(
             isBot = message.author.isBot ?: false,
             avatar = message.author.avatar ?: "none",
             roles = message.member?.roles ?: emptyList(),
-            joinedAt = message.member?.joinedAt ?: Instant.now(),
+            joinedAt = message.member?.joinedAt ?: Date(),
             unionOpenID = message.author.unionOpenID,
             unionUserAccount = message.author.unionUserAccount,
             botInfo = botInfo
@@ -109,7 +109,7 @@ data class ChannelUser(
     override val isBot: Boolean,
     override val avatar: String,
     override val roles: List<String>,
-    override val joinedAt: Instant,
+    override val joinedAt: Date,
     override val unionOpenID: String?,
     override val unionUserAccount: String?,
     override val botInfo: BotInfo,
@@ -125,7 +125,7 @@ data class ChannelUser(
                 isBot = message.author.isBot ?: false,
                 avatar = message.author.avatar ?: "none",
                 roles = message.member?.roles ?: emptyList(),
-                joinedAt = message.member?.joinedAt ?: Instant.now(),
+                joinedAt = message.member?.joinedAt ?: Date(),
                 unionOpenID = message.author.unionOpenID,
                 unionUserAccount = message.author.unionUserAccount,
                 botInfo = botInfo,

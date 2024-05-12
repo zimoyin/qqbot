@@ -1,9 +1,9 @@
 package com.github.zimoyin.qqbot.event.events.channel.member
 
-import com.github.zimoyin.qqbot.net.bean.MemberWithGuildID
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.event.handler.channel.member.GuildMemberDeleteHandler
+import com.github.zimoyin.qqbot.net.bean.MemberWithGuildID
 
 
 /**

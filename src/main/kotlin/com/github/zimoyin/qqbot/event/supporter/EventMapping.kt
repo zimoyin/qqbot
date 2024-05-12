@@ -31,7 +31,7 @@ import com.github.zimoyin.qqbot.event.events.channel.sub.SubChannelDeleteEvent
 import com.github.zimoyin.qqbot.event.events.channel.sub.SubChannelEvent
 import com.github.zimoyin.qqbot.event.events.channel.sub.SubChannelUpdateEvent
 import com.github.zimoyin.qqbot.event.events.friend.*
-import com.github.zimoyin.qqbot.event.events.group.*
+import com.github.zimoyin.qqbot.event.events.group.GroupEvent
 import com.github.zimoyin.qqbot.event.events.group.member.AddGroupEvent
 import com.github.zimoyin.qqbot.event.events.group.member.ExitGroupEvent
 import com.github.zimoyin.qqbot.event.events.group.member.GroupMemberUpdateEvent

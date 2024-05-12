@@ -5,9 +5,8 @@ import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.contact.User
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.event.events.friend.FriendEvent
-import com.github.zimoyin.qqbot.event.events.message.direct.PrivateMessageEvent
 import com.github.zimoyin.qqbot.event.handler.message.UserPrivateMessageHandler
-import java.time.Instant
+import java.util.*
 
 /**
  *
@@ -27,5 +26,5 @@ class UserPrivateMessageEvent(
     override val botInfo: BotInfo,
 
     override val friendID: String,
-    override val timestamp: Instant,
+    override val timestamp: Date,
     ) : FriendEvent, PrivateMessageEvent
