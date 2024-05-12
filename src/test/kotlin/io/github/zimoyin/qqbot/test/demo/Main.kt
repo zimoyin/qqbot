@@ -11,6 +11,7 @@ import com.github.zimoyin.qqbot.event.events.message.MessageEvent
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.net.Intents
 import com.github.zimoyin.qqbot.net.http.DefaultHttpClient
+import com.github.zimoyin.qqbot.net.http.api.TencentOpenApiHttpClient
 import openDebug
 import org.slf4j.LoggerFactory
 import token
@@ -36,7 +37,7 @@ suspend fun main() {
         }
     }
 
-    DefaultHttpClient.isSandBox = true
+    TencentOpenApiHttpClient.isSandBox = true
     Bot.createBot(token) {
 //        setIntents(Intents.Presets.PRIVATE_INTENTS)
         setIntents(Intents.Presets.PRIVATE_GROUP_INTENTS)

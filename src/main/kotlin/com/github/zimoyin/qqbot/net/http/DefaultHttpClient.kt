@@ -3,6 +3,7 @@ package com.github.zimoyin.qqbot.net.http
 import com.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
 import com.github.zimoyin.qqbot.utils.ex.awaitToCompleteExceptionally
 import com.github.zimoyin.qqbot.utils.ex.toUrl
+import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.http.impl.headers.HeadersMultiMap
@@ -21,7 +22,7 @@ import java.net.URL
  * 创建一个专用于与腾讯服务器通信的HttpClient
  */
 object DefaultHttpClient {
-    val defaultPorts: Map<String, Int> = HashMap<String, Int>().apply {
+    val DefaultPorts: Map<String, Int> = HashMap<String, Int>().apply {
         put("http", 80)
         put("https", 443)
         put("ftp", 21)
@@ -30,28 +31,15 @@ object DefaultHttpClient {
         put("pop3", 110)
     }
 
-    val DefaultHeaders by lazy {
-        HeadersMultiMap().apply {
-            //通用头
-        }
-    }
     private val logger: Logger by lazy { LoggerFactory.getLogger(DefaultHttpClient::class.java) }
 
     /**
-     * 使用 head 查看服务器是否支持 SSL
+     * 是否使用使用 head 查看服务器是否支持 SSL。如果设置为 false 则不自动修改 http 协议.(只对get/post/等方法有效)
+     * 注意：不针对 HEAD 方法
      */
-    var headSSL = true
-    var isSandBox = false
-        set(value) {
-            if (isOptionsInitialized) throw IllegalStateException("Options has been initialized. Please set up the sandbox environment before creating the bot")
-            field = value
-        }
-    private var isOptionsInitialized = false
-    private val options: WebClientOptions by lazy {
-        isOptionsInitialized = true
+    var isHeadSSL = true
+    private val DefaultOptions: WebClientOptions by lazy {
         WebClientOptions()
-            .setUserAgent("java_qqbot_gf:0.0.1")
-            .setDefaultHost(if (isSandBox) "sandbox.api.sgroup.qq.com" else "api.sgroup.qq.com")
             .setConnectTimeout(5000)
             .setKeepAlive(true)
             .setSsl(true)
@@ -65,63 +53,142 @@ object DefaultHttpClient {
             .setMaxWaitQueueSize(-1)
     }
 
-    val client: WebClient by lazy {
-        WebClient.create(GLOBAL_VERTX_INSTANCE, options)
+    val DefaultClient: WebClient by lazy {
+        WebClient.create(GLOBAL_VERTX_INSTANCE, DefaultOptions)
     }
 
-    fun createGet(uri: URI): HttpRequest<Buffer> = client.get(uri.toString())
+    /**
+     * 创建一个专用于与某服务器通信的HttpClient
+     * 服务器地址通过 options 设置
+     */
+    fun createClient(options: WebClientOptions, vertx: Vertx = GLOBAL_VERTX_INSTANCE): WebClient {
+        return WebClient.create(vertx, options)
+    }
+
+    /**
+     * 创建一个 GET 请求
+     */
+    fun createGet(uri: URI): HttpRequest<Buffer> = DefaultClient.get(uri.toString()).apply {
+        runCatching { ssl(uri.toURL().isSSl()) }
+    }
+
+    /**
+     * 创建一个 GET 请求
+     */
     fun createGet(url: String): HttpRequest<Buffer> {
         val toUrl = url.toUrl()
-        return client.get(toUrl.cPort(), toUrl.host, toUrl.path).ssl(toUrl.isSSl())
+        return DefaultClient.get(toUrl.cPort(), toUrl.host, toUrl.path).ssl(toUrl.isSSl())
     }
 
-    fun createPost(uri: URI): HttpRequest<Buffer> = client.post(uri.toString())
+    /**
+     * 创建一个 POST 请求
+     */
+    fun createPost(uri: URI): HttpRequest<Buffer> = DefaultClient.post(uri.toString()).apply {
+        runCatching { ssl(uri.toURL().isSSl()) }
+    }
+
+    /**
+     * 创建一个 POST 请求
+     */
     fun createPost(url: String): HttpRequest<Buffer> {
         val toUrl = url.toUrl()
-        return client.post(toUrl.cPort(), toUrl.host, toUrl.path).ssl(toUrl.isSSl()).followRedirects(true)
+        return DefaultClient.post(toUrl.cPort(), toUrl.host, toUrl.path).ssl(toUrl.isSSl()).followRedirects(true)
     }
 
-    fun createRequest(method: HttpMethod, uri: URI): HttpRequest<Buffer> = client.request(method, uri.toString())
+    /**
+     * 创建一个请求
+     */
+    fun createRequest(method: HttpMethod, uri: URI): HttpRequest<Buffer> = DefaultClient.request(method, uri.toString()).apply {
+        runCatching { ssl(uri.toURL().isSSl()) }
+    }
+
+    /**
+     * 创建一个请求
+     */
     fun createRequest(method: HttpMethod, url: String): HttpRequest<Buffer> {
-        return client.request(method, url.toUrl().cPort(), url.toUrl().host, url.toUrl().path).ssl(url.toUrl().isSSl())
+        return DefaultClient.request(method, url.toUrl().cPort(), url.toUrl().host, url.toUrl().path)
+            .ssl(url.toUrl().isSSl())
     }
 
-    fun createDelete(uri: URI): HttpRequest<Buffer> = client.delete(uri.toString())
+    /**
+     * 创建一个 DELETE 请求
+     */
+    fun createDelete(uri: URI): HttpRequest<Buffer> = DefaultClient.delete(uri.toString()).apply {
+        runCatching { ssl(uri.toURL().isSSl()) }
+    }
+
+    /**
+     * 创建一个 DELETE 请求
+     */
     fun createDelete(url: String): HttpRequest<Buffer> {
         val toUrl = url.toUrl()
-        return client.delete(toUrl.cPort(), toUrl.host, toUrl.path)
+        return DefaultClient.delete(toUrl.cPort(), toUrl.host, toUrl.path)
     }
 
-    fun createPut(uri: URI): HttpRequest<Buffer> = client.put(uri.toString())
+    /**
+     * 创建一个 PUT 请求
+     */
+    fun createPut(uri: URI): HttpRequest<Buffer> = DefaultClient.put(uri.toString()).apply {
+        runCatching { ssl(uri.toURL().isSSl()) }
+    }
+
+    /**
+     * 创建一个 PUT 请求
+     */
     fun createPut(url: String): HttpRequest<Buffer> {
         val toUrl = url.toUrl()
-        return client.put(toUrl.cPort(), toUrl.host, toUrl.path)
+        return DefaultClient.put(toUrl.cPort(), toUrl.host, toUrl.path)
     }
 
-    fun createHead(uri: URI): HttpRequest<Buffer> = client.head(uri.toString())
+    /**
+     * 创建一个 HEAD 请求
+     */
+    fun createHead(uri: URI): HttpRequest<Buffer> = DefaultClient.head(uri.toString())
+
+    /**
+     * 创建一个 HEAD 请求
+     */
     fun createHead(url: String): HttpRequest<Buffer> {
         val toUrl = url.toUrl()
-        return client.head(toUrl.cPort(), toUrl.host, toUrl.path)
+        return DefaultClient.head(toUrl.cPort(), toUrl.host, toUrl.path)
     }
 
-
+    /**
+     * 创建一个 GET 请求
+     *
+     */
     fun get(url: String, headers: HashMap<String, String> = HashMap()): HttpResponse<Buffer> {
         return createGet(url).putHeaders(headers.toHeaders()).send().awaitToCompleteExceptionally()
     }
 
+    /**
+     * 创建一个 POST 请求
+     */
     fun post(url: String, headers: HashMap<String, String> = HashMap()): HttpResponse<Buffer> {
         return createPost(url).putHeaders(headers.toHeaders()).send().awaitToCompleteExceptionally()
     }
 
+    /**
+     * 创建一个 POST 请求
+     * @param body 请求体
+     */
     fun post(url: String, body: String, headers: HashMap<String, String> = HashMap()): HttpResponse<Buffer> {
         return createPost(url).putHeaders(headers.toHeaders()).sendBuffer(Buffer.buffer(body))
             .awaitToCompleteExceptionally()
     }
 
+    /**
+     * 创建一个 POST 请求。
+     * @param body 请求体
+     */
     fun postJson(url: String, body: Any, headers: HashMap<String, String> = HashMap()): HttpResponse<Buffer> {
         return createPost(url).putHeaders(headers.toHeaders()).sendJson(body).awaitToCompleteExceptionally()
     }
 
+    /**
+     * 创建一个 POST 请求。
+     * @param body 请求体
+     */
     fun postJsonObject(
         url: String,
         body: JsonObject,
@@ -133,12 +200,12 @@ object DefaultHttpClient {
 
     fun close() {
         logger.warn("The global HTTP client has been closed and cannot be opened again")
-        client.close()
+        DefaultClient.close()
     }
 
     private fun URL.cPort(): Int {
         if (port == -1) {
-            return defaultPorts.getOrDefault(protocol, options.defaultPort)
+            return DefaultPorts.getOrDefault(protocol, DefaultOptions.defaultPort)
         }
         return port
     }
@@ -146,7 +213,7 @@ object DefaultHttpClient {
     private fun URL.isSSl(): Boolean {
         //如果开启了 headSSL 对 服务器是否支持 SSL 进行检测
         //作为补充手段，如果对于以下协议，无法检测到是否支持 SSL，则进行 head 检测
-        if (headSSL && (protocol != "https" || protocol != "ftps" || protocol != "ftp" || protocol != "http")) {
+        if (isHeadSSL && (protocol != "https" || protocol != "ftps" || protocol != "ftp" || protocol != "http")) {
             return try {
                 createHead(this.toString()).ssl(true).send().awaitToCompleteExceptionally().statusCode()
                 true
@@ -160,6 +227,9 @@ object DefaultHttpClient {
 
 }
 
+/**
+ * 将一个包含请求头的 Map 转换为 HeadersMultiMap·
+ */
 fun HashMap<String, String>.toHeaders(): HeadersMultiMap {
     val map = this
     return HeadersMultiMap().apply {

@@ -7,6 +7,7 @@ import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.exception.WebSocketReconnectException
 import com.github.zimoyin.qqbot.net.http.DefaultHttpClient
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
+import com.github.zimoyin.qqbot.net.http.api.TencentOpenApiHttpClient
 import com.github.zimoyin.qqbot.net.http.api.gatewayV2Async
 import com.github.zimoyin.qqbot.net.websocket.handler.PayloadCmdHandler
 import com.github.zimoyin.qqbot.utils.ex.await
@@ -59,7 +60,7 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
         if (gatewayURLByContent != null) {
             //为了方便，在没有分片的情况下使用默认的硬编码的URL。但是可能回出现BUG，因为这是一个不再维护的使用
             if (bot.config.shards != BotSection()) logger.warn("自定义WSS接入点的分片非默认值")
-            if (!DefaultHttpClient.isSandBox) logger.warn("当前环境不是沙盒环境，请将环境设置为沙盒环境 > DefaultHttpClient.isSandBox = true")
+            if (!TencentOpenApiHttpClient.isSandBox) logger.warn("当前环境不是沙盒环境，请将环境设置为沙盒环境 > DefaultHttpClient.isSandBox = true")
             logger.warn("你正在使用自定义WSS接入点请在正式环境中停止使用，否则可能会导致不可预测的BUG: $gatewayURLByContent")
             bot.context["shards"] = 1
             gatewayURL = gatewayURLByContent

@@ -1,5 +1,6 @@
 package com.github.zimoyin.qqbot.net.http.api
 
+
 import com.github.zimoyin.qqbot.net.http.DefaultHttpClient
 import io.vertx.core.buffer.Buffer
 import io.vertx.ext.web.client.HttpRequest
@@ -16,14 +17,14 @@ object API {
      * 网关: 获取通用 WSS 接入点
      */
     val Gateway: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.get("/gateway")
+        TencentOpenApiHttpClient.client.get("/gateway")
     }
 
     /**
      * 网关: 获取通用 WSS 接入点。与切片建议信息
      */
     val GatewayV2: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.get("/gateway/bot")
+        TencentOpenApiHttpClient.client.get("/gateway/bot")
     }
 
     /**
@@ -55,7 +56,7 @@ object API {
      * 给人发送信息
      */
     val SendFriendMessage: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.post("/v2/users/{openid}/messages")
+        TencentOpenApiHttpClient.client.post("/v2/users/{openid}/messages")
     }
 
 
@@ -63,28 +64,28 @@ object API {
      * 在群组里面发送信息
      */
     val SendGroupMessage: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.post("/v2/groups/{group_openid}/messages")
+        TencentOpenApiHttpClient.client.post("/v2/groups/{group_openid}/messages")
     }
 
     /**
      * 在频道里面发送信息
      */
     val SendChannelMessage: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.post("/channels/{channel_id}/messages")
+        TencentOpenApiHttpClient.client.post("/channels/{channel_id}/messages")
     }
 
     /**
      * 在频道里面发送私信信息
      */
     val SendChannelPrivateMessage: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.post("/dms/{guild_id}/messages")
+        TencentOpenApiHttpClient.client.post("/dms/{guild_id}/messages")
     }
 
     /**
      * 上传群组媒体资源
      */
     val uploadGroupMediaResource: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.post("/v2/groups/{group_openid}/files")
+        TencentOpenApiHttpClient.client.post("/v2/groups/{group_openid}/files")
     }
 
 
@@ -92,28 +93,28 @@ object API {
      * 上传好友媒体资源
      */
     val uploadFriendMediaResource: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.post("/v2/users/{openid}/files")
+        TencentOpenApiHttpClient.client.post("/v2/users/{openid}/files")
     }
 
     /**
      * 获取机器人信息
      */
     val BotInfo: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.get("/users/@me")
+        TencentOpenApiHttpClient.client.get("/users/@me")
     }
 
     /**
      * 获取机器人加入的频道列表
      */
     val GuildList: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.get("/users/@me/guilds")
+        TencentOpenApiHttpClient.client.get("/users/@me/guilds")
     }
 
     /**
      * 获取频道的详细信息
      */
     val GuildDetails: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.get("/guilds/{guild_id}")
+        TencentOpenApiHttpClient.client.get("/guilds/{guild_id}")
     }
 
 
@@ -121,154 +122,154 @@ object API {
      * 获取子频道列表
      */
     val Channels: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.get("/guilds/{guild_id}/channels")
+        TencentOpenApiHttpClient.client.get("/guilds/{guild_id}/channels")
     }
 
     /**
      * 获取子频道详情
      */
     val ChannelDetails: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.get("/channels/{channel_id}")
+        TencentOpenApiHttpClient.client.get("/channels/{channel_id}")
     }
 
     /**
      * 获取频道成员列表
      */
     val GuildMembers: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.get("/guilds/{guild_id}/members")
+        TencentOpenApiHttpClient.client.get("/guilds/{guild_id}/members")
     }
 
     /**
      * 获取在线频道成员数
      */
     val ChannelOnlineMemberSize: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.get("/channels/{channel_id}/online_nums")
+        TencentOpenApiHttpClient.client.get("/channels/{channel_id}/online_nums")
     }
 
     /**
      * 获取频道身份组列表
      */
     val GuildRoles: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.get("/guilds/{guild_id}/roles")
+        TencentOpenApiHttpClient.client.get("/guilds/{guild_id}/roles")
     }
 
     /**
      * 获取频道身份组下的所有成员列表
      */
     val GuildRoleMembers: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.get("/guilds/{guild_id}/roles/{role_id}/members")
+        TencentOpenApiHttpClient.client.get("/guilds/{guild_id}/roles/{role_id}/members")
     }
 
     /**
      * 创建身份组
      */
     val CreateGuildRole: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.post("/guilds/{guild_id}/roles")
+        TencentOpenApiHttpClient.client.post("/guilds/{guild_id}/roles")
     }
 
     /**
      * 修改身份组
      */
     val UpdateGuildRole: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.patch("/guilds/{guild_id}/roles/{role_id}")
+        TencentOpenApiHttpClient.client.patch("/guilds/{guild_id}/roles/{role_id}")
     }
 
     /**
      * 删除身份组
      */
     val DeleteGuildRole: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.delete("/guilds/{guild_id}/roles/{role_id}")
+        TencentOpenApiHttpClient.client.delete("/guilds/{guild_id}/roles/{role_id}")
     }
 
     /**
      * 创建频道身份组成员
      */
     val AddGuildRoleMember: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.put("/guilds/{guild_id}/members/{user_id}/roles/{role_id}")
+        TencentOpenApiHttpClient.client.put("/guilds/{guild_id}/members/{user_id}/roles/{role_id}")
     }
 
     /**
      * 删除频道身份组成员
      */
     val DeleteGuildRoleMember: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.delete("/guilds/{guild_id}/members/{user_id}/roles/{role_id}")
+        TencentOpenApiHttpClient.client.delete("/guilds/{guild_id}/members/{user_id}/roles/{role_id}")
     }
 
     /**
      * 创建新的子频道
      */
     val CreateSubChannel: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.post("/guilds/{guild_id}/channels")
+        TencentOpenApiHttpClient.client.post("/guilds/{guild_id}/channels")
     }
 
     /**
      * 修改子频道
      */
     val UpdateSubChannel: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.patch("/channels/{channel_id}")
+        TencentOpenApiHttpClient.client.patch("/channels/{channel_id}")
     }
 
     /**
      * 删除子频道
      */
     val DeleteSubChannel: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.delete("/channels/{channel_id}")
+        TencentOpenApiHttpClient.client.delete("/channels/{channel_id}")
     }
 
     /**
      * 删除频道成员
      */
     val DeleteSubChannelMember: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.delete("/guilds/{guild_id}/members/{user_id}")
+        TencentOpenApiHttpClient.client.delete("/guilds/{guild_id}/members/{user_id}")
     }
 
     /**
      * 获取频道消息频率的设置详情
      */
     val ChannelRate: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.get("/guilds/{guild_id}/message/setting")
+        TencentOpenApiHttpClient.client.get("/guilds/{guild_id}/message/setting")
     }
 
     /**
      * 频道全员禁言
      */
     val ChannelMute: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.patch("/guilds/{guild_id}/mute")
+        TencentOpenApiHttpClient.client.patch("/guilds/{guild_id}/mute")
     }
 
     /**
      * 频道指定成员禁言
      */
     val ChannelMuteMember: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.patch("/guilds/{guild_id}/members/{user_id}/mute")
+        TencentOpenApiHttpClient.client.patch("/guilds/{guild_id}/members/{user_id}/mute")
     }
 
     /**
      * 频道批量成员禁言
      */
     val ChannelMuteMembers: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.patch("/guilds/{guild_id}/mute")
+        TencentOpenApiHttpClient.client.patch("/guilds/{guild_id}/mute")
     }
 
     /**
      * 获取子频道用户权限
      */
     val GetChannelPermissions: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.get("/channels/{channel_id}/members/{user_id}/permissions")
+        TencentOpenApiHttpClient.client.get("/channels/{channel_id}/members/{user_id}/permissions")
     }
 
     /**
      * 获取子频道身份组权限
      */
     val GetChannelRolePermissions: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.get("/channels/{channel_id}/roles/{role_id}/permissions")
+        TencentOpenApiHttpClient.client.get("/channels/{channel_id}/roles/{role_id}/permissions")
     }
 
     /**
      * 修改子频道用户权限
      */
     val UpdateChannelPermissions: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.put("/channels/{channel_id}/members/{user_id}/permissions")
+        TencentOpenApiHttpClient.client.put("/channels/{channel_id}/members/{user_id}/permissions")
     }
 
 
@@ -276,14 +277,14 @@ object API {
      * 修改子频道身份组权限
      */
     val UpdateChannelRolePermissions: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.put("/channels/{channel_id}/roles/{role_id}/permissions")
+        TencentOpenApiHttpClient.client.put("/channels/{channel_id}/roles/{role_id}/permissions")
     }
 
     /**
      * 修改子频道身份组权限
      */
     val GetChannelBotPermissions: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.get("/guilds/{guild_id}/api_permission")
+        TencentOpenApiHttpClient.client.get("/guilds/{guild_id}/api_permission")
     }
 
 
@@ -291,7 +292,7 @@ object API {
      * 请求子频道身份组权限
      */
     val DemandChannelBotPermissions: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.post("/guilds/{guild_id}/api_permission/demand")
+        TencentOpenApiHttpClient.client.post("/guilds/{guild_id}/api_permission/demand")
     }
 
 
@@ -299,14 +300,14 @@ object API {
      * 创建频道公告
      */
     val CreateChannelAnnouncement: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.post("/guilds/{guild_id}/announces")
+        TencentOpenApiHttpClient.client.post("/guilds/{guild_id}/announces")
     }
 
     /**
      * 删除频道公告
      */
     val DeleteChannelAnnouncement: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.delete("/guilds/{guild_id}/announces/{message_id}")
+        TencentOpenApiHttpClient.client.delete("/guilds/{guild_id}/announces/{message_id}")
     }
 
 
@@ -315,7 +316,7 @@ object API {
      * TODO 频道事件也需要该方法
      */
     val AddEssentialMessage: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.put("/channels/{channel_id}/pins/{message_id}")
+        TencentOpenApiHttpClient.client.put("/channels/{channel_id}/pins/{message_id}")
     }
 
 
@@ -323,7 +324,7 @@ object API {
      * 删除精华消息
      */
     val DeleteEssentialMessage: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.delete("/channels/{channel_id}/pins/{message_id}")
+        TencentOpenApiHttpClient.client.delete("/channels/{channel_id}/pins/{message_id}")
     }
 
 
@@ -332,7 +333,7 @@ object API {
      * 返回 信息ID 列表
      */
     val EssentialMessages: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.get("/channels/{channel_id}/pins")
+        TencentOpenApiHttpClient.client.get("/channels/{channel_id}/pins")
     }
 
 
@@ -340,35 +341,35 @@ object API {
      * 获取频道日程列表
      */
     val ChannelSchedules: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.get("/channels/{channel_id}/schedules")
+        TencentOpenApiHttpClient.client.get("/channels/{channel_id}/schedules")
     }
 
     /**
      * 获取日程详情
      */
     val ChannelScheduleDetail: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.get("/channels/{channel_id}/schedules/{schedule_id}")
+        TencentOpenApiHttpClient.client.get("/channels/{channel_id}/schedules/{schedule_id}")
     }
 
     /**
      * 创建日程详情
      */
     val CreateChannelSchedule: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.post("/channels/{channel_id}/schedules")
+        TencentOpenApiHttpClient.client.post("/channels/{channel_id}/schedules")
     }
 
     /**
      * 修改日程详情
      */
     val UpdateChannelSchedule: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.patch("/channels/{channel_id}/schedules/{schedule_id}")
+        TencentOpenApiHttpClient.client.patch("/channels/{channel_id}/schedules/{schedule_id}")
     }
 
     /**
      * 删除日程详情
      */
     val DeleteChannelSchedule: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.delete("/channels/{channel_id}/schedules/{schedule_id}")
+        TencentOpenApiHttpClient.client.delete("/channels/{channel_id}/schedules/{schedule_id}")
     }
 
     /**
@@ -376,7 +377,7 @@ object API {
      * TODO 低优先级
      */
     val AudioControl: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.post("/channels/{channel_id}/audio")
+        TencentOpenApiHttpClient.client.post("/channels/{channel_id}/audio")
     }
 
 
@@ -384,7 +385,7 @@ object API {
      * 机器人上麦
      */
     val RobotOnStage: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.put("/channels/{channel_id}/mic")
+        TencentOpenApiHttpClient.client.put("/channels/{channel_id}/mic")
     }
 
 
@@ -392,21 +393,21 @@ object API {
      * 机器人下麦
      */
     val RobotOffStage: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.delete("/channels/{channel_id}/mic")
+        TencentOpenApiHttpClient.client.delete("/channels/{channel_id}/mic")
     }
 
     /**
      * 获取帖子列表
      */
     val PostList: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.get("/channels/{channel_id}/threads")
+        TencentOpenApiHttpClient.client.get("/channels/{channel_id}/threads")
     }
 
     /**
      * 获取帖子详情
      */
     val PostDetail: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.get("/channels/{channel_id}/threads/{thread_id}")
+        TencentOpenApiHttpClient.client.get("/channels/{channel_id}/threads/{thread_id}")
     }
 
 
@@ -414,7 +415,7 @@ object API {
      * 发布帖子
      */
     val PublishPost: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.put("/channels/{channel_id}/threads")
+        TencentOpenApiHttpClient.client.put("/channels/{channel_id}/threads")
     }
 
 
@@ -422,49 +423,49 @@ object API {
      * 删除帖子
      */
     val DeletePost: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.put("/channels/{channel_id}/threads/{thread_id}")
+        TencentOpenApiHttpClient.client.put("/channels/{channel_id}/threads/{thread_id}")
     }
 
     /**
      * 添加表情
      */
     val AddEmoji: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.put("/channels/{channel_id}/messages/{message_id}/reactions/{type}/{id}")
+        TencentOpenApiHttpClient.client.put("/channels/{channel_id}/messages/{message_id}/reactions/{type}/{id}")
     }
 
     /**
      * 删除表情
      */
     val DeleteEmoji: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.delete("/channels/{channel_id}/messages/{message_id}/reactions/{type}/{id}")
+        TencentOpenApiHttpClient.client.delete("/channels/{channel_id}/messages/{message_id}/reactions/{type}/{id}")
     }
 
     /**
      * 撤回子频道的信息
      */
     val RecallChannelMessage: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.delete("/channels/{channel_id}/messages/{message_id}")
+        TencentOpenApiHttpClient.client.delete("/channels/{channel_id}/messages/{message_id}")
     }
 
     /**
      * 撤回频道私信的信息中我的信息
      */
     val RecallChannelMyPrivateMessage: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.delete("/dms/{guild_id}/messages/{message_id}")
+        TencentOpenApiHttpClient.client.delete("/dms/{guild_id}/messages/{message_id}")
     }
 
     /**
      * 撤回朋友聊天时的我的信息
      */
     val RecallFriendMyMessage: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.delete("/v2/users/{openid}/messages/{message_id}")
+        TencentOpenApiHttpClient.client.delete("/v2/users/{openid}/messages/{message_id}")
     }
 
     /**
      * 用于撤回机器人发送在当前群 group_openid 的消息 message_id，发送超出2分钟的消息不可撤回
      */
     val RecallGroupMyMessage: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.client.delete("/v2/users/{openid}/messages/{message_id}")
+        TencentOpenApiHttpClient.client.delete("/v2/users/{openid}/messages/{message_id}")
     }
 
     private val logger = LoggerFactory.getLogger(API::class.java)
@@ -491,7 +492,7 @@ object API {
             queryParams().clear()
             headers().clear()
             uri(uri0)
-            return this.putHeaders(DefaultHttpClient.DefaultHeaders)
+            return this.putHeaders(TencentOpenApiHttpClient.DefaultHeaders)
         }
     }
 }

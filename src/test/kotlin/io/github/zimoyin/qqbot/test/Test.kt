@@ -1,3 +1,4 @@
+import java.net.URI
 
 /**
  *
@@ -7,5 +8,5 @@
 
 
 suspend fun main() {
-
+    URI.create("http://aa").toURL()
 }
