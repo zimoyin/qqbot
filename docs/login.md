@@ -142,3 +142,9 @@ bot.context["PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT"] = false // 心跳日志,不�
 已经支持的信息类型:
 信息类型列表: https://bot.q.qq.com/wiki/develop/api-v2/server-inter/message/type/text.html
 
+### 8. 建议屏蔽的日志
+```java
+io.vertx.core.logging.LoggerFactory
+io.netty
+```
+
