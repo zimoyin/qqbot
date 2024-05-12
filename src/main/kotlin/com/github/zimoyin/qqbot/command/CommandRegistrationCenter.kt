@@ -2,7 +2,6 @@ package com.github.zimoyin.qqbot.command
 
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.bot.message.type.At
-import com.github.zimoyin.qqbot.bot.message.type.AtALL
 import com.github.zimoyin.qqbot.event.events.message.MessageEvent
 import com.github.zimoyin.qqbot.exception.CommandException
 import com.github.zimoyin.qqbot.exception.CommandHandlerException
@@ -32,9 +31,18 @@ object SimpleCommandRegistrationCenter {
      * @return CommandObject?
      */
     private fun getCommand(commandLine: String): SimpleCommandObject? {
-        return commandMap.firstOrNull {
+        // 匹配相似的命令主语
+        val filter = commandMap.filter {
             commandLine.trim().split("\\s".toRegex()).first().startsWith(it.commandSubject)
         }
+        if (filter.size == 1) return filter.first()
+        if (filter.isEmpty()) return null
+        // 匹配相同主语
+        val first = filter.firstOrNull() {
+            commandLine.trim().split("\\s".toRegex()).first() == it.commandSubject
+        }
+        if (first != null) return first
+        return filter.firstOrNull()
     }
 
 
