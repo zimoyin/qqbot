@@ -1,3 +1,4 @@
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.github.zimoyin.qqbot.net.bean.message.Message
 import com.github.zimoyin.qqbot.utils.JSON
 import com.github.zimoyin.qqbot.utils.ex.toJAny
@@ -5,6 +6,7 @@ import com.github.zimoyin.qqbot.utils.ex.toJsonObject
 import io.vertx.core.json.JsonObject
 import java.net.URI
 import java.time.Instant
+import java.time.LocalDateTime
 import java.util.*
 
 /**
@@ -42,6 +44,13 @@ suspend fun main() {
 
     """.trimIndent()
 
-    println(Date(System.currentTimeMillis() * 1000))
-//    println(toObject.timestamp?.time)
+//    println(Date(System.currentTimeMillis() * 1000))
+    val toObject = JSON.toObject<A>(jsonStr)
+    println(toObject.timestamp)
 }
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class A(
+    // "2024-05-12T23:51:58+08:00"
+    val timestamp:Instant? = null
+)
