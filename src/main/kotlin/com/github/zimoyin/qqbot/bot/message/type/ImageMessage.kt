@@ -47,7 +47,13 @@ data class ImageMessage(val name: String?, val attachment: MessageAttachment) : 
          */
         fun create(uri: String): ImageMessage {
             val create = URI.create(uri)
-            return ImageMessage(uri, MessageAttachment(uri = "${create.host?:""}${create.path?:""}${create.query?.let { "?$it" }?:""}"))
+            return ImageMessage(
+                uri,
+                MessageAttachment(
+                    protocol = create.scheme ?: "https",
+                    uri = "${create.host ?: ""}${create.path ?: ""}${create.query?.let { "?$it" } ?: ""}"
+                )
+            )
         }
     }
 }

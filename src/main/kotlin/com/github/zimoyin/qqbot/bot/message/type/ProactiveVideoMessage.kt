@@ -17,7 +17,13 @@ data class ProactiveVideoMessage(val name: String?, val attachment: MessageAttac
          */
         fun create(uri: String): ProactiveVideoMessage {
             val create = URI.create(uri)
-            return ProactiveVideoMessage(uri, MessageAttachment(uri = "${create.host?:""}${create.path?:""}${create.query?.let { "?$it" }?:""}"))
+            return ProactiveVideoMessage(
+                uri,
+                MessageAttachment(
+                    protocol = create.scheme ?: "https",
+                    uri = "${create.host ?: ""}${create.path ?: ""}${create.query?.let { "?$it" } ?: ""}"
+                )
+            )
         }
     }
 }

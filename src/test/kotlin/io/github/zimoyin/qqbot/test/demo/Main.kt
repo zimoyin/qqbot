@@ -48,7 +48,7 @@ suspend fun main() {
         context["PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT"] = false // 心跳日志,不能单独开启应该与上面两个其中一个一并开启
         onEvent<MessageEvent> {
             val chain = MessageChainBuilder().setID(it.msgID)
-                .append(ImageMessage.create("https://img2.imgtp.com/2024/05/13/AgLuumTE.png")).build()
+                .append(ImageMessage.create("http://ts1.cn.mm.bing.net/th/id/R-C.23034dbcaded6ab4169b9514f76f51b5?rik=mSGADwV9o/teUA&riu=http://pic.bizhi360.com/bbpic/40/9640_1.jpg&ehk=RYei4n5qyNCPVysJmE2a3WhxSOXqGQMGJcvWBmFyfdg=&risl=&pid=ImgRaw&r=0")).build()
 //            it.reply(it.messageChain)
             it.reply(chain)
         }

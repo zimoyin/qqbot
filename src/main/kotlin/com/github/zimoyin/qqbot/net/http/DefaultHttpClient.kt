@@ -67,6 +67,7 @@ object DefaultHttpClient {
 
     /**
      * 创建一个 GET 请求
+     * 并在创建前检测是否支持 SSL(来自于 isHeadSSL 字段设置)
      */
     fun createGet(uri: URI): HttpRequest<Buffer> = DefaultClient.get(uri.toString()).apply {
         runCatching { ssl(uri.toURL().isSSl()) }
@@ -74,6 +75,7 @@ object DefaultHttpClient {
 
     /**
      * 创建一个 GET 请求
+     * 并在创建前检测是否支持 SSL(来自于 isHeadSSL 字段设置)
      */
     fun createGet(url: String): HttpRequest<Buffer> {
         val toUrl = url.toUrl()
@@ -82,6 +84,7 @@ object DefaultHttpClient {
 
     /**
      * 创建一个 POST 请求
+     * 并在创建前检测是否支持 SSL(来自于 isHeadSSL 字段设置)
      */
     fun createPost(uri: URI): HttpRequest<Buffer> = DefaultClient.post(uri.toString()).apply {
         runCatching { ssl(uri.toURL().isSSl()) }
@@ -89,6 +92,7 @@ object DefaultHttpClient {
 
     /**
      * 创建一个 POST 请求
+     * 并在创建前检测是否支持 SSL(来自于 isHeadSSL 字段设置)
      */
     fun createPost(url: String): HttpRequest<Buffer> {
         val toUrl = url.toUrl()
@@ -97,6 +101,7 @@ object DefaultHttpClient {
 
     /**
      * 创建一个请求
+     * 并在创建前检测是否支持 SSL(来自于 isHeadSSL 字段设置)
      */
     fun createRequest(method: HttpMethod, uri: URI): HttpRequest<Buffer> = DefaultClient.request(method, uri.toString()).apply {
         runCatching { ssl(uri.toURL().isSSl()) }
@@ -104,6 +109,7 @@ object DefaultHttpClient {
 
     /**
      * 创建一个请求
+     * 并在创建前检测是否支持 SSL(来自于 isHeadSSL 字段设置)
      */
     fun createRequest(method: HttpMethod, url: String): HttpRequest<Buffer> {
         return DefaultClient.request(method, url.toUrl().cPort(), url.toUrl().host, url.toUrl().path)
@@ -112,6 +118,7 @@ object DefaultHttpClient {
 
     /**
      * 创建一个 DELETE 请求
+     * 并在创建前检测是否支持 SSL(来自于 isHeadSSL 字段设置)
      */
     fun createDelete(uri: URI): HttpRequest<Buffer> = DefaultClient.delete(uri.toString()).apply {
         runCatching { ssl(uri.toURL().isSSl()) }
@@ -119,6 +126,7 @@ object DefaultHttpClient {
 
     /**
      * 创建一个 DELETE 请求
+     * 并在创建前检测是否支持 SSL(来自于 isHeadSSL 字段设置)
      */
     fun createDelete(url: String): HttpRequest<Buffer> {
         val toUrl = url.toUrl()
@@ -127,6 +135,7 @@ object DefaultHttpClient {
 
     /**
      * 创建一个 PUT 请求
+     * 并在创建前检测是否支持 SSL(来自于 isHeadSSL 字段设置)
      */
     fun createPut(uri: URI): HttpRequest<Buffer> = DefaultClient.put(uri.toString()).apply {
         runCatching { ssl(uri.toURL().isSSl()) }
@@ -134,6 +143,7 @@ object DefaultHttpClient {
 
     /**
      * 创建一个 PUT 请求
+     * 并在创建前检测是否支持 SSL(来自于 isHeadSSL 字段设置)
      */
     fun createPut(url: String): HttpRequest<Buffer> {
         val toUrl = url.toUrl()
@@ -142,11 +152,13 @@ object DefaultHttpClient {
 
     /**
      * 创建一个 HEAD 请求
+     * 并在创建前检测是否支持 SSL(来自于 isHeadSSL 字段设置)
      */
     fun createHead(uri: URI): HttpRequest<Buffer> = DefaultClient.head(uri.toString())
 
     /**
      * 创建一个 HEAD 请求
+     * 并在创建前检测是否支持 SSL(来自于 isHeadSSL 字段设置)
      */
     fun createHead(url: String): HttpRequest<Buffer> {
         val toUrl = url.toUrl()
@@ -155,6 +167,7 @@ object DefaultHttpClient {
 
     /**
      * 创建一个 GET 请求
+     * 并在创建前检测是否支持 SSL(来自于 isHeadSSL 字段设置)
      *
      */
     fun get(url: String, headers: HashMap<String, String> = HashMap()): HttpResponse<Buffer> {
@@ -163,6 +176,7 @@ object DefaultHttpClient {
 
     /**
      * 创建一个 POST 请求
+     * 并在创建前检测是否支持 SSL(来自于 isHeadSSL 字段设置)
      */
     fun post(url: String, headers: HashMap<String, String> = HashMap()): HttpResponse<Buffer> {
         return createPost(url).putHeaders(headers.toHeaders()).send().awaitToCompleteExceptionally()
@@ -170,7 +184,9 @@ object DefaultHttpClient {
 
     /**
      * 创建一个 POST 请求
+     * 并在创建前检测是否支持 SSL(来自于 isHeadSSL 字段设置)
      * @param body 请求体
+     *
      */
     fun post(url: String, body: String, headers: HashMap<String, String> = HashMap()): HttpResponse<Buffer> {
         return createPost(url).putHeaders(headers.toHeaders()).sendBuffer(Buffer.buffer(body))
@@ -179,6 +195,7 @@ object DefaultHttpClient {
 
     /**
      * 创建一个 POST 请求。
+     * 并在创建前检测是否支持 SSL(来自于 isHeadSSL 字段设置)
      * @param body 请求体
      */
     fun postJson(url: String, body: Any, headers: HashMap<String, String> = HashMap()): HttpResponse<Buffer> {
@@ -187,6 +204,7 @@ object DefaultHttpClient {
 
     /**
      * 创建一个 POST 请求。
+     * 并在创建前检测是否支持 SSL(来自于 isHeadSSL 字段设置)
      * @param body 请求体
      */
     fun postJsonObject(

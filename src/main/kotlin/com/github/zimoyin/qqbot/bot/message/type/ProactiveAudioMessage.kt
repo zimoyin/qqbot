@@ -17,7 +17,7 @@ data class ProactiveAudioMessage(val name: String?, val attachment: MessageAttac
          */
         fun create(uri: String): ProactiveAudioMessage {
             val create = URI.create(uri)
-            return ProactiveAudioMessage(uri, MessageAttachment(uri = "${create.host?:""}${create.path?:""}${create.query?.let { "?$it" }?:""}"))
+            return ProactiveAudioMessage(uri, MessageAttachment( protocol = create.scheme ?: "https",uri = "${create.host?:""}${create.path?:""}${create.query?.let { "?$it" }?:""}"))
         }
     }
 }

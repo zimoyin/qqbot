@@ -3,6 +3,7 @@ package com.github.zimoyin.qqbot.net.bean.message
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import org.slf4j.LoggerFactory
 import java.io.Serializable
 import java.net.URL
 
@@ -11,6 +12,12 @@ import java.net.URL
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class MessageAttachment(
+    /**
+     * 协议
+     */
+    @field:JsonIgnore
+    val protocol: String = "https",
+
     /**
      * 下载地址
      */
@@ -53,8 +60,13 @@ data class MessageAttachment(
     @field:JsonProperty("width")
     val width: Int? = null,
 ) : Serializable {
+
+    @JsonIgnore
+    private val logger = LoggerFactory.getLogger(MessageAttachment::class.java)
+
     @JsonIgnore
     fun getURL(): String {
-        return URL("https://$uri").toString()
+        if (protocol != "https") logger.warn("附件协议不是https: $protocol://$uri")
+        return URL("$protocol://$uri").toString()
     }
 }
