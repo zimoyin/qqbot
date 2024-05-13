@@ -1,5 +1,6 @@
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.github.zimoyin.qqbot.net.bean.message.Message
+import com.github.zimoyin.qqbot.net.http.DefaultHttpClient
 import com.github.zimoyin.qqbot.utils.JSON
 import com.github.zimoyin.qqbot.utils.ex.toJAny
 import com.github.zimoyin.qqbot.utils.ex.toJsonObject
@@ -17,12 +18,5 @@ import java.util.*
 
 
 suspend fun main() {
-    val create = URI.create("http://a/a?a=2")
-    println(create.scheme)
-}
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class A(
-    // "2024-05-12T23:51:58+08:00"
-    val timestamp:Instant? = null
-)
+}
