@@ -146,9 +146,15 @@ fun HttpAPIClient.uploadMediaToGroup(id: String, token: Token, mediaBean: SendMe
     API.uploadGroupMediaResource.addRestfulParam(id).putHeaders(token.getHeaders())
         .sendJsonObject(JSON.toJsonObject(mediaBean)).onSuccess {
             runCatching {
-                it.bodyAsJsonObject().mapTo(MediaMessageBean::class.java)
+                val json = it.bodyAsJsonObject()
+                if (json.getInteger("code") != null){
+                    promise.fail(HttpClientException("Upload media resource failed: $json"))
+                }else{
+                    logDebug("sendGroupMessage", "上传富媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 成功: $json")
+                }
+                json.mapTo(MediaMessageBean::class.java)
             }.onSuccess {
-                promise.complete(it)
+                promise.tryComplete(it)
             }.onFailure {
                 logPreError(
                     promise, "sendGroupMessage", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 失败", it
