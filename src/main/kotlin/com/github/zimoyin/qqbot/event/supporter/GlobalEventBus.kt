@@ -341,7 +341,7 @@ open class BotEventBus(val bus: EventBus) {
  * @author : zimo
  * @project : qqbot_gf
  * @date : 2023/12/06/17:29
- * @description ：
+ * @description ：默认的全局事件总线,可用监听同一个vertx中传输的所有机器人的事件。也可用在该总线上发布事件
  */
 object GlobalEventBus : BotEventBus(GLOBAL_VERTX_INSTANCE.eventBus()) {
     init {
