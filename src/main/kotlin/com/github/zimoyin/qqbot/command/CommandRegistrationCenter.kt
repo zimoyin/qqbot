@@ -17,20 +17,51 @@ import java.util.function.Consumer
 object SimpleCommandRegistrationCenter {
     private val commandMap = HashSet<SimpleCommandObject>()
 
+    /**
+     * 注册命令
+     */
     fun register(command: SimpleCommandObject): Boolean = commandMap.add(command)
+
+    /**
+     * 注销命令
+     */
     fun unregister(command: SimpleCommandObject): Boolean = commandMap.remove(command)
+
+    /**
+     * 注册命令
+     */
+    @Deprecated(
+        "请使用 register(command: SimpleCommandObject)", ReplaceWith(
+            "register(SimpleCommandObject(command){})",
+            "com.github.zimoyin.qqbot.command.SimpleCommandRegistrationCenter.register",
+            "com.github.zimoyin.qqbot.command.SimpleCommandObject"
+        )
+    )
     fun register(command: String): Boolean = register(SimpleCommandObject(command))
+
+    /**
+     * 注销命令
+     */
     fun unregister(command: String): Boolean = unregister(SimpleCommandObject(command))
+
+    /**
+     * 注册命令
+     */
     fun register(command: String, handle: Consumer<SimpleCommandInfo?>): Boolean {
         return commandMap.add(SimpleCommandObject(command) { handle.accept(it) })
     }
+
+    /**
+     * 获取命令列表
+     */
+    fun getCommandList(): Set<SimpleCommandObject> = commandMap.toSet()
 
     /**
      * 获取命令,如果没有则返回 null
      * @param commandLine 一段完整的命令，包含命令主语与参数等
      * @return CommandObject?
      */
-    private fun getCommand(commandLine: String): SimpleCommandObject? {
+    fun getCommand(commandLine: String): SimpleCommandObject? {
         // 匹配相似的命令主语
         val filter = commandMap.filter {
             commandLine.trim().split("\\s".toRegex()).first().startsWith(it.commandSubject)
