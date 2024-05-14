@@ -50,6 +50,7 @@ suspend fun main() {
 //        setIntents(Intents.Presets.PRIVATE_INTENTS)
         setIntents(Intents.Presets.PRIVATE_GROUP_INTENTS)
     }.apply {
+        config.retry = -1
         context["PAYLOAD_CMD_HANDLER_DEBUG_LOG"] = true // 命令处理器日志
         context["PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG"] = true // 命令元数据日志
         context["PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT"] = false // 心跳日志,不能单独开启应该与上面两个其中一个一并开启

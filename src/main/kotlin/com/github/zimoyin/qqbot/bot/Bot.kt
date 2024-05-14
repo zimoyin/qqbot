@@ -222,11 +222,11 @@ data class BotConfig(
     val shards: BotSection,
     val consumers: HashSet<MessageConsumer<*>>,
     val token: Token,
-    val reconnect: Boolean = true,
+    var reconnect: Boolean = true,
     /**
      * Bot丢失链接后的重试次数
      */
-    val retry: Int = 64,
+    var retry: Int = 64,
 ) : Serializable {
 
     /**

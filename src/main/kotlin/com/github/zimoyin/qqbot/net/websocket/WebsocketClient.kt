@@ -42,6 +42,7 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
     private val headerCycle: Long = 10 * 1000
     private val handlerKey = "internal.handler"
     private val throwableKey = "internal.throwable"
+    private var WS: WebSocket? = null
 
     override suspend fun start() {
         //配置 ws
@@ -89,9 +90,11 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
         logger.debug("WebSocketClient[${client.hashCode()}] 准备访问WebSocketSever接入点: $gatewayURL")
         val url = gatewayURL!!.replace("wss://", "https://", true).toUrl()
 
+        WS?.close()
         //开启 ws
         client.connect(443, url.host, url.path).onSuccess { ws ->
             bot.context["ws"] = ws
+            WS = ws
             if (!bot.context.contains(handlerKey)) bot.context[handlerKey] = PayloadCmdHandler(bot)
             logger.info("WebSocketClient[${client.hashCode()}] 完成创建 WebSocket[${ws.hashCode()}] : 链接服务器成功")
         }.onSuccess { ws ->
@@ -137,14 +140,14 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
                 bot.context[throwableKey] = it
                 when (it) {
                     is SocketException -> logger.error("WebSocket链接发生异常 (java.net.SocketException)", it)
-
-                    is HttpClosedException ->
+                    is HttpClosedException -> {
                         logger.error("WebSocket链接因为异常被关闭 (io.vertx.core.http.HttpClosedException)", it)
+                    }
 
                     else -> logger.error("WebSocket连接出现异常 ", it)
                 }
 
-                if (it is SocketException) reconnect(client, reconnect, retry)
+                if (it is SocketException || it is HttpClosedException) reconnect(client, reconnect, retry)
             }
         }.onFailure {
             logger.warn("WebSocketClient[${client.hashCode()}] 启动失败,由于没有建立连接不予重连，请新建连接并保证网络畅通")
@@ -157,7 +160,7 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
     private fun reconnect(client: WebSocketClient, reconnect: Boolean, retry: Int) {
         logger.debug("WebSocketClient[${client.hashCode()}] 剩余重连次数: $retry")
         logger.debug("WebSocketClient[${client.hashCode()}] 是否允许重连: $reconnect")
-        if (retry > 0 && reconnect) {
+        if (retry != 0 && reconnect) {
             reconnectHandler(client, retry).handle(0)
         } else {
             logger.warn("WebSocketClient[${client.hashCode()}] 重连达到极限，不再允许重连")
