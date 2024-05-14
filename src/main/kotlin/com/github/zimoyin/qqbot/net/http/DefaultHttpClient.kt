@@ -79,7 +79,7 @@ object DefaultHttpClient {
      */
     fun createGet(url: String): HttpRequest<Buffer> {
         val toUrl = url.toUrl()
-        return DefaultClient.get(toUrl.cPort(), toUrl.host, toUrl.path).ssl(toUrl.isSSl())
+        return DefaultClient.get(toUrl.cPort(), toUrl.host, url).ssl(toUrl.isSSl())
     }
 
     /**
@@ -96,23 +96,24 @@ object DefaultHttpClient {
      */
     fun createPost(url: String): HttpRequest<Buffer> {
         val toUrl = url.toUrl()
-        return DefaultClient.post(toUrl.cPort(), toUrl.host, toUrl.path).ssl(toUrl.isSSl()).followRedirects(true)
+        return DefaultClient.post(toUrl.cPort(), toUrl.host, url).ssl(toUrl.isSSl()).followRedirects(true)
     }
 
     /**
      * 创建一个请求
      * 并在创建前检测是否支持 SSL(来自于 isHeadSSL 字段设置)
      */
-    fun createRequest(method: HttpMethod, uri: URI): HttpRequest<Buffer> = DefaultClient.request(method, uri.toString()).apply {
-        runCatching { ssl(uri.toURL().isSSl()) }
-    }
+    fun createRequest(method: HttpMethod, uri: URI): HttpRequest<Buffer> =
+        DefaultClient.request(method, uri.toString()).apply {
+            runCatching { ssl(uri.toURL().isSSl()) }
+        }
 
     /**
      * 创建一个请求
      * 并在创建前检测是否支持 SSL(来自于 isHeadSSL 字段设置)
      */
     fun createRequest(method: HttpMethod, url: String): HttpRequest<Buffer> {
-        return DefaultClient.request(method, url.toUrl().cPort(), url.toUrl().host, url.toUrl().path)
+        return DefaultClient.request(method, url.toUrl().cPort(), url.toUrl().host, url)
             .ssl(url.toUrl().isSSl())
     }
 
@@ -130,7 +131,7 @@ object DefaultHttpClient {
      */
     fun createDelete(url: String): HttpRequest<Buffer> {
         val toUrl = url.toUrl()
-        return DefaultClient.delete(toUrl.cPort(), toUrl.host, toUrl.path)
+        return DefaultClient.delete(toUrl.cPort(), toUrl.host, url)
     }
 
     /**
@@ -147,7 +148,7 @@ object DefaultHttpClient {
      */
     fun createPut(url: String): HttpRequest<Buffer> {
         val toUrl = url.toUrl()
-        return DefaultClient.put(toUrl.cPort(), toUrl.host, toUrl.path)
+        return DefaultClient.put(toUrl.cPort(), toUrl.host, url)
     }
 
     /**
@@ -162,7 +163,7 @@ object DefaultHttpClient {
      */
     fun createHead(url: String): HttpRequest<Buffer> {
         val toUrl = url.toUrl()
-        return DefaultClient.head(toUrl.cPort(), toUrl.host, toUrl.path)
+        return DefaultClient.head(toUrl.cPort(), toUrl.host, url)
     }
 
     /**

@@ -18,5 +18,5 @@ import java.util.*
 
 
 suspend fun main() {
-
+    println(DefaultHttpClient.get("https://cn.apihz.cn/api/zici/today.php?id=88888888&key=88888888").bodyAsString())
 }
