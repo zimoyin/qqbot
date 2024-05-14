@@ -46,7 +46,7 @@ class MessageChain(
         ).apply {
             internalItems.apply {
                 metaTextContent?.let {
-                    add(PlainTextMessage(it))
+                    add(PlainTextMessage(it.replace("\r", "\n")))
                 }
                 //处理 AT 信息
                 // 分割全体成员

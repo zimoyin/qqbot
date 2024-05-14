@@ -6,6 +6,7 @@ import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.Bot
 import com.github.zimoyin.qqbot.bot.message.MessageChainBuilder
 import com.github.zimoyin.qqbot.bot.message.type.ImageMessage
+import com.github.zimoyin.qqbot.bot.message.type.PlainTextMessage
 import com.github.zimoyin.qqbot.bot.onEvent
 import com.github.zimoyin.qqbot.event.events.Event
 import com.github.zimoyin.qqbot.event.events.message.MessageEvent
@@ -29,13 +30,19 @@ suspend fun main() {
     //全局事件监听
     GlobalEventBus.onEvent<Event> {
         logger.debug("全局事件监听: ${it.metadataType}")
-
     }
     GlobalEventBus.onEvent<MessageEvent> {
         logger.debug(it.messageChain.toString())
         it.messageChain.filter { it is ImageMessage }.map { it as ImageMessage }.forEach {
             println(it.attachment)
         }
+        val first = it.messageChain.filter {
+            it is PlainTextMessage
+        }.map {
+            it as PlainTextMessage
+        }.first().content
+        println(first)
+
     }
 
     TencentOpenApiHttpClient.isSandBox = true
@@ -50,7 +57,7 @@ suspend fun main() {
             val chain = MessageChainBuilder().setID(it.msgID)
                 .append(ImageMessage.create("http://ts1.cn.mm.bing.net/th/id/R-C.23034dbcaded6ab4169b9514f76f51b5?rik=mSGADwV9o/teUA&riu=http://pic.bizhi360.com/bbpic/40/9640_1.jpg&ehk=RYei4n5qyNCPVysJmE2a3WhxSOXqGQMGJcvWBmFyfdg=&risl=&pid=ImgRaw&r=0")).build()
 //            it.reply(it.messageChain)
-            it.reply(chain)
+//            it.reply(chain)
         }
         login().onSuccess {
             logger.info("BOT登录成功")
