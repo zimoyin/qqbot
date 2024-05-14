@@ -120,7 +120,7 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
         return promise.future()
     }
 
-    logDebug("sendChannelMessageAsync", "发送消息: ${finalMessage.toStrings()}")
+    logDebug("sendChannelMessageAsync", "发送消息: ${finalMessage.toStrings().replace("\n", "\\n")}")
     //发送信息
     client.addRestfulParam(id).putHeaders(token.getHeaders())
 //        .sendJsonObject(finalMessageJson).onFailure { // JSON 方式发送
