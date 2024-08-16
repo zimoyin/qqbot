@@ -22,4 +22,5 @@ class MessageSendInterceptEvent(
     val messageChain: MessageChain,
     val contact: Contact,
     override val botInfo: BotInfo = contact.botInfo,
+    override val eventID: String ="",
 ) : PlatformEvent

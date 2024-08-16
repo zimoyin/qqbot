@@ -19,4 +19,5 @@ data class MessageAddPasteEvent(
     override val metadataType: String = "MESSAGE_REACTION_ADD",
     override val botInfo: BotInfo,
     override val message: MessageReaction,
+    override val eventID: String ="",
 ) : MessagePasteEvent

@@ -9,6 +9,9 @@ import com.github.zimoyin.qqbot.bot.message.type.ImageMessage
 import com.github.zimoyin.qqbot.bot.message.type.PlainTextMessage
 import com.github.zimoyin.qqbot.bot.onEvent
 import com.github.zimoyin.qqbot.event.events.Event
+import com.github.zimoyin.qqbot.event.events.friend.OpenFriendBotEvent
+import com.github.zimoyin.qqbot.event.events.group.member.AddGroupEvent
+import com.github.zimoyin.qqbot.event.events.group.operation.OpenGroupBotEvent
 import com.github.zimoyin.qqbot.event.events.message.MessageEvent
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.net.Intents
@@ -17,6 +20,7 @@ import com.github.zimoyin.qqbot.net.http.api.TencentOpenApiHttpClient
 import openDebug
 import org.slf4j.LoggerFactory
 import token
+import java.io.File
 
 
 @OptIn(UntestedApi::class)
@@ -51,14 +55,17 @@ suspend fun main() {
         setIntents(Intents.Presets.PRIVATE_GROUP_INTENTS)
     }.apply {
         config.retry = -1
+        context["SESSION_ID"] = "ab06814a-a5f5-4787-8c01-8f3a5aaf7277"
         context["PAYLOAD_CMD_HANDLER_DEBUG_LOG"] = true // 命令处理器日志
         context["PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG"] = true // 命令元数据日志
         context["PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT"] = false // 心跳日志,不能单独开启应该与上面两个其中一个一并开启
         onEvent<MessageEvent> {
             val chain = MessageChainBuilder().setID(it.msgID)
-                .append(ImageMessage.create("http://ts1.cn.mm.bing.net/th/id/R-C.23034dbcaded6ab4169b9514f76f51b5?rik=mSGADwV9o/teUA&riu=http://pic.bizhi360.com/bbpic/40/9640_1.jpg&ehk=RYei4n5qyNCPVysJmE2a3WhxSOXqGQMGJcvWBmFyfdg=&risl=&pid=ImgRaw&r=0")).build()
+                .append(ImageMessage.create("http://ts1.cn.mm.bing.net/th/id/R-C.23034dbcaded6ab4169b9514f76f51b5?rik=mSGADwV9o/teUA&riu=http://pic.bizhi360.com/bbpic/40/9640_1.jpg&ehk=RYei4n5qyNCPVysJmE2a3WhxSOXqGQMGJcvWBmFyfdg=&risl=&pid=ImgRaw&r=0"))
+//                .append(ImageMessage.create(File("C:\\Users\\zimoa\\Pictures\\82459221_p0.jpg")))
+                .build()
 //            it.reply(it.messageChain)
-//            it.reply(chain)
+            it.reply(chain)
         }
         login().onSuccess {
             logger.info("BOT登录成功")

@@ -20,4 +20,5 @@ data class GuildMemberDeleteEvent(
     override val metadata: String,
     override val botInfo: BotInfo,
     override val member: MemberWithGuildID,
+    override val eventID: String ="",
 ) : GuildMemberEvent

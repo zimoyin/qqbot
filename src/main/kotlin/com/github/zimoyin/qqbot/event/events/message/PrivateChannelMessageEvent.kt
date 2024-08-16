@@ -25,5 +25,6 @@ class PrivateChannelMessageEvent(
   override val messageChain: MessageChain,
   override val sender: ChannelUser,
   override val botInfo: BotInfo,
-  override val channel: Channel = windows
+  override val channel: Channel = windows,
+  override val eventID: String ="",
 ) : ChannelMessageEvent, MessageEvent

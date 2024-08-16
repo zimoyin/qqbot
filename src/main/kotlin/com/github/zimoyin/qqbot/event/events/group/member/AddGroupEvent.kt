@@ -2,7 +2,15 @@ package com.github.zimoyin.qqbot.event.events.group.member
 
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.BotInfo
+import com.github.zimoyin.qqbot.bot.contact.Contact
+import com.github.zimoyin.qqbot.bot.message.MessageChain
+import com.github.zimoyin.qqbot.bot.message.MessageChainBuilder
+import com.github.zimoyin.qqbot.bot.message.type.MarkdownMessage
+import com.github.zimoyin.qqbot.bot.message.type.ReferenceMessage
 import com.github.zimoyin.qqbot.event.handler.group.AddGroupHandler
+import com.github.zimoyin.qqbot.utils.ex.promise
+import io.vertx.core.Future
+import org.slf4j.LoggerFactory
 import java.util.*
 
 /**
@@ -22,4 +30,29 @@ data class AddGroupEvent(
     override val groupID :String,
     override val timestamp :Date,
     override val opMemberOpenid :String,
-): GroupMemberUpdateEvent
+    /**
+     * 会话窗口：通常用于信息来源。来自于哪个组，比如群组，私信等
+     */
+    val windows: Contact,
+    override val eventID: String = ""
+): GroupMemberUpdateEvent{
+    /**
+     * 被动回复信息
+     * 注意无法通过事件发送主动信息，请查询 Content.send 方法
+     */
+    fun reply(message: String): Future<MessageChain> {
+        return windows.send(MessageChainBuilder().appendEventId(eventID).append(message).build())
+    }
+
+    /**
+     * 被动回复信息
+     * 注意无法通过事件发送主动信息，请查询 Content.send 方法
+     * 注: 对于非文本等形式的消息，可能会受限于主动信息推送
+     */
+    fun reply(messageBuild: MessageChainBuilder): Future<MessageChain> {
+        messageBuild.appendEventId(eventID)
+        return windows.send(messageBuild.build())
+    }
+
+
+}

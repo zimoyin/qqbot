@@ -23,4 +23,5 @@ data class ChannelPrivateMessageRevokeEvent(
     override val sender: User,
     override val metadataType: String = "DIRECT_MESSAGE_DELETE",
     override val operatorID: String,
+    override val eventID: String ="",
 ) : MessageRevokeEvent

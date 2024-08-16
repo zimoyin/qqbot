@@ -22,4 +22,5 @@ data class BotLeftGuildEvent(
     override val botInfo: BotInfo,
     override val metadataType: String = "GUILD_DELETE",
     override  val guild: GuildBean,
+    override val eventID: String ="",
 ) : GuildOperate

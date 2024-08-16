@@ -29,6 +29,7 @@ class ChannelPrivateMessageEvent(
     override val sender: ChannelUser,
     override val botInfo: BotInfo,
     override val channel: Channel = windows,
+    override val eventID: String ="",
 ) : PrivateMessageEvent, ChannelMessageEvent {
     override val metadataType: String = "DIRECT_MESSAGE_CREATE"
 

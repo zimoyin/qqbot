@@ -30,6 +30,7 @@ class MessageStartAuditEvent(
     override val botInfo: BotInfo,
     override val metadata: String = "Platform_MessageAuditEvent",
     override val metadataType: String = "Platform_MessageAuditEvent",
+    override val eventID: String ="",
 ) : PlatformEvent, MessageAuditEvent
 
 @EventAnnotation.EventMetaType("MESSAGE_AUDIT_PASS")
@@ -39,6 +40,7 @@ class MessageAuditPassEvent(
     override val metadata: String,
     override val metadataType: String = "MESSAGE_AUDIT_PASS",
     val message: MessageAuditBean,
+    override val eventID: String ="",
 ) : MessageAuditEvent
 
 @EventAnnotation.EventMetaType("MESSAGE_AUDIT_REJECT")
@@ -48,4 +50,5 @@ class MessageAuditRejectEvent(
     override val metadata: String,
     override val metadataType: String = "MESSAGE_AUDIT_REJECT",
     val message: MessageAuditBean,
+    override val eventID: String ="",
 ) : MessageAuditEvent

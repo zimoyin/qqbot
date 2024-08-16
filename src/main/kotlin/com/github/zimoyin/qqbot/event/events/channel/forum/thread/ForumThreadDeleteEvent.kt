@@ -20,4 +20,5 @@ data class ForumThreadDeleteEvent(
     override val botInfo: BotInfo,
     override val metadataType: String = "FORUM_THREAD_DELETE",
     override val forum: ForumThread,
+    override val eventID: String ="",
 ) : ForumThreadEvent

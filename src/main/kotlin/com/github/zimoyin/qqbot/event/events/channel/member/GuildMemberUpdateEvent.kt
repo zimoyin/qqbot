@@ -20,4 +20,5 @@ data class GuildMemberUpdateEvent(
     override val botInfo: BotInfo,
     override val metadataType: String = "GUILD_MEMBER_UPDATE",
     override val member: MemberWithGuildID,
+    override val eventID: String ="",
 ) : GuildMemberEvent

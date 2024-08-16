@@ -21,4 +21,5 @@ data class CloseGroupBotEvent(
     override val groupID: String,
     override val timestamp: Date,
     override val opMemberOpenid: String,
+    override val eventID: String ="",
 ) : GroupBotOperationEvent

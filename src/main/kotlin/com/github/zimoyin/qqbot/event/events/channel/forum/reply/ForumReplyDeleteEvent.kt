@@ -19,4 +19,5 @@ data class ForumReplyDeleteEvent(
     override val botInfo: BotInfo,
     override val metadataType: String = "FORUM_REPLY_DELETE",
     override val forum: ForumReply,
+    override val eventID: String ="",
 ) : ForumReplyEvent

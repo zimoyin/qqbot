@@ -14,5 +14,6 @@ import com.github.zimoyin.qqbot.event.handler.BotResumedHandler
 data class BotResumedEvent(
     override val metadata: String,
     override val metadataType: String,
-    override val botInfo: BotInfo
+    override val botInfo: BotInfo,
+    override val eventID: String ="",
 ) : BotStatusEvent

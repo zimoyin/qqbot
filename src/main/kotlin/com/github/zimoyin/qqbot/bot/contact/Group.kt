@@ -38,5 +38,10 @@ data class GroupImpl(
             botInfo = botInfo,
             id = message.groupID!!
         )
+
+        fun convert(botInfo: BotInfo, groupID: String) = GroupImpl(
+            botInfo = botInfo,
+            id = groupID
+        )
     }
 }

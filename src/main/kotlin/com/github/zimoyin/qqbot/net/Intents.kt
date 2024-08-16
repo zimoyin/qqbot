@@ -82,6 +82,7 @@ enum class Intents(val code: Int) {
 
     /**
      * 群聊事件
+     * GROUP_AND_C2C_EVENT
      */
 //    @Deprecated("新版API文档中被移除")
     GROUP_INTENTS(1 shl 25),

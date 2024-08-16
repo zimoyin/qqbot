@@ -26,6 +26,7 @@ data class FriendMessageSendPreEvent(
     override val botInfo: BotInfo = contact.botInfo,
     override val msgID: String,
     override var messageChain: MessageChain,
+    override val eventID: String ="",
 ) : MessageSendPreEvent(
     metadata = metadata,
     metadataType = metadataType,

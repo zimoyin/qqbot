@@ -23,4 +23,5 @@ data class ChannelMessageRevokeEvent(
     override val sender: User,
     override val metadataType: String = "MESSAGE_DELETE",
     override val operatorID: String,
+    override val eventID: String ="",
 ) : MessageRevokeEvent

@@ -25,4 +25,5 @@ open class MessageSendEvent(
     open val result: MessageChain, //服务器返回的信息
     open val contact: Contact,
     override val botInfo: BotInfo = contact.botInfo,
+    override val eventID: String ="",
 ) : PlatformEvent

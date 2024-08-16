@@ -14,7 +14,7 @@ import io.vertx.core.json.JsonObject
  * @author : zimo
  * @date : 2023/12/07
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
+//@JsonIgnoreProperties(ignoreUnknown = true)
 data class Payload(
 
     /**
@@ -61,6 +61,8 @@ data class Payload(
     @field:JsonIgnore
     var metadata:String = "none",
 
+    @field:JsonProperty("id")
+    val eventID:String? = null,
 
     @field:JsonIgnore
     var appID:String? = null,

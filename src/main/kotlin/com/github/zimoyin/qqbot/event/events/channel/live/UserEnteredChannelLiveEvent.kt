@@ -22,5 +22,6 @@ data class UserEnteredChannelLiveEvent(
     override val botInfo: BotInfo,
     override val metadataType: String = "AUDIO_OR_LIVE_CHANNEL_MEMBER_ENTER",
     override val live: UserLive,
+    override val eventID: String ="",
     override val channel: Channel = ChannelImpl.convert(botInfo, live.guildId!!, live.channelId, live.channelId),
 ) : LiveRoomEvent

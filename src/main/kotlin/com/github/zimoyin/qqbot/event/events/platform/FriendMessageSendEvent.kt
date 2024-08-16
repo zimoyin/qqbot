@@ -25,6 +25,7 @@ data class FriendMessageSendEvent(
     override val msgID: String,
     override val messageChain: MessageChain,
     override val result: MessageChain,
+    override val eventID: String ="",
 ) : MessageSendEvent(
     metadata = metadata,
     metadataType = metadataType,

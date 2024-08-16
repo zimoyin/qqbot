@@ -21,6 +21,7 @@ data class ForumPublishAuditEvent(
     override val metadata: String,
     override val botInfo: BotInfo,
     override val metadataType: String = "FORUM_PUBLISH_AUDIT_RESULT",
+    override val eventID: String ="",
     val forum: ForumAuditResult,
     override val channel: Channel = ChannelImpl.convert(botInfo, forum.guildId!!, forum.channelId, forum.channelId),
 ) : ForumEvent

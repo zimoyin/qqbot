@@ -3,6 +3,7 @@ package com.github.zimoyin.qqbot.bot.message.type
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.net.bean.message.MessageAttachment
+import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.InputStream
 import java.net.URI
@@ -27,6 +28,10 @@ data class ImageMessage(val name: String?, val attachment: MessageAttachment) : 
         @UntestedApi
         fun create(file: File): ImageMessage {
             return ImageMessage(file.name, MessageAttachment()).apply {
+                if (!file.exists()) throw IllegalArgumentException("Not found file: $file")
+                if (file.length() > 4 * 1024 * 1024){
+                    LoggerFactory.getLogger(ImageMessage::class.java).warn("图片大小超过4mb，可能会导致发送失败")
+                }
                 localFile = file
             }
         }

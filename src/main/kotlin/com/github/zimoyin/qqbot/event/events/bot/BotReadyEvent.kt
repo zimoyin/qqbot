@@ -17,6 +17,7 @@ data class BotReadyEvent(
     override val metadata: String,
     override val metadataType: String = "READY",
     override val botInfo: BotInfo,
+    override val eventID: String ="",
     val version: Int,
     val sessionID: String,
     val user: BotUser,

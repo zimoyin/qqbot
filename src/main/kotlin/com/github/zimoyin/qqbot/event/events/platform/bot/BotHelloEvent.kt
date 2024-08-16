@@ -19,4 +19,5 @@ class BotHelloEvent(
     override val botInfo: BotInfo,
     override val metadata: String = "Platform_BotHelloEvent",
     override val metadataType: String = "Platform_BotHelloEvent",
+    override val eventID: String ="",
 ) : PlatformEvent, BotStatusEvent

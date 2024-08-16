@@ -20,4 +20,5 @@ data class SubChannelUpdateEvent(
     override val botInfo: BotInfo,
     override val metadataType: String = "CHANNEL_UPDATE",
     override val channelBean: ChannelBean,
+    override val eventID: String ="",
 ) : SubChannelEvent

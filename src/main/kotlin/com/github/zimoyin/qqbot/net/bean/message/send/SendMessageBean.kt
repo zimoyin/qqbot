@@ -75,6 +75,16 @@ data class SendMessageBean(
     val id: String? = null,
 
     /**
+     * 选填，前置收到的事件 ID，用于发送被动消息
+     * 支持事件：
+     * 1. "INTERACTION_CREATE"(未实现)、"GROUP_ADD_ROBOT"、"GROUP_MSG_RECEIVE"(未实现)
+     * 2. "C2C_MSG_RECEIVE"(未实现)、"FRIEND_ADD"(未实现)
+     * 3. 其他事件支持未知
+     */
+    @field:JsonProperty("event_id")
+    val eventID: String? = null,
+
+    /**
      * 选填，markdown 息
      */
     @field:JsonProperty("markdown")

@@ -31,7 +31,7 @@ class MessageChain(
     val timestamp: Date = Date(),
     val editedTimestamp: Date = Date(),
     val metaTextContent: String? = null,
-
+    private val replyEventID: String? = null,
     private val internalItems: ArrayList<MessageItem> = ArrayList(),
 ) : Serializable, Cloneable, Iterable<MessageItem> {
     companion object {
@@ -303,6 +303,7 @@ class MessageChain(
             channelFileBytes = imageInput,
             videoURI = videoURL,
             audioURI = audioURL,
+            eventID = replyEventID,
         )
     }
 

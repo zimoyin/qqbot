@@ -21,4 +21,5 @@ data class BotGuildUpdatedEvent(
     override val botInfo: BotInfo,
     override val metadataType: String = "GUILD_UPDATE",
     override val guild: GuildBean,
+    override val eventID: String ="",
 ) : GuildOperate

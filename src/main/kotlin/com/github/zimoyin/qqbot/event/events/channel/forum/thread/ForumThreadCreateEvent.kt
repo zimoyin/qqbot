@@ -20,4 +20,5 @@ data class ForumThreadCreateEvent(
     override val botInfo: BotInfo,
     override val metadataType: String = "FORUM_THREAD_CREATE",
     override val forum: ForumThread,
+    override val eventID: String ="",
 ) : ForumThreadEvent

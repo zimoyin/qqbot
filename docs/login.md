@@ -129,11 +129,16 @@ context.getRecord("key")
 bot.context["SESSION_ID"] = "60a176e1-2790-4bf0-85cd-c123763981ea" // 设置Session ID 用于复用已经存在的会话。注意：适用于沙盒环境，正式环境请谨慎使用
 bot.context["SESSION_ID_Failure_Reconnection"] = true // 会话ID 过去则重连
 bot.context["gatewayURL"] = "wss://sandbox.api.sgroup.qq.com/websocket/" // 硬编码设置wss接入点同时shards设置为1.不推荐使用
+// config.shards = 1
 //bot.context["gatewayURL"] = "wss://api.sgroup.qq.com/websocket/" // 硬编码设置wss接入点同时shards设置为1.不推荐使用
 // 内部日志打印细节
 bot.context["PAYLOAD_CMD_HANDLER_DEBUG_LOG"] = true // 命令处理器日志
 bot.context["PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG"] = true // 命令元数据日志
 bot.context["PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT"] = false // 心跳日志,不能单独开启应该与上面两个其中一个一并开启
+bot.context["newconnecting"] = true // 断线是否重连
+
+
+bot.context["ws"]  // Bot 的 WebSocket
 ```
 
 [源码](..%2Fsrc%2Fmain%2Fkotlin%2Fcom%2Fgithub%2Fzimoyin%2Fqqbot%2Fbot%2FBotContent.kt)

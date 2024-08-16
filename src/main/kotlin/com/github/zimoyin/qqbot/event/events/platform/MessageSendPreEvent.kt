@@ -35,6 +35,7 @@ open class MessageSendPreEvent(
     open var messageChain: MessageChain,
     open val contact: Contact,
     override val botInfo: BotInfo = contact.botInfo,
+    override val eventID: String ="",
     /**
      * 是否拦截
      */

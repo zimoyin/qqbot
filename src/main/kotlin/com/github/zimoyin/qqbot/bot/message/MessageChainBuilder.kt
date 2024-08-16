@@ -12,6 +12,7 @@ import com.github.zimoyin.qqbot.bot.message.type.ReferenceMessage
  * 5. media 富媒体 TODO 单聊/群聊
  */
 class MessageChainBuilder(private var id: String? = null) {
+    private var eventId: String? = null
     constructor(chain: MessageChain) : this(chain.id) {
         append(chain)
     }
@@ -53,6 +54,10 @@ class MessageChainBuilder(private var id: String? = null) {
         }
         return this
     }
+    fun appendEventId(eventId0: String): MessageChainBuilder {
+        eventId = eventId0
+        return this
+    }
 
     fun buildMetaTextContent(): String {
         val sb = StringBuilder()
@@ -63,6 +68,6 @@ class MessageChainBuilder(private var id: String? = null) {
     }
 
     fun build(): MessageChain {
-        return MessageChain(id = id, metaTextContent = buildMetaTextContent(), internalItems = internalItems)
+        return MessageChain(id = id, metaTextContent = buildMetaTextContent(), internalItems = internalItems, replyEventID = eventId)
     }
 }

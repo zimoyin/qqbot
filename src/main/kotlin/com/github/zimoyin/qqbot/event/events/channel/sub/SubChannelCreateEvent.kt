@@ -20,4 +20,5 @@ data class SubChannelCreateEvent(
     override val botInfo: BotInfo,
     override val metadataType: String = "CHANNEL_CREATE",
     override val channelBean: ChannelBean,
+    override val eventID: String ="",
 ) : SubChannelEvent

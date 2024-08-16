@@ -19,4 +19,5 @@ class BotReconnectNotificationEvent(
     override val botInfo: BotInfo,
     override val metadata: String = "Platform_BotReconnectNotificationEvent",
     override val metadataType: String = "Platform_BotReconnectNotificationEvent",
+    override val eventID: String ="",
 ) : PlatformEvent, BotStatusEvent

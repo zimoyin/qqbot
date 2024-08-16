@@ -20,4 +20,5 @@ class BotOfflineEvent(
     val throwable: Throwable?,
     override val metadata: String = "Platform_BotOfflineEvent",
     override val metadataType: String = "Platform_BotOfflineEvent",
+    override val eventID: String ="",
 ) : PlatformEvent, BotStatusEvent

@@ -28,6 +28,12 @@ data class MessageAuditBean(
     val guildId: String? = null,
 
     /**
+     * 频道群 id
+     */
+    @field:JsonProperty("group_openid")
+    val groupOpenId: String? = null,
+
+    /**
      * 子频道 id
      */
     @field:JsonProperty("channel_id")

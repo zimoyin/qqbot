@@ -24,6 +24,12 @@ data class GuildBean(
     @field:JsonProperty("name")
     val name: String? = null,
 
+    @field:JsonProperty("union_org_id")
+    val unionOrgId: String? = null,
+
+    @field:JsonProperty("union_world_id")
+    val unionWorldId: String? = null,
+
     /**
      * 频道头像地址
      */

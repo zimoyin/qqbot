@@ -20,6 +20,8 @@ class DefaultAbsEventHandler : AbsEventHandler<Event>() {
                 get() = payload.eventType!!
             override val botInfo: BotInfo
                 get() = BotInfo.create(payload.appID!!)
+            override val eventID: String
+                get() = ""
         }
     }
 }

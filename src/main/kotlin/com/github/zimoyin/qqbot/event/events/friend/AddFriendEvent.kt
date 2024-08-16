@@ -21,4 +21,5 @@ data class AddFriendEvent(
     override val botInfo: BotInfo,
     override val timestamp :Date,
     override val friendID: String,
+    override val eventID: String ="",
 ): FriendUpdateEvent

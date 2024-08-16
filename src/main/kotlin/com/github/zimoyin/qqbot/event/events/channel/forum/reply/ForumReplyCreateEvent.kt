@@ -19,4 +19,5 @@ data class ForumReplyCreateEvent(
     override val botInfo: BotInfo,
     override val metadataType: String = "FORUM_REPLY_CREATE",
     override val forum: ForumReply,
+    override val eventID: String ="",
 ) : ForumReplyEvent

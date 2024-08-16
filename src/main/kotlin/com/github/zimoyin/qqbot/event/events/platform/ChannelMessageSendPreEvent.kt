@@ -25,6 +25,7 @@ data class ChannelMessageSendPreEvent(
     override val contact: Channel,
     override val botInfo: BotInfo = contact.botInfo,
     override val msgID: String,
+    override val eventID: String ="",
     override var messageChain: MessageChain,
 ) : MessageSendPreEvent(
     metadata = metadata,
