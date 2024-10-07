@@ -142,7 +142,7 @@ private fun HttpAPIClient.sendGroupMessage0(
  */
 fun HttpAPIClient.uploadMediaToGroup(id: String, token: Token, mediaBean: SendMediaBean): Future<MediaMessageBean> {
     val promise = Promise.promise<MediaMessageBean>()
-    logDebug("sendGroupMessage", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url}")
+    logDebug("sendGroupMessage", "预备上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url}")
     API.uploadGroupMediaResource.addRestfulParam(id).putHeaders(token.getHeaders())
         .sendJsonObject(JSON.toJsonObject(mediaBean)).onSuccess {
             runCatching {
