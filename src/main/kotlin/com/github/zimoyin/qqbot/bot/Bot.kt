@@ -102,16 +102,24 @@ interface Bot : Serializable, Contact {
          * 根据 appid 获取机器人
          * 为说明使用 appid 作为 key,而不是 qq 号 作为 key，因为对于开发者来说 appid 用处bi qqID 多，并且 appid 也是唯一的
          */
-        fun get(appid: String): Bot? {
+        @JvmStatic
+        operator fun get(appid: String): Bot? {
             return map[appid]
         }
 
+        @JvmStatic
         fun getBot(appid: String): Bot {
             return map[appid] ?: throw NullPointerException("Bot is null.")
         }
 
+        @JvmStatic
         fun getBots(): List<Bot> {
             return map.map { it.value }.toList()
+        }
+
+        @JvmStatic
+        fun getGLOBAL_VERTX_INSTANCE(): Vertx {
+            return GLOBAL_VERTX_INSTANCE
         }
     }
 
@@ -176,7 +184,7 @@ interface Bot : Serializable, Contact {
 
 
     /**
-     * Bot 事件监听，监听来自于创建该 vertx 的事件监听
+     * Bot 事件监听，监听来自于创建该 vertx 的事件监听。 但凡是在该 vertx 中传播的事件都能被捕捉
      */
     fun <T : Event> onVertxEvent(cls: Class<out T>, callback: Consumer<T>) {
         config.apply {

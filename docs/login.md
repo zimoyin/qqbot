@@ -20,10 +20,13 @@ bot.login();
 ```
 #### 1.1 退出登录
 1. 退出登录
-通关 `login()` 获取到的 `WebSocketClient` 实例，调用 `close()` 方法关闭连接
+   通关 `login()` 获取到的 `WebSocketClient` 实例，调用 `close()` 方法关闭连接
 2. 退出程序
-如果没有自己创建 Vertx 的话，使用 `GLOBAL_VERTX_INSTANCE.close()` 即可关闭
-
+   如果没有自己创建 Vertx 的话，使用 `GLOBAL_VERTX_INSTANCE.close()` 即可关闭
+   Java:
+```java
+Bot.getGLOBAL_VERTX_INSTANCE().close()
+```
 
 ### 2. 选择鉴权方式
 鉴权是通过 [Token.kt](src%2Fmain%2Fkotlin%2Fgithub%2Fzimoyin%2Fnet%2FToken.kt) 进行的，他会根据选择鉴权版本信息(token 与 appsecret 允许各选其一)来进行 Token 获取与更新
@@ -42,6 +45,12 @@ Bot.createBot(token) {
     // 设置自定义 Intents 并且十进制值
     setIntents(0)
 }
+```
+
+```java
+Bot bot = Bot.INSTANCE.createBot(config -> {
+    config.setIntents(Intents.Presets.PRIVATE_INTENTS);
+});
 ```
 
 ### 3. 事件监听
@@ -67,7 +76,7 @@ Java:
 ```java
 GlobalEventBus.INSTANCE.onEvent(Event.class, event -> {
     System.out.println(event.getMetadataType());
-});
+    });
 //省略 bot 方式
 ```
 #### 3.2 Bot监听
@@ -78,19 +87,23 @@ GlobalEventBus.onBotEvent<Event>(token.appID) {
     println("BOT全局事件监听: " + it.metadataType)
 }
 GlobalEventBus.onBotEvent<Event>(bot) {
-  println("BOT全局事件监听: " + it.metadataType)
+    println("BOT全局事件监听: " + it.metadataType)
 }
 //... 省略获取 bot
-bot.onVertxEvent<Event> {  } //监听该Bot的Vertx事件
-bot.onEvent<Event> {  }
+bot.onVertxEvent<Event> {  } //监听创建该Bot 的 Vertx 中所有的事件
+bot.onEvent<Event> {  } // 监听该Bot的事件
 ```
 Java:
 ```java
 GlobalEventBus.INSTANCE.onBotEvent(bot,Event.class, event -> {
-  System.out.println(event.getMetadataType());
+    System.out.println("BOT全局事件监听"+event.getMetadataType());
 });
 GlobalEventBus.INSTANCE.onBotEvent(token.appID,Event.class, event -> {
-  System.out.println(event.getMetadataType());
+    System.out.println("BOT全局事件监听"+event.getMetadataType());
+});
+// 机器人事件监听，只监听和该机器人有关的事件
+bot.onEvent(Event.class, event -> {
+    System.out.println("收到机器人事件");
 });
 //省略其他
 ```
@@ -139,6 +152,17 @@ bot.context["newconnecting"] = true // 断线是否重连
 
 
 bot.context["ws"]  // Bot 的 WebSocket
+```
+
+```java
+BotConfig config = bot.getConfig();
+config.setRetry(99);
+
+bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_LOG", true);    // 命令处理器日志
+bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG", false); // 命令元数据日志
+bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT", false);// 心跳日志,不能单独开启应该与上面两个其中一个一并开启
+
+// ....
 ```
 
 [源码](..%2Fsrc%2Fmain%2Fkotlin%2Fcom%2Fgithub%2Fzimoyin%2Fqqbot%2Fbot%2FBotContent.kt)
