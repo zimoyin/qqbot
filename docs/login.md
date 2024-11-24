@@ -25,7 +25,7 @@ bot.login();
    如果没有自己创建 Vertx 的话，使用 `GLOBAL_VERTX_INSTANCE.close()` 即可关闭
    Java:
 ```java
-Bot.getGLOBAL_VERTX_INSTANCE().close()
+Config.GLOBAL_VERTX_INSTANCE().close()
 ```
 
 ### 2. 选择鉴权方式

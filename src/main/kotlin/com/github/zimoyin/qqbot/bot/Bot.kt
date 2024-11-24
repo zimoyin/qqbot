@@ -2,6 +2,7 @@ package com.github.zimoyin.qqbot.bot
 
 
 import com.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
+import com.github.zimoyin.qqbot.GLOBAL_VERTX_OPTIONS
 import com.github.zimoyin.qqbot.bot.contact.Channel
 import com.github.zimoyin.qqbot.bot.contact.Contact
 import com.github.zimoyin.qqbot.event.events.Event
@@ -16,6 +17,7 @@ import com.github.zimoyin.qqbot.net.http.api.channel.getGuilds
 import com.github.zimoyin.qqbot.utils.vertx
 import io.vertx.core.Future
 import io.vertx.core.Vertx
+import io.vertx.core.VertxOptions
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.eventbus.Message
 import io.vertx.core.eventbus.MessageConsumer
@@ -115,11 +117,6 @@ interface Bot : Serializable, Contact {
         @JvmStatic
         fun getBots(): List<Bot> {
             return map.map { it.value }.toList()
-        }
-
-        @JvmStatic
-        fun getGLOBAL_VERTX_INSTANCE(): Vertx {
-            return GLOBAL_VERTX_INSTANCE
         }
     }
 
