@@ -56,6 +56,6 @@ repositories {
   maven("https://jitpack.io")
 }
 // 引入依赖
-implementation("com.github.zimoyin:qqbot:$VERSION“)
+implementation("com.github.zimoyin:qqbot:$VERSION")
 ```
 ---
