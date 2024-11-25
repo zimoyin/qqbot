@@ -18,6 +18,11 @@ Bot bot = Bot.INSTANCE.createBot(config -> {
 });
 bot.login();
 ```
+
+对于开发中的程序需要启用沙盒模式才能正常连接服务器：
+```kotlin
+TencentOpenApiHttpClient.isSandBox = true
+```
 #### 1.1 退出登录
 1. 退出登录
    通关 `login()` 获取到的 `WebSocketClient` 实例，调用 `close()` 方法关闭连接

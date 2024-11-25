@@ -52,7 +52,7 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
             .setSsl(true)
             .setTrustAll(true)
         client = vertx.createWebSocketClient(options)
-        logger.info("WebSocketClient[${client.hashCode()}] 配置完成 -> 绑定 Bot AppID : ${bot.config.token.appID}")
+        logger.info("WebSocketClient[${client.hashCode()}] 配置完成 -> 绑定 Bot AppID[${bot.config.token.appID}] nick[${bot.nick}]")
         logger.debug("心跳周期为: ${headerCycle / 1000.0}s")
         //准备 服务器地址
         val gatewayURLByContent = bot.context.getString("gatewayURL")
