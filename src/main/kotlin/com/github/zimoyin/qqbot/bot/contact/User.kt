@@ -85,7 +85,7 @@ open class Sender(
             botInfo: BotInfo, message: Message,
         ): Sender = Sender(
             id = message.author!!.uid,
-            nick = message.author.username!!,
+            nick = message.author.username ?:"none",
             isBot = message.author.isBot ?: false,
             avatar = message.author.avatar ?: "none",
             roles = message.member?.roles ?: emptyList(),

@@ -37,7 +37,7 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
     private val logger = LoggerFactory.getLogger(WebsocketClient::class.java)
     private val promise: Promise<WebSocket> = bot.context.getValue<Promise<WebSocket>>("internal.promise")
     private var reconnectTime: Long = 1 * 1000
-    private var gatewayURL: String? = null
+    private var gatewayURL: String? = null // 网关接入点，通常为 TencentOpenApiHttpClient 中 定义的远程主机 host 与网关 path 组成
     private var client: WebSocketClient? = null
     private val headerCycle: Long = 10 * 1000
     private val handlerKey = "internal.handler"

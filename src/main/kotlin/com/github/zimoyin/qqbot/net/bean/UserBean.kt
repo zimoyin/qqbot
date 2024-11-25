@@ -24,11 +24,13 @@ data class User(
      */
     @field:JsonProperty("id")
     val inChannelUserID: String? = null,
+
     /**
      * 在群聊中的用户 id
      */
     @field:JsonProperty("member_openid")
     val inGroupUserID: String? = null,
+
     /**
      * 在单独的用户聊天中的用户 id
      */
@@ -70,8 +72,17 @@ data class User(
     /**
      * 获取ID，在哪个场景下就获取哪个ID
      */
+    @get:Throws(NullPointerException::class)
     val uid: String by lazy {
         inGroupUserID ?: inOpenUserID ?: inChannelUserID ?: throw NullPointerException("user ID is null")
+    }
+
+    /**
+     * 获取 ID 字段
+     */
+    @get:Throws(NullPointerException::class)
+    val id: String by lazy {
+        inChannelUserID ?: throw NullPointerException("user ID is null")
     }
 }
 
