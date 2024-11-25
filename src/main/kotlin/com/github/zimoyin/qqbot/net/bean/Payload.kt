@@ -1,12 +1,10 @@
 package com.github.zimoyin.qqbot.net.bean
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.zimoyin.qqbot.utils.JAny
 import com.github.zimoyin.qqbot.utils.JSON
 import io.vertx.core.json.JsonObject
-
 
 
 /**

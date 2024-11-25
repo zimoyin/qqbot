@@ -5,12 +5,8 @@ import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.contact.Contact
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.bot.message.MessageChainBuilder
-import com.github.zimoyin.qqbot.bot.message.type.MarkdownMessage
-import com.github.zimoyin.qqbot.bot.message.type.ReferenceMessage
 import com.github.zimoyin.qqbot.event.handler.group.AddGroupHandler
-import com.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Future
-import org.slf4j.LoggerFactory
 import java.util.*
 
 /**

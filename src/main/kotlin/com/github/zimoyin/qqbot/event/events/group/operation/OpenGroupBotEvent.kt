@@ -6,7 +6,6 @@ import com.github.zimoyin.qqbot.bot.contact.Contact
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.bot.message.MessageChainBuilder
 import com.github.zimoyin.qqbot.event.handler.group.OpenGroupBotHandler
-import com.github.zimoyin.qqbot.net.Intents
 import io.vertx.core.Future
 import java.util.*
 

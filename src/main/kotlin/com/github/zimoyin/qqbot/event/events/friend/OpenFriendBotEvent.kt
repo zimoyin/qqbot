@@ -2,12 +2,7 @@ package com.github.zimoyin.qqbot.event.events.friend
 
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.BotInfo
-import com.github.zimoyin.qqbot.bot.contact.Contact
-import com.github.zimoyin.qqbot.bot.message.MessageChain
-import com.github.zimoyin.qqbot.bot.message.MessageChainBuilder
 import com.github.zimoyin.qqbot.event.handler.friend.OpenFriendBotHandler
-import com.sun.java.swing.plaf.windows.resources.windows
-import io.vertx.core.Future
 import java.util.*
 
 /**

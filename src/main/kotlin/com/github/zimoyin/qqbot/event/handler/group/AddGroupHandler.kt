@@ -3,12 +3,9 @@ package com.github.zimoyin.qqbot.event.handler.group
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.contact.GroupImpl
 import com.github.zimoyin.qqbot.event.events.group.member.AddGroupEvent
-import com.github.zimoyin.qqbot.event.handler.message.MessageHandler.Companion.getWindows
 import com.github.zimoyin.qqbot.event.supporter.AbsEventHandler
 import com.github.zimoyin.qqbot.net.bean.Payload
 import com.github.zimoyin.qqbot.utils.JSON
-import com.sun.java.swing.plaf.windows.resources.windows
-import java.awt.SystemColor.info
 import java.util.*
 
 /**
