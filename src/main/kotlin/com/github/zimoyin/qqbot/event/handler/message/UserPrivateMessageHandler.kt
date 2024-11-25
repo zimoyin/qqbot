@@ -1,6 +1,7 @@
 package com.github.zimoyin.qqbot.event.handler.message
 
 import com.github.zimoyin.qqbot.bot.BotInfo
+import com.github.zimoyin.qqbot.bot.contact.PrivateFriend
 import com.github.zimoyin.qqbot.bot.contact.Sender
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.event.events.message.direct.UserPrivateMessageEvent
@@ -21,7 +22,7 @@ class UserPrivateMessageHandler : AbsEventHandler<UserPrivateMessageEvent>() {
         val msgID = message.msgID!!
         val messageChain = MessageChain.convert(message)
         val botInfo = BotInfo.create(payload.appID!!)
-        val sender = Sender.convert(botInfo,message)
+        val sender = PrivateFriend.convert(botInfo,message)
 
         return UserPrivateMessageEvent(
             metadata = payload.metadata,

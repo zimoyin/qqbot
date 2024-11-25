@@ -15,6 +15,7 @@ import com.github.zimoyin.qqbot.event.events.friend.OpenFriendBotEvent
 import com.github.zimoyin.qqbot.event.events.group.member.AddGroupEvent
 import com.github.zimoyin.qqbot.event.events.group.operation.OpenGroupBotEvent
 import com.github.zimoyin.qqbot.event.events.message.MessageEvent
+import com.github.zimoyin.qqbot.event.events.revoke.MessageRevokeEvent
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.net.Intents
 import com.github.zimoyin.qqbot.net.http.DefaultHttpClient
@@ -69,6 +70,7 @@ suspend fun main() {
 //            it.reply(it.messageChain)
             it.reply(chain)//
         }
+
         login().onSuccess {
             logger.info("BOT登录成功")
         }.onFailure {

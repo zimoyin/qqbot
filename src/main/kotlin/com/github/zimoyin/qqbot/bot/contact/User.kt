@@ -8,6 +8,8 @@ import com.github.zimoyin.qqbot.net.bean.ContactPermission
 import com.github.zimoyin.qqbot.net.bean.message.Message
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.*
+import com.github.zimoyin.qqbot.net.http.api.friend.sendFriendMessage
+import com.github.zimoyin.qqbot.net.http.api.group.recallGroupMessage
 import com.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Future
 import java.io.Serializable
@@ -85,9 +87,9 @@ open class Sender(
             botInfo: BotInfo, message: Message,
         ): Sender = Sender(
             id = message.author!!.uid,
-            nick = message.author.username ?:"none",
+            nick = message.author.username!!,
             isBot = message.author.isBot ?: false,
-            avatar = message.author.avatar ?: "none",
+            avatar = message.author.avatar ?: "",
             roles = message.member?.roles ?: emptyList(),
             joinedAt = message.member?.joinedAt ?: Date(),
             unionOpenID = message.author.unionOpenID,
@@ -96,11 +98,47 @@ open class Sender(
         )
     }
 
+
+
     override fun send(message: MessageChain): Future<MessageChain> {
-        TODO("暂时无法向该用户发送私信")
-        // 自动分别群组和频道，并向用户发起私聊
+//        return HttpAPIClient.sendFriendMessage(this, message)
+        // TODO 自动分别群组和频道，并向用户发起私聊
+        TODO("暂时未能实现")
     }
 }
+
+data class PrivateFriend(
+    override val id: String,
+    override val nick: String,
+    override val isBot: Boolean,
+    override val avatar: String,
+    override val roles: List<String>,
+    override val joinedAt: Date,
+    override val unionOpenID: String?,
+    override val unionUserAccount: String?,
+    override val botInfo: BotInfo,
+) : Sender(id, nick, isBot, avatar, roles, joinedAt, unionOpenID, unionUserAccount, botInfo){
+    companion object {
+        fun convert(
+            botInfo: BotInfo, message: Message,
+        ): PrivateFriend = PrivateFriend(
+            id = message.author!!.uid,
+            nick = message.author.username ?: "none",
+            isBot = message.author.isBot ?: false,
+            avatar = message.author.avatar ?: "none",
+            roles = message.member?.roles ?: emptyList(),
+            joinedAt = message.member?.joinedAt ?: Date(),
+            unionOpenID = message.author.unionOpenID,
+            unionUserAccount = message.author.unionUserAccount,
+            botInfo = botInfo,
+        )
+    }
+
+    override fun send(message: MessageChain): Future<MessageChain> {
+        return HttpAPIClient.sendFriendMessage(this, message)
+    }
+}
+
 
 
 data class ChannelUser(
@@ -137,7 +175,7 @@ data class ChannelUser(
     override fun send(message: MessageChain): Future<MessageChain> {
         val promise = promise<MessageChain>()
         if (!channel.isPrivateChat) {
-            promise.fail("当前机器人不允许向频道发送信息，只能向当前联系人发送信息。[频道无法获取到联系人临时ID]")
+            promise.fail("The current robot is not allowed to send messages to the channel and can only send messages to the current contact. [Channel unable to obtain temporary contact ID]")
             return promise.future()
         }
         return HttpAPIClient.sendChannelPrivateMessageAsync(channel, message)

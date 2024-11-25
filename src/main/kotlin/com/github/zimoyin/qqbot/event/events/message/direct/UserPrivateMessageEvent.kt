@@ -2,6 +2,7 @@ package com.github.zimoyin.qqbot.event.events.message.direct
 
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.BotInfo
+import com.github.zimoyin.qqbot.bot.contact.PrivateFriend
 import com.github.zimoyin.qqbot.bot.contact.User
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.event.events.friend.FriendEvent
@@ -20,9 +21,9 @@ class UserPrivateMessageEvent(
     override val metadataType: String = "C2C_MESSAGE_CREATE",
     override val metadata: String,
     override val msgID: String,
-    override val windows: User,
+    override val windows: PrivateFriend,
     override val messageChain: MessageChain,
-    override val sender: User,
+    override val sender: PrivateFriend,
     override val botInfo: BotInfo,
 
     override val friendID: String,

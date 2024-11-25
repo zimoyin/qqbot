@@ -78,10 +78,10 @@ data class User(
     }
 
     /**
-     * 获取 ID 字段
+     * 获取 原始 ID 字段
      */
     @get:Throws(NullPointerException::class)
-    val id: String by lazy {
+    val originalID: String by lazy {
         inChannelUserID ?: throw NullPointerException("user ID is null")
     }
 }
