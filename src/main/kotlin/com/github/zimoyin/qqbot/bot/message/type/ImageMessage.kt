@@ -26,6 +26,7 @@ data class ImageMessage(val name: String?, val attachment: MessageAttachment) : 
          * 注意： 目前仅仅支持频道通过本地发送图片
          */
         @UntestedApi
+        @JvmStatic
         fun create(file: File): ImageMessage {
             return ImageMessage(file.name, MessageAttachment()).apply {
                 if (!file.exists()) throw IllegalArgumentException("Not found file: $file")
@@ -41,6 +42,7 @@ data class ImageMessage(val name: String?, val attachment: MessageAttachment) : 
          *  注意： 目前仅仅支持频道通过本地发送图片
          */
         @UntestedApi
+        @JvmStatic
         fun create(file: InputStream): ImageMessage {
             return ImageMessage(UUID.randomUUID().toString(), MessageAttachment()).apply {
                 localFileBytes = file.readBytes()
@@ -50,6 +52,7 @@ data class ImageMessage(val name: String?, val attachment: MessageAttachment) : 
         /**
          * 构建网络图片信息
          */
+        @JvmStatic
         fun create(uri: String): ImageMessage {
             val create = URI.create(uri)
             return ImageMessage(
