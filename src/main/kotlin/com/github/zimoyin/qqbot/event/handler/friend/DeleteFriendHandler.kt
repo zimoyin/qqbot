@@ -20,6 +20,7 @@ class DeleteFriendHandler : AbsEventHandler<DeleteFriendEvent>() {
             botInfo = BotInfo.create(payload.appID!!),
             timestamp = Date(json.getLong("timestamp") * 1000),
             friendID = json.getString("openid"),
+            eventID = payload.eventID?:""
         )
     }
 }

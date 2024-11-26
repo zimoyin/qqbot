@@ -32,7 +32,8 @@ class ChannelMessageRevokeHandler : AbsEventHandler<ChannelMessageRevokeEvent>()
             windows = channel,
             sender = sender,
             botInfo = botInfo,
-            operatorID = d.getJsonObject("op_user").getString("id")
+            operatorID = d.getJsonObject("op_user").getString("id"),
+            eventID = payload.eventID?:""
         )
     }
 }

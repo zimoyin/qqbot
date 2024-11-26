@@ -18,7 +18,8 @@ class EnterChannelLiveHandler : AbsEventHandler<UserEnteredChannelLiveEvent>() {
         return UserEnteredChannelLiveEvent(
             metadata = payload.metadata,
             botInfo = BotInfo.create(payload.appID!!),
-            live = JSON.toObject<UserLive>(payload.eventContent.toString())
+            live = JSON.toObject<UserLive>(payload.eventContent.toString()),
+            eventID = payload.eventID?:""
         )
     }
 }

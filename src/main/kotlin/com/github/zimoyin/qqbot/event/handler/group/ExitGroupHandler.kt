@@ -21,6 +21,7 @@ class ExitGroupHandler : AbsEventHandler<ExitGroupEvent>() {
             timestamp = Date(json.getLong("timestamp") * 1000),
             groupID = json.getString("group_openid"),
             opMemberOpenid = json.getString("op_member_openid"),
+            eventID = payload.eventID?:""
         )
     }
 }

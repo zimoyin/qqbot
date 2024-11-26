@@ -23,7 +23,8 @@ class MessageAuditPassHandler : AbsEventHandler<MessageAuditPassEvent>() {
             metadata = payload.metadata,
             metadataType = payload.eventType!!,
             botInfo = info,
-            message = message
+            message = message,
+            eventID = payload.eventID?:""
         )
     }
 }

@@ -54,7 +54,7 @@ class MessageChainBuilder(private var id: String? = null) {
         }
         return this
     }
-    fun appendEventId(eventId0: String): MessageChainBuilder {
+    fun appendEventId(eventId0: String?): MessageChainBuilder {
         eventId = eventId0
         return this
     }

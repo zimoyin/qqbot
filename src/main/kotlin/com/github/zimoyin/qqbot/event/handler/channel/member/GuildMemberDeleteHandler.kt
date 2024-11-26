@@ -18,7 +18,8 @@ class GuildMemberDeleteHandler : AbsEventHandler<GuildMemberDeleteEvent>() {
         return GuildMemberDeleteEvent(
             metadata = payload.metadata,
             botInfo = BotInfo.create(payload.appID!!),
-            member = JSON.toObject<MemberWithGuildID>(payload.eventContent.toString())
+            member = JSON.toObject<MemberWithGuildID>(payload.eventContent.toString()),
+            eventID = payload.eventID?:""
         )
     }
 }

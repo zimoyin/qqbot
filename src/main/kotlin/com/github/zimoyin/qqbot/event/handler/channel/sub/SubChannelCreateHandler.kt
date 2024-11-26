@@ -19,7 +19,8 @@ class SubChannelCreateHandler : AbsEventHandler<SubChannelCreateEvent>() {
         return SubChannelCreateEvent(
             metadata = payload.metadata,
             botInfo = BotInfo.create(payload.appID!!),
-            channelBean = JSON.toObject<ChannelBean>(payload.eventContent.toString())
+            channelBean = JSON.toObject<ChannelBean>(payload.eventContent.toString()),
+            eventID = payload.eventID?:""
         )
     }
 }

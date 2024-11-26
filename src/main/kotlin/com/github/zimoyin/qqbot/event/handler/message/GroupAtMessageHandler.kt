@@ -64,7 +64,8 @@ class GroupAtMessageHandler : AbsEventHandler<GroupAtMessageEvent>() {
             botInfo = botInfo,
             groupID = group.id,
             timestamp = message.timestamp!!,
-            opMemberOpenid = sender.id
+            opMemberOpenid = sender.id,
+            eventID = payload.eventID?:""
         )
     }
 }

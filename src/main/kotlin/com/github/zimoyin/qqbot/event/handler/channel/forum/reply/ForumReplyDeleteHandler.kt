@@ -17,7 +17,8 @@ class ForumReplyDeleteHandler : AbsEventHandler<ForumReplyDeleteEvent>() {
         return ForumReplyDeleteEvent(
             metadata = payload.metadata,
             botInfo = BotInfo.create(payload.appID!!),
-            forum = JSON.toObject<ForumReply>(payload.eventContent.toString())
+            forum = JSON.toObject<ForumReply>(payload.eventContent.toString()),
+            eventID = payload.eventID?:""
         )
     }
 }

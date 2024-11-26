@@ -21,6 +21,7 @@ import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.client.HttpRequest
 import io.vertx.ext.web.client.HttpResponse
 import io.vertx.ext.web.multipart.MultipartForm
+import io.vertx.kotlin.core.json.get
 import java.util.*
 
 
@@ -103,7 +104,7 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
 
     val form = MultipartForm.create()
     finalMessageJson.forEach {
-        if (it.key != null && it.value != null) form.attribute(it.key, it.value.toString())
+        if (it.key != null && it.value != null && it.value.toString() != "") form.attribute(it.key, it.value.toString())
     }
     if (finalMessage.channelFile != null) {
         form.binaryFileUpload(
@@ -120,23 +121,30 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
         return promise.future()
     }
 
-    logDebug("sendChannelMessageAsync", "发送消息: ${finalMessage.toStrings().replace("\n", "\\n")}")
+//    logDebug("sendChannelMessageAsync", "发送消息: ${finalMessage.toStrings().replace("\n", "\\n")}")
     //发送信息
-    client.addRestfulParam(id).putHeaders(token.getHeaders())
-        // TODO JSON 方式发送【请勿删除】
-//        .sendJsonObject(finalMessageJson).onFailure {
-//            promise.fail(it)
-//            logError("sendChannelPrivateMessageAsync", "网络错误: 发送消息失败", it)
-//        }
-        .sendMultipartForm(form).onFailure {
+    val client0 = client.addRestfulParam(id).putHeaders(token.getHeaders())
+    if (finalMessageJson.getString("channelFile") == null && finalMessageJson.getString("channelFileBytes") == null) {
+        // JSON 发生方式，markdown 参数在 from 方式下无法被服务器正确的解析
+        client0.sendJsonObject(finalMessageJson).onFailure {
             logPreError(promise, "sendChannelPrivateMessageAsync", "网络错误: 发送消息失败", it).let { isLog ->
                 if (!promise.tryFail(it)) {
                     if (!isLog) logError("sendChannelPrivateMessageAsync", "网络错误: 发送消息失败", it)
                 }
             }
-        }.onSuccess { resp ->
-            httpSuccess(resp, channel, message, promise)
         }
+    } else {
+        client0.sendMultipartForm(form).onFailure {
+            logPreError(promise, "sendChannelPrivateMessageAsync", "网络错误: 发送消息失败", it).let { isLog ->
+                if (!promise.tryFail(it)) {
+                    if (!isLog) logError("sendChannelPrivateMessageAsync", "网络错误: 发送消息失败", it)
+                }
+            }
+        }
+    }.onSuccess { resp ->
+        httpSuccess(resp, channel, message, promise)
+    }
+
     return promise.future()
 }
 

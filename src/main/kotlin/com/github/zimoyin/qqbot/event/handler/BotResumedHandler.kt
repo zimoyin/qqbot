@@ -20,7 +20,8 @@ class BotResumedHandler : AbsEventHandler<BotResumedEvent>() {
         return BotResumedEvent(
             metadata = payload.metadata,
             metadataType = payload.eventType!!,
-            botInfo = info
+            botInfo = info,
+            eventID = payload.eventID?:""
         )
     }
 }

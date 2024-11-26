@@ -1,5 +1,7 @@
 package com.github.zimoyin.qqbot.bot.message.type
 
+import com.github.zimoyin.qqbot.bot.message.MessageChain
+import com.github.zimoyin.qqbot.bot.message.MessageChainBuilder
 import com.github.zimoyin.qqbot.net.bean.message.MessageMarkdown
 import com.github.zimoyin.qqbot.utils.JSON
 
@@ -24,5 +26,10 @@ data class MarkdownMessage(
 
     override fun toMetaContent(): String {
         return content
+    }
+
+    @JvmOverloads
+    fun toMessageChain(eventID: String? = null,msgID: String? = null): MessageChain {
+        return MessageChainBuilder(msgID).append(this).appendEventId(eventID).build()
     }
 }

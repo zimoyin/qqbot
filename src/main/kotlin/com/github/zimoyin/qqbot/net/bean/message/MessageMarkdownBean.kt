@@ -3,6 +3,7 @@ package com.github.zimoyin.qqbot.net.bean.message
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.message.type.MarkdownMessage
 import com.github.zimoyin.qqbot.utils.JSON
 import org.intellij.lang.annotations.Language
@@ -25,16 +26,39 @@ data class MessageMarkdown(
      * Markdown 模板参数
      */
     @field:JsonProperty("params")
-    val params: List<MessageMarkdownParam>? = null,
+    val params: ArrayList<MessageMarkdownParam> = arrayListOf(),
 
     /**
      * 原生 Markdown 内容，与 template_id 和 params 参数互斥
      */
     @field:JsonProperty("content")
-    val content: String? = null,
+    var content: String? = null,
 ) : Serializable {
+
+    @JsonIgnore
+    fun appendParam(value: MessageMarkdownParam): MessageMarkdown {
+        return params.apply { add(value) }.let { this }
+    }
+
+
+    @JsonIgnore
+    fun appendParam(key: String, vararg value: String): MessageMarkdown {
+        return params.apply { add(MessageMarkdownParam(key, value.toList())) }.let { this }
+    }
+
+    @JsonIgnore
+    fun appendParams(vararg value: MessageMarkdownParam): MessageMarkdown {
+        return params.apply { addAll(value) }.let { this }
+    }
+
+    @Deprecated("please use build()")
     @JsonIgnore
     fun toMessage(): MarkdownMessage {
+        return MarkdownMessage(this)
+    }
+
+    @JsonIgnore
+    fun build(): MarkdownMessage {
         return MarkdownMessage(this)
     }
 
@@ -44,10 +68,26 @@ data class MessageMarkdown(
     }
 
     companion object {
+        /**
+         * @link https://bot.q.qq.com/wiki/develop/api-v2/server-inter/message/type/markdown.html#%E5%8F%91%E9%80%81%E6%96%B9%E5%BC%8F
+         */
+        @JsonIgnore
+        @JvmStatic
+        @UntestedApi
+        fun createOfJson(@Language("JSON") json: String): MessageMarkdown {
+            return JSON.toObject<MessageMarkdown>(json)
+        }
 
         @JsonIgnore
-        fun create(@Language("JSON") json: String): MessageMarkdown {
-            return JSON.toObject<MessageMarkdown>(json)
+        @JvmStatic
+        fun create(templateId: String, params: ArrayList<MessageMarkdownParam>): MessageMarkdown {
+            return MessageMarkdown(templateId, params, null)
+        }
+
+        @JsonIgnore
+        @JvmStatic
+        fun create(templateId: String): MessageMarkdown {
+            return MessageMarkdown(templateId, content = null)
         }
     }
 }
@@ -78,11 +118,19 @@ data class MessageMarkdownParam(
 
     companion object {
         @JsonIgnore
-        fun create(key: String, value: Any): MessageMarkdownParam {
-            return MessageMarkdownParam(key, listOf(value.toString()))
+        @JvmStatic
+        fun create(key: String, value: String): MessageMarkdownParam {
+            return MessageMarkdownParam(key, listOf(value))
         }
 
         @JsonIgnore
+        @JvmStatic
+        fun create(key: String, vararg value: String): MessageMarkdownParam {
+            return MessageMarkdownParam(key, value.toList())
+        }
+
+        @JsonIgnore
+        @JvmStatic
         fun create(@Language("JSON") json: String): MessageMarkdownParam {
             return JSON.toObject<MessageMarkdownParam>(json)
         }

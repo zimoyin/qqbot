@@ -18,7 +18,8 @@ class BotLeftGuildHandler : AbsEventHandler<BotLeftGuildEvent>() {
         return BotLeftGuildEvent(
             metadata = payload.metadata,
             botInfo = BotInfo.create(payload.appID!!),
-            guild = JSON.toObject<GuildBean>(payload.eventContent.toString())
+            guild = JSON.toObject<GuildBean>(payload.eventContent.toString()),
+            eventID = payload.eventID?:""
         )
     }
 }

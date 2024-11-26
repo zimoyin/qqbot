@@ -18,7 +18,8 @@ class MessageDeletePasteHandler : AbsEventHandler<MessageDeletePasteEvent>() {
         return MessageDeletePasteEvent(
             metadata = payload.metadata,
             botInfo = BotInfo.create(payload.appID!!),
-            message = msg
+            message = msg,
+            eventID = payload.eventID?:""
         )
     }
 }

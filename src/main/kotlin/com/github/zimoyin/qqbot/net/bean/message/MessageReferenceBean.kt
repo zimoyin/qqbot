@@ -17,5 +17,5 @@ data class MessageReference(
      * 是否忽略获取引用消息详情错误，默认否
      */
     @field:JsonProperty("ignore_get_message_error")
-    val ignoreGetMessageError: Boolean? = null,
+    val ignoreGetMessageError: Boolean? = false,
 ) : Serializable

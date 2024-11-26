@@ -26,7 +26,8 @@ class BotReadyHandler : AbsEventHandler<BotReadyEvent>() {
             version = json.getInteger("version"),
             sessionID = json.getString("session_id"),
             user = json.getJsonObject("user").mapTo( BotUser::class.java),
-            shard = json.getJsonArray("shard").map { Integer.getInteger(it.toString()) }
+            shard = json.getJsonArray("shard").map { Integer.getInteger(it.toString()) },
+            eventID = payload.eventID?:""
         )
     }
 }

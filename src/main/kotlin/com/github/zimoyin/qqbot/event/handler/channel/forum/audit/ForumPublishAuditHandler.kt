@@ -17,7 +17,8 @@ class ForumPublishAuditHandler : AbsEventHandler<ForumPublishAuditEvent>() {
         return ForumPublishAuditEvent(
             metadata = payload.metadata,
             botInfo = BotInfo.create(payload.appID!!),
-            forum = JSON.toObject<ForumAuditResult>(payload.eventContent.toString())
+            forum = JSON.toObject<ForumAuditResult>(payload.eventContent.toString()),
+            eventID = payload.eventID?:""
         )
     }
 }

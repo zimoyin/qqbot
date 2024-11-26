@@ -17,7 +17,8 @@ class ForumPostDeleteHandler : AbsEventHandler<ForumPostDeleteEvent>() {
         return ForumPostDeleteEvent(
             metadata = payload.metadata,
             botInfo = BotInfo.create(payload.appID!!),
-            forum = JSON.toObject<ForumPost>(payload.eventContent.toString())
+            forum = JSON.toObject<ForumPost>(payload.eventContent.toString()),
+            eventID = payload.eventID?:""
         )
     }
 }

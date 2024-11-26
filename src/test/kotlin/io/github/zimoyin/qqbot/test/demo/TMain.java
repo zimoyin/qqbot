@@ -10,11 +10,10 @@ import com.github.zimoyin.qqbot.event.events.message.MessageEvent;
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus;
 import com.github.zimoyin.qqbot.net.Intents;
 import com.github.zimoyin.qqbot.net.Token;
+import com.github.zimoyin.qqbot.net.bean.message.MessageMarkdown;
 import com.github.zimoyin.qqbot.net.http.api.TencentOpenApiHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.lang.System.exit;
 
 /**
  * @author : zimo
@@ -30,7 +29,7 @@ public class TMain {
             logger.info("收到事件：{}", event);
         });
 
-        TencentOpenApiHttpClient.setSandBox(true);
+        TencentOpenApiHttpClient.setSandBox(false);
 
         Bot bot = Bot.createBot(config->{
             config.setToken(token);
@@ -44,15 +43,29 @@ public class TMain {
         bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT", false);
 
         bot.onEvent(MessageEvent.class, event ->{
-            MessageChain chain = new MessageChainBuilder().append(ImageMessage.create(url)).append("你好").build();
-            event.reply(chain).onFailure(e->{
-                logger.error("发送失败",e);
+//            MessageChain chain = new MessageChainBuilder().append(ImageMessage.create(url)).append("你好").build();
+//            event.quote(chain).onFailure(e->{
+//                logger.error("发送失败",e);
+//            });
+
+            MessageChain messageChain = MessageMarkdown.create("102077167_1706091638")
+                .appendParam("date", "123")
+                .appendParam("rw", event.getMessageChain().content())
+                .build()
+                .toMessageChain();
+
+            System.out.println(event.getMessageChain().content());
+            event.reply(messageChain).onFailure(e -> {
+                logger.error("发送失败", e);
+            }).onSuccess(r -> {
+                logger.info("发送成功: "+r);
             });
         });
 
 
         bot.login().onSuccess(ws->{
             logger.info("登录成功");
+            System.out.println("OK");
         }).onFailure(e->{
             logger.error("登录失败",e);
             bot.close();

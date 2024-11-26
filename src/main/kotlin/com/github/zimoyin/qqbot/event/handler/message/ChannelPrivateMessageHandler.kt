@@ -32,7 +32,8 @@ class ChannelPrivateMessageHandler : AbsEventHandler<ChannelPrivateMessageEvent>
       windows = channel,
       messageChain = messageChain,
       sender = sender,
-      botInfo = botInfo
+      botInfo = botInfo,
+        eventID = payload.eventID?:""
     )
   }
 }

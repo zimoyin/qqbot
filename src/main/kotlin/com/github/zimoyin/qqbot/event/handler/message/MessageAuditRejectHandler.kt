@@ -23,7 +23,8 @@ class MessageAuditRejectHandler : AbsEventHandler<MessageAuditRejectEvent>() {
             metadata = payload.metadata,
             metadataType = payload.eventType!!,
             botInfo = info,
-            message = message
+            message = message,
+            eventID = payload.eventID?:""
         )
     }
 }

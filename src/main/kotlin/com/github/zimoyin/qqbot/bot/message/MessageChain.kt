@@ -31,7 +31,7 @@ class MessageChain(
     val timestamp: Date = Date(),
     val editedTimestamp: Date = Date(),
     val metaTextContent: String? = null,
-    private val replyEventID: String? = null,
+    val replyEventID: String? = null,
     private val internalItems: ArrayList<MessageItem> = ArrayList(),
 ) : Serializable, Cloneable, Iterable<MessageItem> {
     companion object {
@@ -292,6 +292,7 @@ class MessageChain(
 
         return SendMessageBean(
             id = if (md != null || kb != null) null else this.id,
+//            id = this.id,
             messageReference = reference,
             content = if (sb.isEmpty()) null else sb.toString(),
             imageURI = image,

@@ -29,7 +29,8 @@ class ChannelAtMessageHandler : AbsEventHandler<ChannelAtMessageEvent>() {
       sender = ChannelUser.convert(info, message),
       metadata = payload.metadata,
       metadataType = payload.eventType!!,
-      botInfo = info
+      botInfo = info,
+        eventID = payload.eventID?:""
     )
   }
 }

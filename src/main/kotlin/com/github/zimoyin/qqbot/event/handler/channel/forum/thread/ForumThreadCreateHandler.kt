@@ -18,7 +18,8 @@ class ForumThreadCreateHandler : AbsEventHandler<ForumThreadCreateEvent>() {
         return ForumThreadCreateEvent(
             metadata = payload.metadata,
             botInfo = BotInfo.create(payload.appID!!),
-            forum = JSON.toObject<ForumThread>(payload.eventContent.toString())
+            forum = JSON.toObject<ForumThread>(payload.eventContent.toString()),
+            eventID = payload.eventID?:""
         ).apply {
             this.forum.channel = channel
         }

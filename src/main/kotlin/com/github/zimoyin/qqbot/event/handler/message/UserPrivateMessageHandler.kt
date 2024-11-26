@@ -32,7 +32,8 @@ class UserPrivateMessageHandler : AbsEventHandler<UserPrivateMessageEvent>() {
             sender = sender,
             botInfo = botInfo,
             friendID = sender.id,
-            timestamp = messageChain.timestamp
+            timestamp = messageChain.timestamp,
+            eventID = payload.eventID?:""
         )
     }
 }

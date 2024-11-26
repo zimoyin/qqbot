@@ -9,6 +9,7 @@ import com.github.zimoyin.qqbot.bot.message.type.MarkdownMessage
 import com.github.zimoyin.qqbot.bot.message.type.ReferenceMessage
 import com.github.zimoyin.qqbot.event.events.Event
 import com.github.zimoyin.qqbot.event.handler.message.MessageHandler
+import com.github.zimoyin.qqbot.net.bean.message.MessageReference
 import com.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Future
 import org.slf4j.LoggerFactory
@@ -64,7 +65,7 @@ interface MessageEvent : Event {
      * 注: 对于非文本等形式的消息，可能会受限于主动信息推送
      */
     fun reply(message: MessageChain): Future<MessageChain> {
-        return windows.send(MessageChainBuilder(message.id?:msgID).append(message).build())
+        return windows.send(MessageChainBuilder(message.id?:msgID).appendEventId(message.replyEventID).append(message).build())
     }
 
     /**
@@ -72,11 +73,10 @@ interface MessageEvent : Event {
      * 注意无法通过事件发送主动信息，请查询 Content.send 方法
      */
     fun quote(message: MessageChain): Future<MessageChain> {
-        if (message.stream().filter { it is ReferenceMessage }.count() == 0.toLong()) {
-            val promise = promise<MessageChain>()
-            promise.fail(IllegalArgumentException("MessageChain ReferenceMessage is null. Unable to reply to message"))
-            return promise.future()
+        return  if (message.stream().filter { it is ReferenceMessage }.count() == 0.toLong()){
+             windows.send(MessageChainBuilder(message.id?:msgID).reference(msgID).appendEventId(message.replyEventID).append(message).build())
+        }else{
+            windows.send(MessageChainBuilder(message.id?:msgID).appendEventId(message.replyEventID).append(message).build())
         }
-        return windows.send(MessageChainBuilder(message.id?:msgID).append(message).build())
     }
 }

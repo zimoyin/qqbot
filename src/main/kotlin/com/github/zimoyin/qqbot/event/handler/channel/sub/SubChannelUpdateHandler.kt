@@ -21,7 +21,8 @@ class SubChannelUpdateHandler : AbsEventHandler<SubChannelUpdateEvent>() {
         return SubChannelUpdateEvent(
             metadata = payload.metadata,
             botInfo = info,
-            channelBean = JSON.toObject<ChannelBean>(json)
+            channelBean = JSON.toObject<ChannelBean>(json),
+            eventID = payload.eventID?:""
         )
     }
 }

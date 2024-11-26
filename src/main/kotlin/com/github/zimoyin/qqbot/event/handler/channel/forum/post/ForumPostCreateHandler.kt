@@ -17,7 +17,8 @@ class ForumPostCreateHandler : AbsEventHandler<ForumPostCreateEvent>() {
         return ForumPostCreateEvent(
             metadata = payload.metadata,
             botInfo = BotInfo.create(payload.appID!!),
-            forum = JSON.toObject<ForumPost>(payload.eventContent.toString())
+            forum = JSON.toObject<ForumPost>(payload.eventContent.toString()),
+            eventID = payload.eventID?:""
         )
     }
 }

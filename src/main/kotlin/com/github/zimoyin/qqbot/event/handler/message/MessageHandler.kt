@@ -33,7 +33,7 @@ class MessageHandler : AbsEventHandler<MessageEvent>() {
             override val sender: User = Sender.convert(botInfo, message)
             override val metadata: String = payload.metadata
             override val metadataType: String = payload.eventType!!
-            override val eventID: String = ""
+            override val eventID: String = payload.eventID?:""
         }
     }
 
