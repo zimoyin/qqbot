@@ -35,12 +35,13 @@ data class BotInfo(
      * 与 union_openid 关联的应用是同一个
      */
     val unionUserAccount: String?,
-):Serializable{
-    companion object{
+) : Serializable {
+    companion object {
         /**
          * 该方法会自动获取 bot 的信息，所以不能在非主要程序中使用，否则无法获取到 bot
          */
-        fun create(appid:String): BotInfo {
+        @JvmStatic
+        fun create(appid: String): BotInfo {
             val bot = Bot.getBot(appid)
             return BotInfo(
                 token = bot.config.token,
@@ -52,6 +53,7 @@ data class BotInfo(
             )
         }
 
+        @JvmStatic
         fun create(bot: Bot): BotInfo = BotInfo(
             token = bot.config.token,
             id = bot.id,
@@ -61,13 +63,14 @@ data class BotInfo(
             unionUserAccount = bot.unionUserAccount,
         )
 
-      fun emptyBotInfo(): BotInfo = BotInfo(
-        token = Token("emptyBotInfo"),
-        id = "emptyBotInfo",
-        nick = "emptyBotInfo",
-        avatar = "emptyBotInfo",
-        unionOpenid = "emptyBotInfo",
-        unionUserAccount = "emptyBotInfo",
-      )
+        @JvmStatic
+        fun emptyBotInfo(): BotInfo = BotInfo(
+            token = Token("emptyBotInfo"),
+            id = "emptyBotInfo",
+            nick = "emptyBotInfo",
+            avatar = "emptyBotInfo",
+            unionOpenid = "emptyBotInfo",
+            unionUserAccount = "emptyBotInfo",
+        )
     }
 }

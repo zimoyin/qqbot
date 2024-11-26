@@ -15,6 +15,7 @@ data class ProactiveVideoMessage(val name: String?, val attachment: MessageAttac
         /**
          * 构建网络视频信息
          */
+        @JvmStatic
         fun create(uri: String): ProactiveVideoMessage {
             val create = URI.create(uri)
             return ProactiveVideoMessage(

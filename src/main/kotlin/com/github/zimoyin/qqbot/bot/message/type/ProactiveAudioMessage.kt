@@ -15,6 +15,7 @@ data class ProactiveAudioMessage(val name: String?, val attachment: MessageAttac
         /**
          * 构建网络视频信息
          */
+        @JvmStatic
         fun create(uri: String): ProactiveAudioMessage {
             val create = URI.create(uri)
             return ProactiveAudioMessage(uri, MessageAttachment( protocol = create.scheme ?: "https",uri = "${create.host?:""}${create.path?:""}${create.query?.let { "?$it" }?:""}"))

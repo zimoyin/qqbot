@@ -203,6 +203,7 @@ enum class EmojiType(val type: Int, val id: Int, val description: String) : Seri
     }
 
     companion object {
+        @JvmStatic
         fun fromValue(value: Int): EmojiType? {
             for (emojiType in entries) {
                 if (emojiType.id == value) {
@@ -212,6 +213,7 @@ enum class EmojiType(val type: Int, val id: Int, val description: String) : Seri
             return null
         }
 
+        @JvmStatic
         fun fromValueID(value: String): EmojiType? {
             try {
                 val id = value.toInt()

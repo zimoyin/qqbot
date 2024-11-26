@@ -12,6 +12,7 @@ data class ProactiveMediaMessage(val media: MediaMessageBean) : MessageItem {
     }
 
     companion object {
+        @JvmStatic
         fun create(media: MediaMessageBean): ProactiveMediaMessage {
             return ProactiveMediaMessage(media)
         }
