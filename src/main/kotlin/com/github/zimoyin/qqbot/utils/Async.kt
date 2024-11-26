@@ -2,6 +2,7 @@ package com.github.zimoyin.qqbot.utils
 
 import com.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
 import com.github.zimoyin.qqbot.utils.ex.promise
+import io.vertx.core.Context
 import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.Vertx
@@ -82,9 +83,15 @@ fun Dispatchers.vertx(vertx: Vertx = GLOBAL_VERTX_INSTANCE): CoroutineDispatcher
  * 获取一个与 Vertx 工作线程对应的协程调度器。
  */
 fun Dispatchers.vertxWorker(vertx: Vertx = GLOBAL_VERTX_INSTANCE): CoroutineDispatcher {
-    val worker = vertx.orCreateContext.get<ExecutorCoroutineDispatcher>("worker_ExecutorCoroutineDispatcher")?: run {
-        val context = vertx.orCreateContext
-        val workerPoolField = context::class.java.getDeclaredField("workerPool").apply { isAccessible = true }
+    val worker = vertx.orCreateContext.get<ExecutorCoroutineDispatcher>("worker_ExecutorCoroutineDispatcher") ?: run {
+        var context = vertx.orCreateContext
+        val workerPoolField = try {
+            context::class.java.getDeclaredField("workerPool").apply { isAccessible = true }
+        } catch (e: NoSuchFieldException) {
+            val delegateField = context::class.java.getDeclaredField("delegate").apply { isAccessible = true }
+            context = delegateField.get(context) as Context
+            context::class.java.getDeclaredField("workerPool").apply { isAccessible = true }
+        }
         (workerPoolField.get(context) as WorkerPool).executor().asCoroutineDispatcher()
     }
     vertx.orCreateContext.put("worker_ExecutorCoroutineDispatcher", worker)
