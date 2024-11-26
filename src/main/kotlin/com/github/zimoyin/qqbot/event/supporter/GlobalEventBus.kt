@@ -7,7 +7,6 @@ import com.github.zimoyin.qqbot.bot.Bot
 import com.github.zimoyin.qqbot.event.events.Event
 import com.github.zimoyin.qqbot.exception.EventBusException
 import com.github.zimoyin.qqbot.utils.vertx
-import com.github.zimoyin.qqbot.utils.vertxWorker
 import io.vertx.core.eventbus.DeliveryOptions
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.eventbus.Message
@@ -189,7 +188,7 @@ open class BotEventBus(val bus: EventBus) {
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
 
         val consumer = bus.consumer<T>(cls.name) { msg ->
-            CoroutineScope(Dispatchers.vertxWorker()).launch {
+            CoroutineScope(Dispatchers.vertx()).launch {
                 kotlin.runCatching {
                     callback.accept(msg.body())
                 }.onFailure {
@@ -220,7 +219,7 @@ open class BotEventBus(val bus: EventBus) {
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
 
         val consumer = bus.consumer(T::class.java.name) { msg ->
-            CoroutineScope(Dispatchers.vertxWorker()).launch {
+            CoroutineScope(Dispatchers.vertx()).launch {
                 kotlin.runCatching {
                     msg.callback(msg.body())
                 }.onFailure {
@@ -251,7 +250,7 @@ open class BotEventBus(val bus: EventBus) {
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
 
         val consumer = bus.consumer<T>(cls.name) { msg ->
-            CoroutineScope(Dispatchers.vertxWorker()).launch {
+            CoroutineScope(Dispatchers.vertx()).launch {
                 kotlin.runCatching {
                     if ((msg.body() as T).botInfo.token.appID == bot.config.token.appID) callback.accept(msg.body())
                 }.onFailure {
@@ -272,7 +271,7 @@ open class BotEventBus(val bus: EventBus) {
         EventMapping.add(T::class.java)
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
         val consumer = bus.consumer(T::class.java.name) { msg ->
-            CoroutineScope(Dispatchers.vertxWorker()).launch {
+            CoroutineScope(Dispatchers.vertx()).launch {
                 kotlin.runCatching {
                     if ((msg.body() as T).botInfo.token.appID == bot.config.token.appID) msg.callback(msg.body())
                 }.onFailure {
@@ -296,7 +295,7 @@ open class BotEventBus(val bus: EventBus) {
         EventMapping.add(cls)
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
         val consumer = bus.consumer<T>(cls.name) { msg ->
-            CoroutineScope(Dispatchers.vertxWorker()).launch {
+            CoroutineScope(Dispatchers.vertx()).launch {
                 kotlin.runCatching {
                     if ((msg.body() as T).botInfo.token.appID == appID) callback.accept(msg.body())
                 }.onFailure {
@@ -319,7 +318,7 @@ open class BotEventBus(val bus: EventBus) {
         EventMapping.add(T::class.java)
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
         val consumer = bus.consumer(T::class.java.name) { msg ->
-            CoroutineScope(Dispatchers.vertxWorker()).launch {
+            CoroutineScope(Dispatchers.vertx()).launch {
                 kotlin.runCatching {
                     if ((msg.body() as T).botInfo.token.appID == appID) msg.callback(msg.body())
                 }.onFailure {

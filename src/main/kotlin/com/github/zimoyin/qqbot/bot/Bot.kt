@@ -14,7 +14,6 @@ import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.getGuildInfos
 import com.github.zimoyin.qqbot.net.http.api.channel.getGuilds
 import com.github.zimoyin.qqbot.utils.vertx
-import com.github.zimoyin.qqbot.utils.vertxWorker
 import io.vertx.core.Future
 import io.vertx.core.Vertx
 import io.vertx.core.eventbus.EventBus
@@ -186,7 +185,7 @@ interface Bot : Serializable, Contact {
         config.apply {
             val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
             val consumer = getVertxEventBus().localConsumer<T>(cls.name) { msg ->
-                CoroutineScope(Dispatchers.vertxWorker(vertx)).launch {
+                CoroutineScope(Dispatchers.vertx(vertx)).launch {
                     kotlin.runCatching {
                         callback.accept(msg.body())
                     }.onFailure {
@@ -206,7 +205,7 @@ interface Bot : Serializable, Contact {
             val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
             val consumer = getVertxEventBus().localConsumer<T>(cls.name) { msg ->
                 if (msg.body().botInfo.token.appID == this.token.appID) {
-                    CoroutineScope(Dispatchers.vertxWorker(vertx)).launch {
+                    CoroutineScope(Dispatchers.vertx(vertx)).launch {
                         kotlin.runCatching {
                             callback.accept(msg.body())
                         }.onFailure {
@@ -383,7 +382,7 @@ inline fun <reified T : Event> Bot.onVertxEvent(crossinline callback: suspend Me
     this.config.apply {
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
         val consumer = getVertxEventBus().localConsumer<T>(T::class.java.name) { msg ->
-            CoroutineScope(Dispatchers.vertxWorker(vertx)).launch {
+            CoroutineScope(Dispatchers.vertx(vertx)).launch {
                 kotlin.runCatching {
                     msg.callback(msg.body())
                 }.onFailure {
@@ -404,7 +403,7 @@ inline fun <reified T : Event> Bot.onEvent(crossinline callback: suspend Message
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
         val consumer = getVertxEventBus().localConsumer<T>(T::class.java.name) { msg ->
             if (msg.body().botInfo.token.appID == this.token.appID) {
-                CoroutineScope(Dispatchers.vertxWorker(vertx)).launch {
+                CoroutineScope(Dispatchers.vertx(vertx)).launch {
                     kotlin.runCatching {
                         callback(msg, msg.body())
                     }.onFailure {
