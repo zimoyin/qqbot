@@ -1,7 +1,9 @@
 package com.github.zimoyin.qqbot.net.bean.message.send
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import java.io.Serializable
 
 /**
  * 富文本内容
@@ -29,6 +31,7 @@ data class SendMediaBean(
     /**
      * 【暂未支持】
      */
+    @Deprecated("暂不支持")
     val file_data: String? = null,
 ) {
     companion object {
@@ -66,4 +69,19 @@ data class MediaMessageBean(
      */
     @JsonProperty("id")
     val id: String? = null,
-)
+):Serializable {
+
+    /**
+     * 创建时间戳,单位是 S
+     */
+    @JsonIgnore
+    val createTimespan: Long = System.currentTimeMillis() / 1000
+
+
+    /**
+     * 是否过期
+     */
+    fun isExpired(): Boolean {
+        return if (ttl == 0) false else System.currentTimeMillis() / 1000 - createTimespan > (ttl ?: -1)
+    }
+}

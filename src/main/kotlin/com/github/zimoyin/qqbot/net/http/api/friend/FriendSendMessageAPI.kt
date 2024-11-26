@@ -20,6 +20,7 @@ import com.github.zimoyin.qqbot.net.http.addRestfulParam
 import com.github.zimoyin.qqbot.net.http.api.API
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.utils.JSON
+import com.github.zimoyin.qqbot.utils.MediaManager
 import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.buffer.Buffer
@@ -44,7 +45,7 @@ fun HttpAPIClient.sendFriendMessage(
 /**
  * 给好友发私信
  * @param friend 好友
- * @param id channelID/guildID
+ * @param id openid
  * @param message 消息
  * @param client 发送消息的请求
  */
@@ -91,8 +92,8 @@ private fun HttpAPIClient.sendFriendMessage(
         return promise.future()
     }
     if (finalMessage.msgType == SendMessageBean.MSG_TYPE_MEDIA && finalMessage.media == null) {
-        uploadMedia(id, token, finalMessage.toMediaBean()).onSuccess {
-            sendFirendMessage0(finalMessage, client, id, token, promise, friend, message, it)
+        uploadMediaToFriend(id, token, finalMessage.toMediaBean()).onSuccess {
+            sendFriendMessage0(finalMessage, client, id, token, promise, friend, message, it)
         }.onFailure {
             logPreError(promise, "sendFirendMessage0", "上传资源到服务器失败", it).let { isLog ->
                 promise.tryFail(HttpClientException("Uploading media resources to server failed", it)).apply {
@@ -101,13 +102,13 @@ private fun HttpAPIClient.sendFriendMessage(
             }
         }
     } else {
-        sendFirendMessage0(finalMessage, client, id, token, promise, friend, message)
+        sendFriendMessage0(finalMessage, client, id, token, promise, friend, message)
     }
     return promise.future()
 }
 
 
-private fun HttpAPIClient.sendFirendMessage0(
+private fun HttpAPIClient.sendFriendMessage0(
     finalMessage: SendMessageBean,
     client: HttpRequest<Buffer>,
     id: String,
@@ -141,19 +142,33 @@ private fun HttpAPIClient.sendFirendMessage0(
 /**
  * 上传媒体资源
  */
-private fun HttpAPIClient.uploadMedia(id: String, token: Token, mediaBean: SendMediaBean): Future<MediaMessageBean> {
+fun HttpAPIClient.uploadMediaToFriend(id: String, token: Token, mediaBean: SendMediaBean): Future<MediaMessageBean> {
+
+    // 使用缓存
+    if (MediaManager.isEnable) {
+        val mediaMessageBean = MediaManager.instance[mediaBean.url]
+        if (mediaMessageBean != null) {
+            return Future.succeededFuture(mediaMessageBean)
+        }
+    }
+
     val promise = Promise.promise<MediaMessageBean>()
     logDebug("sendFirendMessage0", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url}")
     API.uploadFriendMediaResource.addRestfulParam(id).putHeaders(token.getHeaders())
         .sendJsonObject(JSON.toJsonObject(mediaBean)).onSuccess {
             runCatching {
                 val json = it.bodyAsJsonObject()
-                if (json.getInteger("code") != null){
+                if (json.getInteger("code") != null) {
                     promise.fail(HttpClientException("Upload media resource failed: $json"))
-                }else{
-                    logDebug("sendFirendMessage0", "上传富媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 成功: $json")
+                } else {
+                    logDebug(
+                        "sendFirendMessage0",
+                        "上传富媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 成功: $json"
+                    )
                 }
-                json.mapTo(MediaMessageBean::class.java)
+                json.mapTo(MediaMessageBean::class.java).apply {
+                    if (MediaManager.isEnable && mediaBean.url != null) MediaManager.instance[mediaBean.url] = this
+                }
             }.onSuccess {
                 promise.tryComplete(it)
             }.onFailure {
@@ -197,7 +212,13 @@ private fun HttpAPIClient.httpSuccess(
         logPreError(
             promise, "sendFirendMessage0", "API does not meet expectations; resp:[${resp.bodyAsString()}]", it
         ).let { isLog ->
-            if (!promise.tryFail(HttpHandlerException("API does not meet expectations; resp:[${resp.bodyAsString()}]",it))) {
+            if (!promise.tryFail(
+                    HttpHandlerException(
+                        "API does not meet expectations; resp:[${resp.bodyAsString()}]",
+                        it
+                    )
+                )
+            ) {
                 if (!isLog) logError(
                     "sendChannelMessage", "API does not meet expectations; resp:[${resp.bodyAsString()}]", it
                 )

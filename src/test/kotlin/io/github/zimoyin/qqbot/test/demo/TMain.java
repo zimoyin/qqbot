@@ -14,12 +14,16 @@ import com.github.zimoyin.qqbot.net.http.api.TencentOpenApiHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.lang.System.exit;
+
 /**
  * @author : zimo
  * @date : 2024/11/26
  */
 public class TMain {
     public static void run(Token token) {
+        String url = "http://ts1.cn.mm.bing.net/th/id/R-C.23034dbcaded6ab4169b9514f76f51b5?rik=mSGADwV9o/teUA&riu=http://pic.bizhi360.com/bbpic/40/9640_1.jpg&ehk=RYei4n5qyNCPVysJmE2a3WhxSOXqGQMGJcvWBmFyfdg=&risl=&pid=ImgRaw&r=0";
+
         Logger logger = LoggerFactory.getLogger("Main");
         //全局事件监听
         GlobalEventBus.INSTANCE.onEvent(Event.class,true, event -> {
@@ -40,12 +44,12 @@ public class TMain {
         bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT", false);
 
         bot.onEvent(MessageEvent.class, event ->{
-            String url = "https://ts1.cn.mm.bing.net/th/id/R-C.23034dbcaded6ab4169b9514f76f51b5?rik=mSGADwV9o/teUA&riu=http://pic.bizhi360.com/bbpic/40/9640_1.jpg&ehk=RYei4n5qyNCPVysJmE2a3WhxSOXqGQMGJcvWBmFyfdg=&risl=&pid=ImgRaw&r=0";
             MessageChain chain = new MessageChainBuilder().append(ImageMessage.create(url)).append("你好").build();
             event.reply(chain).onFailure(e->{
                 logger.error("发送失败",e);
             });
         });
+
 
         bot.login().onSuccess(ws->{
             logger.info("登录成功");

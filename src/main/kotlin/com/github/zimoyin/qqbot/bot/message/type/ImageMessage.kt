@@ -3,6 +3,9 @@ package com.github.zimoyin.qqbot.bot.message.type
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.net.bean.message.MessageAttachment
+import com.github.zimoyin.qqbot.net.bean.message.MessageReference
+import com.github.zimoyin.qqbot.net.bean.message.send.SendMediaBean
+import com.github.zimoyin.qqbot.net.bean.message.send.SendMessageBean
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.InputStream
@@ -13,6 +16,17 @@ data class ImageMessage(val name: String?, val attachment: MessageAttachment) : 
     override fun toStringType(): String {
         return "[Image:${name?.replace("\n", "\\n")}]"
     }
+
+
+    /**
+     * 将图片信息转换为发送图片的Bean
+     */
+    @Deprecated("未使用")
+    fun convertToSendMediaBean() = SendMediaBean(
+        fileType = SendMediaBean.FILE_TYPE_IMAGE,
+        url = this.attachment.getURL(),
+    )
+
 
     @JsonIgnore
     var localFile: File? = null
@@ -30,7 +44,7 @@ data class ImageMessage(val name: String?, val attachment: MessageAttachment) : 
         fun create(file: File): ImageMessage {
             return ImageMessage(file.name, MessageAttachment()).apply {
                 if (!file.exists()) throw IllegalArgumentException("Not found file: $file")
-                if (file.length() > 4 * 1024 * 1024){
+                if (file.length() > 4 * 1024 * 1024) {
                     LoggerFactory.getLogger(ImageMessage::class.java).warn("图片大小超过4mb，可能会导致发送失败")
                 }
                 localFile = file

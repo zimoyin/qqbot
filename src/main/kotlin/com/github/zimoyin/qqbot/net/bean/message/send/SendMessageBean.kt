@@ -144,20 +144,24 @@ data class SendMessageBean(
     fun toMediaBean(): SendMediaBean {
         require(!(channelFile != null || channelFileBytes != null)) { "ChannelFile and channelFileBytes must be null" }
         require(!(imageURI == null && audioURI == null && videoURI == null)) { "ImageURI, audioURI, and videoURI cannot all be null" }
+        val isSrvSendMsg = !(markdown != null || keyboard != null) && id == null
         return when {
             imageURI != null -> SendMediaBean(
                 fileType = SendMediaBean.FILE_TYPE_IMAGE,
                 url = imageURI,
+                srv_send_msg = isSrvSendMsg
             )
 
             audioURI != null -> SendMediaBean(
                 fileType = SendMediaBean.FILE_TYPE_AUDIO,
                 url = audioURI,
+                srv_send_msg = isSrvSendMsg
             )
 
             else -> SendMediaBean(
                 fileType = SendMediaBean.FILE_TYPE_VIDEO,
                 url = videoURI,
+                srv_send_msg = isSrvSendMsg
             )
         }
     }

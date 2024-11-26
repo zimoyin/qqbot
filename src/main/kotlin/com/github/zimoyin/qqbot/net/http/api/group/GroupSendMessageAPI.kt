@@ -19,6 +19,7 @@ import com.github.zimoyin.qqbot.net.http.addRestfulParam
 import com.github.zimoyin.qqbot.net.http.api.API
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.utils.JSON
+import com.github.zimoyin.qqbot.utils.MediaManager
 import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.buffer.Buffer
@@ -141,6 +142,13 @@ private fun HttpAPIClient.sendGroupMessage0(
  * 上传媒体资源
  */
 fun HttpAPIClient.uploadMediaToGroup(id: String, token: Token, mediaBean: SendMediaBean): Future<MediaMessageBean> {
+    if (MediaManager.isEnable) {
+        val mediaMessageBean = MediaManager.instance[mediaBean.url]
+        if (mediaMessageBean != null){
+            return Future.succeededFuture(mediaMessageBean)
+        }
+    }
+
     val promise = Promise.promise<MediaMessageBean>()
     logDebug("sendGroupMessage", "预备上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url}")
     API.uploadGroupMediaResource.addRestfulParam(id).putHeaders(token.getHeaders())
@@ -152,7 +160,9 @@ fun HttpAPIClient.uploadMediaToGroup(id: String, token: Token, mediaBean: SendMe
                 }else{
                     logDebug("sendGroupMessage", "上传富媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 成功: $json")
                 }
-                json.mapTo(MediaMessageBean::class.java)
+                json.mapTo(MediaMessageBean::class.java).apply {
+                    if (MediaManager.isEnable && mediaBean.url != null) MediaManager.instance[mediaBean.url] = this
+                }
             }.onSuccess {
                 promise.tryComplete(it)
             }.onFailure {

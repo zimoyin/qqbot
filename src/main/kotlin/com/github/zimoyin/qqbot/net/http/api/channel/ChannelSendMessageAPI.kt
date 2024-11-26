@@ -123,7 +123,8 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
     logDebug("sendChannelMessageAsync", "发送消息: ${finalMessage.toStrings().replace("\n", "\\n")}")
     //发送信息
     client.addRestfulParam(id).putHeaders(token.getHeaders())
-//        .sendJsonObject(finalMessageJson).onFailure { // JSON 方式发送
+        // TODO JSON 方式发送【请勿删除】
+//        .sendJsonObject(finalMessageJson).onFailure {
 //            promise.fail(it)
 //            logError("sendChannelPrivateMessageAsync", "网络错误: 发送消息失败", it)
 //        }
