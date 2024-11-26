@@ -11,11 +11,13 @@ import io.vertx.ext.web.client.WebClientOptions
  * @date : 2024/05/12
  */
 object TencentOpenApiHttpClient {
+    @JvmStatic
     val DefaultHeaders by lazy {
         HeadersMultiMap().apply {
             //通用头
         }
     }
+    @JvmStatic
     var isSandBox = false
         set(value) {
             if (isOptionsInitialized) throw IllegalStateException("Options has been initialized. Please set up the sandbox environment before creating the bot")
@@ -40,6 +42,7 @@ object TencentOpenApiHttpClient {
             .setMaxWaitQueueSize(-1)
     }
 
+    @JvmStatic
     val client: WebClient by lazy {
         WebClient.create(GLOBAL_VERTX_INSTANCE, options)
     }
