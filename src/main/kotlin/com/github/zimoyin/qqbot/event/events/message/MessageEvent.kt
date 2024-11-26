@@ -64,14 +64,7 @@ interface MessageEvent : Event {
      * 注: 对于非文本等形式的消息，可能会受限于主动信息推送
      */
     fun reply(message: MessageChain): Future<MessageChain> {
-        if (message.id == null && message.count { it is MarkdownMessage } <= 0) {
-            val promise = promise<MessageChain>()
-            promise.fail(IllegalArgumentException("MessageChain id is null. Unable to reply to message"))
-            LoggerFactory.getLogger(this.javaClass)
-                .error("MessageChain id is null. Please use Message ChainBuilder to build and set the ID")
-            return promise.future()
-        }
-        return windows.send(message)
+        return windows.send(MessageChainBuilder(message.id?:msgID).append(message).build())
     }
 
     /**
@@ -79,16 +72,11 @@ interface MessageEvent : Event {
      * 注意无法通过事件发送主动信息，请查询 Content.send 方法
      */
     fun quote(message: MessageChain): Future<MessageChain> {
-        if (message.id == null) {
-            val promise = promise<MessageChain>()
-            promise.fail(IllegalArgumentException("MessageChain id is null. Unable to reply to message"))
-            return promise.future()
-        }
         if (message.stream().filter { it is ReferenceMessage }.count() == 0.toLong()) {
             val promise = promise<MessageChain>()
             promise.fail(IllegalArgumentException("MessageChain ReferenceMessage is null. Unable to reply to message"))
             return promise.future()
         }
-        return windows.send(message)
+        return windows.send(MessageChainBuilder(message.id?:msgID).append(message).build())
     }
 }
