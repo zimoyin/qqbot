@@ -5,6 +5,7 @@ import com.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.Vertx
+import io.vertx.core.impl.WorkerPool
 import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.*
 
@@ -68,7 +69,24 @@ fun <T> task(callback: suspend (Promise<T>) -> T): Future<T> {
     return promise.future()
 }
 
+/**
+ * 获取一个与 Vertx 事件线程池对应的协程调度器。
+ * 该调度器使用的是 vertx 事件循环器，因此禁止在该调度器中执行高CPU任务与阻塞任务
+ * 对于网络，IO, 文件等操作，推荐使用 vertx 的异步方法，或者使用 vertx 的线程池
+ */
 fun Dispatchers.vertx(vertx: Vertx = GLOBAL_VERTX_INSTANCE): CoroutineDispatcher {
-    this.toString()
     return vertx.dispatcher()
+}
+
+/**
+ * 获取一个与 Vertx 工作线程对应的协程调度器。
+ */
+fun Dispatchers.vertxWorker(vertx: Vertx = GLOBAL_VERTX_INSTANCE): CoroutineDispatcher {
+    val worker = vertx.orCreateContext.get<ExecutorCoroutineDispatcher>("worker_ExecutorCoroutineDispatcher")?: run {
+        val context = vertx.orCreateContext
+        val workerPoolField = context::class.java.getDeclaredField("workerPool").apply { isAccessible = true }
+        (workerPoolField.get(context) as WorkerPool).executor().asCoroutineDispatcher()
+    }
+    vertx.orCreateContext.put("worker_ExecutorCoroutineDispatcher", worker)
+    return worker
 }

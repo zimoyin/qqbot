@@ -37,9 +37,9 @@ object Config {
     @JvmStatic
     val GLOBAL_VERTX_OPTIONS: VertxOptions by lazy {
         VertxOptions().apply {
-            setWorkerPoolSize(6)
-            setEventLoopPoolSize(3)
-            setInternalBlockingPoolSize(12)
+            setWorkerPoolSize(12) // VertxOptions.DEFAULT_WORKER_POOL_SIZE
+            setEventLoopPoolSize(VertxOptions.DEFAULT_EVENT_LOOP_POOL_SIZE)
+            setInternalBlockingPoolSize(VertxOptions.DEFAULT_INTERNAL_BLOCKING_POOL_SIZE)
             setHAEnabled(true)
             SystemLogger.debug("已完成一个全局的Vertx 实例的配置 : {}", this)
         }
