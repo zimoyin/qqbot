@@ -10,6 +10,7 @@ import com.github.zimoyin.qqbot.event.events.platform.MessageSendInterceptEvent
 import com.github.zimoyin.qqbot.event.events.platform.MessageSendPreEvent
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.exception.HttpClientException
+import com.github.zimoyin.qqbot.exception.HttpHandlerException
 import com.github.zimoyin.qqbot.net.Token
 import com.github.zimoyin.qqbot.net.bean.message.Message
 import com.github.zimoyin.qqbot.net.bean.message.send.MediaMessageBean
@@ -196,7 +197,7 @@ private fun HttpAPIClient.httpSuccess(
         logPreError(
             promise, "sendFirendMessage0", "API does not meet expectations; resp:[${resp.bodyAsString()}]", it
         ).let { isLog ->
-            if (!promise.tryFail(it)) {
+            if (!promise.tryFail(HttpHandlerException("API does not meet expectations; resp:[${resp.bodyAsString()}]",it))) {
                 if (!isLog) logError(
                     "sendChannelMessage", "API does not meet expectations; resp:[${resp.bodyAsString()}]", it
                 )
