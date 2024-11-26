@@ -7,6 +7,8 @@ import com.github.zimoyin.qqbot.bot.Bot
 import com.github.zimoyin.qqbot.event.events.Event
 import com.github.zimoyin.qqbot.exception.EventBusException
 import com.github.zimoyin.qqbot.utils.vertx
+import com.github.zimoyin.qqbot.utils.vertxWorker
+import io.vertx.core.Vertx
 import io.vertx.core.eventbus.DeliveryOptions
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.eventbus.Message
@@ -174,7 +176,13 @@ open class BotEventBus(val bus: EventBus) {
      * 如果只想监听某一杠Vertx 的事件，通过bot的 config 来监听
      *
      */
-    fun <T : Event> onEvent(cls: Class<out T>, callback: Consumer<T>) {
+    @JvmOverloads
+    fun <T : Event> onEvent(
+        cls: Class<out T>,
+        isUseWorkerThread: Boolean = false,
+        vertx: Vertx = GLOBAL_VERTX_INSTANCE,
+        callback: Consumer<T>
+    ) {
         /**
          * 通过 Event 上的注解可以确定事件的元类型  然后就去映射他们
          * 优点：方便框架使用者实现官方的事件类型
@@ -188,7 +196,8 @@ open class BotEventBus(val bus: EventBus) {
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
 
         val consumer = bus.consumer<T>(cls.name) { msg ->
-            CoroutineScope(Dispatchers.vertx()).launch {
+            val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
+            CoroutineScope(scope).launch {
                 kotlin.runCatching {
                     callback.accept(msg.body())
                 }.onFailure {
@@ -205,7 +214,12 @@ open class BotEventBus(val bus: EventBus) {
      * 如果只想监听某一杠Vertx 的事件，通过bot的 config 来监听
      *
      */
-    inline fun <reified T : Event> onEvent(crossinline callback: suspend Message<T>.(message: T) -> Unit) {
+    @JvmOverloads
+    inline fun <reified T : Event> onEvent(
+        isUseWorkerThread: Boolean = false,
+        vertx: Vertx = GLOBAL_VERTX_INSTANCE,
+        crossinline callback: suspend Message<T>.(message: T) -> Unit
+    ) {
         /**
          * 通过 Event 上的注解可以确定事件的元类型  然后就去映射他们
          * 优点：方便框架使用者实现官方的事件类型
@@ -219,7 +233,8 @@ open class BotEventBus(val bus: EventBus) {
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
 
         val consumer = bus.consumer(T::class.java.name) { msg ->
-            CoroutineScope(Dispatchers.vertx()).launch {
+            val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
+            CoroutineScope(scope).launch {
                 kotlin.runCatching {
                     msg.callback(msg.body())
                 }.onFailure {
@@ -236,7 +251,13 @@ open class BotEventBus(val bus: EventBus) {
      * 如果只想监听某一杠Vertx 的事件，通过bot的 config 来监听
      *
      */
-    fun <T : Event> onBotEvent(bot: Bot, cls: Class<out T>, callback: Consumer<T>) {
+    @JvmOverloads
+    fun <T : Event> onBotEvent(
+        bot: Bot, cls: Class<out T>,
+        isUseWorkerThread: Boolean = false,
+        vertx: Vertx = GLOBAL_VERTX_INSTANCE,
+        callback: Consumer<T>
+    ) {
         /**
          * 通过 Event 上的注解可以确定事件的元类型  然后就去映射他们
          * 优点：方便框架使用者实现官方的事件类型
@@ -250,7 +271,8 @@ open class BotEventBus(val bus: EventBus) {
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
 
         val consumer = bus.consumer<T>(cls.name) { msg ->
-            CoroutineScope(Dispatchers.vertx()).launch {
+            val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
+            CoroutineScope(scope).launch {
                 kotlin.runCatching {
                     if ((msg.body() as T).botInfo.token.appID == bot.config.token.appID) callback.accept(msg.body())
                 }.onFailure {
@@ -267,11 +289,18 @@ open class BotEventBus(val bus: EventBus) {
      * 如果只想监听某一杠Vertx 的事件，通过bot的 config 来监听
      *
      */
-    inline fun <reified T : Event> onBotEvent(bot: Bot, crossinline callback: suspend Message<T>.(message: T) -> Unit) {
+    @JvmOverloads
+    inline fun <reified T : Event> onBotEvent(
+        bot: Bot,
+        isUseWorkerThread: Boolean = false,
+        vertx: Vertx = GLOBAL_VERTX_INSTANCE,
+        crossinline callback: suspend Message<T>.(message: T) -> Unit
+    ) {
         EventMapping.add(T::class.java)
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
         val consumer = bus.consumer(T::class.java.name) { msg ->
-            CoroutineScope(Dispatchers.vertx()).launch {
+            val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
+            CoroutineScope(scope).launch {
                 kotlin.runCatching {
                     if ((msg.body() as T).botInfo.token.appID == bot.config.token.appID) msg.callback(msg.body())
                 }.onFailure {
@@ -287,15 +316,19 @@ open class BotEventBus(val bus: EventBus) {
      * 如果只想监听某一杠Vertx 的事件，通过bot的 config 来监听
      *
      */
+    @JvmOverloads
     fun <T : Event> onBotEvent(
         appID: String,
         cls: Class<out T>,
+        isUseWorkerThread: Boolean = false,
+        vertx: Vertx = GLOBAL_VERTX_INSTANCE,
         callback: Consumer<T>,
     ) {
         EventMapping.add(cls)
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
         val consumer = bus.consumer<T>(cls.name) { msg ->
-            CoroutineScope(Dispatchers.vertx()).launch {
+            val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
+            CoroutineScope(scope).launch {
                 kotlin.runCatching {
                     if ((msg.body() as T).botInfo.token.appID == appID) callback.accept(msg.body())
                 }.onFailure {
@@ -311,14 +344,18 @@ open class BotEventBus(val bus: EventBus) {
      * 如果只想监听某一杠Vertx 的事件，通过bot的 config 来监听
      *
      */
+    @JvmOverloads
     inline fun <reified T : Event> onBotEvent(
         appID: String,
+        isUseWorkerThread: Boolean = false,
+        vertx: Vertx = GLOBAL_VERTX_INSTANCE,
         crossinline callback: suspend Message<T>.(message: T) -> Unit,
     ) {
         EventMapping.add(T::class.java)
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
         val consumer = bus.consumer(T::class.java.name) { msg ->
-            CoroutineScope(Dispatchers.vertx()).launch {
+            val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
+            CoroutineScope(scope).launch {
                 kotlin.runCatching {
                     if ((msg.body() as T).botInfo.token.appID == appID) msg.callback(msg.body())
                 }.onFailure {

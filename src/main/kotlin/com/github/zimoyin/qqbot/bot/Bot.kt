@@ -14,6 +14,7 @@ import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.getGuildInfos
 import com.github.zimoyin.qqbot.net.http.api.channel.getGuilds
 import com.github.zimoyin.qqbot.utils.vertx
+import com.github.zimoyin.qqbot.utils.vertxWorker
 import io.vertx.core.Future
 import io.vertx.core.Vertx
 import io.vertx.core.eventbus.EventBus
@@ -181,11 +182,12 @@ interface Bot : Serializable, Contact {
     /**
      * Bot 事件监听，监听来自于创建该 vertx 的事件监听。 但凡是在该 vertx 中传播的事件都能被捕捉
      */
-    fun <T : Event> onVertxEvent(cls: Class<out T>, callback: Consumer<T>) {
+    fun <T : Event> onVertxEvent(cls: Class<out T>, isUseWorkerThread: Boolean = false, callback: Consumer<T>) {
         config.apply {
             val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
             val consumer = getVertxEventBus().localConsumer<T>(cls.name) { msg ->
-                CoroutineScope(Dispatchers.vertx(vertx)).launch {
+                 val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
+            CoroutineScope(scope).launch {
                     kotlin.runCatching {
                         callback.accept(msg.body())
                     }.onFailure {
@@ -198,14 +200,22 @@ interface Bot : Serializable, Contact {
     }
 
     /**
+     * Bot 事件监听，监听来自于创建该 vertx 的事件监听。 但凡是在该 vertx 中传播的事件都能被捕捉
+     */
+    fun <T : Event> onVertxEvent(cls: Class<out T>,  callback: Consumer<T>) {
+        onVertxEvent(cls, false, callback)
+    }
+
+    /**
      * Bot 事件监听，监听来自于创建该 vertx 的事件监听 并且 只监听该 Bot 的事件
      */
-    fun <T : Event> onEvent(cls: Class<out T>, callback: Consumer<T>) {
+    fun <T : Event> onEvent(cls: Class<out T>, isUseWorkerThread: Boolean = false, callback: Consumer<T>) {
         config.apply {
             val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
             val consumer = getVertxEventBus().localConsumer<T>(cls.name) { msg ->
                 if (msg.body().botInfo.token.appID == this.token.appID) {
-                    CoroutineScope(Dispatchers.vertx(vertx)).launch {
+                     val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
+            CoroutineScope(scope).launch {
                         kotlin.runCatching {
                             callback.accept(msg.body())
                         }.onFailure {
@@ -216,6 +226,13 @@ interface Bot : Serializable, Contact {
             }
             consumers.add(consumer)
         }
+    }
+
+    /**
+     * Bot 事件监听，监听来自于创建该 vertx 的事件监听 并且 只监听该 Bot 的事件
+     */
+    fun <T : Event> onEvent(cls: Class<out T>, callback: Consumer<T>) {
+        onEvent(cls, false, callback)
     }
 }
 
@@ -378,11 +395,13 @@ class BotConfigBuilder(token0: Token? = null) {
  * Bot 事件监听，监听来自于创建该 vertx 的事件监听
  *
  */
-inline fun <reified T : Event> Bot.onVertxEvent(crossinline callback: suspend Message<T>.(message: T) -> Unit) {
+@JvmOverloads
+inline fun <reified T : Event> Bot.onVertxEvent(isUseWorkerThread: Boolean = false,crossinline callback: suspend Message<T>.(message: T) -> Unit) {
     this.config.apply {
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
         val consumer = getVertxEventBus().localConsumer<T>(T::class.java.name) { msg ->
-            CoroutineScope(Dispatchers.vertx(vertx)).launch {
+             val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
+            CoroutineScope(scope).launch {
                 kotlin.runCatching {
                     msg.callback(msg.body())
                 }.onFailure {
@@ -398,12 +417,14 @@ inline fun <reified T : Event> Bot.onVertxEvent(crossinline callback: suspend Me
  * Bot 事件监听，监听来自于创建该 vertx 的事件监听 并且 只监听该 Bot 的事件
  *
  */
-inline fun <reified T : Event> Bot.onEvent(crossinline callback: suspend Message<T>.(message: T) -> Unit) {
+@JvmOverloads
+inline fun <reified T : Event> Bot.onEvent(isUseWorkerThread: Boolean = false,crossinline callback: suspend Message<T>.(message: T) -> Unit) {
     this.config.apply {
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
         val consumer = getVertxEventBus().localConsumer<T>(T::class.java.name) { msg ->
             if (msg.body().botInfo.token.appID == this.token.appID) {
-                CoroutineScope(Dispatchers.vertx(vertx)).launch {
+                 val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
+            CoroutineScope(scope).launch {
                     kotlin.runCatching {
                         callback(msg, msg.body())
                     }.onFailure {
