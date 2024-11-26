@@ -124,7 +124,7 @@ private fun HttpAPIClient.sendGroupMessage0(
         remove("image") // 移除image字段,因为不适用于Group和 单聊
     }
 
-    logDebug("sendGroupMessage", "发送消息: $finalMessageJson")
+//    logDebug("sendGroupMessage", "发送消息: $finalMessageJson")
     //发送信息
     client.addRestfulParam(id).putHeaders(token.getHeaders()).sendJsonObject(finalMessageJson).onFailure {
         logPreError(promise, "sendGroupMessage", "发送消息失败", it).let { isLog ->
