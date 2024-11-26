@@ -1,5 +1,7 @@
 package com.github.zimoyin.qqbot.net
 
+import javax.management.Query.and
+
 /**
  * 事件的 intents 是一个标记位，每一位都代表不同的事件，如果需要接收某类事件，就将该位置为 1。
  *
@@ -157,6 +159,10 @@ enum class Intents(val code: Int) {
          */
         PRIVATE_INTENTS(1007162883),
         PRIVATE_GROUP_INTENTS(1007162883 or (1 shl 25));
+
+        operator fun plus(messageAudit: Intents): Int {
+            return messageAudit.and(this.code)
+        }
     }
 
     /**
