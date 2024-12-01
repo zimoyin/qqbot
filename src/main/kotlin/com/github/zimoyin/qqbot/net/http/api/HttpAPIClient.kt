@@ -16,7 +16,8 @@ import org.slf4j.LoggerFactory
  * API 访问入口
  */
 object HttpAPIClient {
-    val logger: Logger by lazy { LoggerFactory.getLogger(API::class.java) }
+    val logger: Logger by lazy { LoggerFactory.getLogger(HttpAPIClient::class.java) }
+
 
     init {
         logger.info("API Client 日志框架准备完成，如果需要关闭该日志请手段排除该路径")
@@ -65,7 +66,7 @@ object HttpAPIClient {
     }
 
     fun logDebug(apiName: String, msg: String) {
-        logger.debug("API Client [$apiName]: $msg")
+        if (API.isDebug) logger.debug("API Client [$apiName]: $msg")
     }
 
     fun logWarn(apiName: String, msg: String) {

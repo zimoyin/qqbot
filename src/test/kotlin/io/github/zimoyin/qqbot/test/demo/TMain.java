@@ -5,12 +5,14 @@ import com.github.zimoyin.qqbot.bot.Bot;
 import com.github.zimoyin.qqbot.bot.message.MessageChain;
 import com.github.zimoyin.qqbot.bot.message.MessageChainBuilder;
 import com.github.zimoyin.qqbot.bot.message.type.ImageMessage;
+import com.github.zimoyin.qqbot.bot.message.type.KeyboardMessage;
 import com.github.zimoyin.qqbot.event.events.Event;
 import com.github.zimoyin.qqbot.event.events.message.MessageEvent;
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus;
 import com.github.zimoyin.qqbot.net.Intents;
 import com.github.zimoyin.qqbot.net.Token;
 import com.github.zimoyin.qqbot.net.bean.message.MessageMarkdown;
+import com.github.zimoyin.qqbot.net.http.api.API;
 import com.github.zimoyin.qqbot.net.http.api.TencentOpenApiHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +38,10 @@ public class TMain {
             config.setIntents(Intents.Presets.PRIVATE_GROUP_INTENTS);
         });
 
-        bot.getConfig().setRetry(99);
+//        bot.getConfig().setRetry(99);
 //        bot.getContext().set("SESSION_ID", "d5141070-a591-47fa-b334-8ed1eff92ec6");
-        bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_LOG", true);
+        API.setDebug(false);
+        bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_LOG", false);
         bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG", false);
         bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT", false);
 
@@ -48,11 +51,15 @@ public class TMain {
 //                logger.error("发送失败",e);
 //            });
 
-            MessageChain messageChain = MessageMarkdown.create("102077167_1706091638")
-                .appendParam("date", "123")
-                .appendParam("rw", event.getMessageChain().content())
-                .build()
-                .toMessageChain();
+//            MessageChain messageChain = MessageMarkdown.create("102077167_1706091638")
+//                .appendParam("date", "123")
+//                .appendParam("rw", event.getMessageChain().content())
+//                .build()
+//                .toMessageChain();
+
+
+            KeyboardMessage keyboardMessage = KeyboardMessage.create("102077167_1706079223");
+            MessageChain messageChain = new MessageChainBuilder().append(keyboardMessage).build();
 
             System.out.println(event.getMessageChain().content());
             event.reply(messageChain).onFailure(e -> {

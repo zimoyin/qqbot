@@ -246,7 +246,7 @@ data class BotConfig(
     /**
      * Bot丢失链接后的重试次数
      */
-    var retry: Int = 64,
+    var retry: Int = -1,
 ) : Serializable {
 
     /**

@@ -1,5 +1,9 @@
 package com.github.zimoyin.qqbot.bot.message.type
 
+import com.github.zimoyin.qqbot.utils.ex.toJsonObject
+import io.vertx.core.json.JsonObject
+import io.vertx.kotlin.core.json.json
+import io.vertx.kotlin.core.json.jsonObjectOf
 import org.intellij.lang.annotations.Language
 
 /**
@@ -13,7 +17,15 @@ data class KeyboardMessage(
     @Language("json") val keyboard: String,
 ) : MessageItem {
 
-    fun toKeyboard(): Unit {
-        TODO("后续支持将 json 转为 keyboard 对象")
+
+    companion object {
+        @JvmStatic
+        fun create(id: String): KeyboardMessage {
+            return KeyboardMessage(jsonObjectOf("id" to id).encode())
+        }
+    }
+
+    override fun toString(): String {
+        return keyboard
     }
 }

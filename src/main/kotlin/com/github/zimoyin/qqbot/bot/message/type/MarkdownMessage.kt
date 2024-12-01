@@ -3,6 +3,7 @@ package com.github.zimoyin.qqbot.bot.message.type
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.bot.message.MessageChainBuilder
 import com.github.zimoyin.qqbot.net.bean.message.MessageMarkdown
+import com.github.zimoyin.qqbot.net.bean.message.MessageMarkdownParam
 import com.github.zimoyin.qqbot.utils.JSON
 
 /**
@@ -31,5 +32,24 @@ data class MarkdownMessage(
     @JvmOverloads
     fun toMessageChain(eventID: String? = null,msgID: String? = null): MessageChain {
         return MessageChainBuilder(msgID).append(this).appendEventId(eventID).build()
+    }
+
+    companion object{
+        @JvmStatic
+        fun builder(templateId: String, params: ArrayList<MessageMarkdownParam>): MarkdownMessage {
+            return MarkdownMessage(MessageMarkdown.create(templateId, params))
+        }
+
+        @JvmStatic
+        fun builder(templateId: String): MarkdownMessage {
+            return MarkdownMessage(MessageMarkdown.create(templateId))
+        }
+
+        @JvmStatic
+        fun builder(templateId: String, vararg params: MessageMarkdownParam): MarkdownMessage {
+            return MarkdownMessage(MessageMarkdown.create(templateId, arrayListOf<MessageMarkdownParam>().apply {
+                addAll(params)
+            }))
+        }
     }
 }

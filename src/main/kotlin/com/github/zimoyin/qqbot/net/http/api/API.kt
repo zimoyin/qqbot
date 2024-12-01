@@ -484,7 +484,7 @@ object API {
             } else {
                 client.init()
             }
-            logger.debug("Http Request[{}] {}", request.method(), request.uri())
+            if (isDebug) logger.debug("Http Request[{}] {}", request.method(), request.uri())
             return request
         }
 
@@ -495,4 +495,7 @@ object API {
             return this.putHeaders(TencentOpenApiHttpClient.DefaultHeaders)
         }
     }
+
+    @JvmStatic
+    var isDebug = false
 }

@@ -83,7 +83,7 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
      * @param reconnect 是否允许重连
      * @param retry 自动重连次数
      */
-    private fun connect(client: WebSocketClient, reconnect: Boolean = false, retry: Int = 8) {
+    private fun connect(client: WebSocketClient, reconnect: Boolean = false, retry: Int = -1) {
         if (gatewayURL == null) throw NullPointerException("gateway 无法获取到URL")
         bot.context["vertx"] = vertx
 
@@ -117,7 +117,8 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
                                         bot.context.get<Throwable>(throwableKey)
                                     )
                                 )
-                                reconnect(client, reconnect, retry + 1)
+
+                                reconnect(client, reconnect, if (retry < 0) retry - 1 else retry + 1)
                             }
 
                             else -> logger.error(

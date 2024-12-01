@@ -288,7 +288,7 @@ class MessageChain(
         val ark = internalItems.filterIsInstance<ArkMessage>().lastOrNull()?.ark
         val embed = internalItems.filterIsInstance<EmbedMessage>().lastOrNull()?.embed
         val md = internalItems.filterIsInstance<MarkdownMessage>().lastOrNull()?.markdown
-        val kb = internalItems.filterIsInstance<KeyboardMessage>().lastOrNull()?.keyboard
+        val kb = internalItems.filterIsInstance<KeyboardMessage>().lastOrNull()
 
         return SendMessageBean(
             id = if (md != null || kb != null) null else this.id,

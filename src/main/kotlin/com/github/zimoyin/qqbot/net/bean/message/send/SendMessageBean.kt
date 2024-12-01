@@ -3,12 +3,14 @@ package com.github.zimoyin.qqbot.net.bean.message.send
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.github.zimoyin.qqbot.bot.message.type.KeyboardMessage
 import com.github.zimoyin.qqbot.net.bean.message.MessageArk
 import com.github.zimoyin.qqbot.net.bean.message.MessageEmbed
 import com.github.zimoyin.qqbot.net.bean.message.MessageMarkdown
 import com.github.zimoyin.qqbot.net.bean.message.MessageReference
 import com.github.zimoyin.qqbot.utils.JSON
 import io.vertx.core.json.JsonObject
+import io.vertx.kotlin.core.json.Json
 import java.io.File
 
 /**
@@ -89,7 +91,7 @@ data class SendMessageBean(
      */
     @field:JsonProperty("markdown")
     val markdown: MessageMarkdown? = null,
-    val keyboard: String?,
+    val keyboard: KeyboardMessage?,
 
     @JsonIgnore
     val channelFile: File? = null,
@@ -169,6 +171,7 @@ data class SendMessageBean(
     @JsonIgnore
     fun toJson(): JsonObject {
         val json = JSON.toJsonObject(this)
+        if (keyboard != null) json.put("keyboard",  JSON.toJsonObject(keyboard.keyboard))
         return JsonObject().apply {
             json.forEach {
                 if (it.key != null && it.value != null)
