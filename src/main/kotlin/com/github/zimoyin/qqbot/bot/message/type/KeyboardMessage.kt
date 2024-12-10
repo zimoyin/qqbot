@@ -1,5 +1,6 @@
 package com.github.zimoyin.qqbot.bot.message.type
 
+import com.github.zimoyin.qqbot.utils.ex.cleanJsonObject
 import com.github.zimoyin.qqbot.utils.ex.toJsonObject
 import io.vertx.core.json.JsonObject
 import io.vertx.kotlin.core.json.jsonObjectOf
@@ -69,8 +70,12 @@ data class CustomKeyboard(
     val rows: List<Row> = emptyList(),  // 按钮行列表，每行可以包含多个按钮
     val style: KeyboardStyle? = null  // 键盘样式，例如字体大小
 ) {
+
+    /**
+     * 转换为 JsonObject 并移除为 null 的字段
+     */
     fun toJson(): JsonObject {
-        return this.toJsonObject()
+        return this.toJsonObject().cleanJsonObject()
     }
 
     /**
