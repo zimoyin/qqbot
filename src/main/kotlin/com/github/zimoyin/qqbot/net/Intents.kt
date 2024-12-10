@@ -146,18 +146,18 @@ enum class Intents(val code: Int) {
          * Intents 事件订阅方式
          * 默认
          */
-        DEFAULT(738726915),
+        DEFAULT(738726915 or INTERACTION.code),
 
         /**
          * 公域机器人订阅推荐
          */
-        PUBLIC_INTENTS(1812468739),
-        PUBLIC_GROUP_INTENTS(1812468739 or GROUP_INTENTS.code),
+        PUBLIC_INTENTS(1812468739 or INTERACTION.code ),
+        PUBLIC_GROUP_INTENTS(1812468739 or GROUP_INTENTS.code or INTERACTION.code),
 
         /**
          * 私域机器人订阅推荐
          */
-        PRIVATE_INTENTS(1007162883),
+        PRIVATE_INTENTS(1007162883 or INTERACTION.code),
         PRIVATE_GROUP_INTENTS(1007162883 or GROUP_INTENTS.code or INTERACTION.code);
 
         operator fun plus(messageAudit: Intents): Int {
