@@ -125,6 +125,8 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
     //发送信息
     val client0 = client.addRestfulParam(id).putHeaders(token.getHeaders())
     if (finalMessageJson.getString("channelFile") == null && finalMessageJson.getString("channelFileBytes") == null) {
+        logDebug("sendChannelMessageAsync", "以JSON形式发生信息")
+        logDebug("sendChannelMessageAsync", "发送消息: $finalMessageJson")
         // JSON 发生方式，markdown 参数在 from 方式下无法被服务器正确的解析
         client0.sendJsonObject(finalMessageJson).onFailure {
             logPreError(promise, "sendChannelPrivateMessageAsync", "网络错误: 发送消息失败", it).let { isLog ->
@@ -134,6 +136,8 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
             }
         }
     } else {
+        logDebug("sendChannelMessageAsync", "以MultipartForm形式发生信息")
+        logDebug("sendChannelMessageAsync", "发送消息(还原JSON): $finalMessageJson")
         client0.sendMultipartForm(form).onFailure {
             logPreError(promise, "sendChannelPrivateMessageAsync", "网络错误: 发送消息失败", it).let { isLog ->
                 if (!promise.tryFail(it)) {

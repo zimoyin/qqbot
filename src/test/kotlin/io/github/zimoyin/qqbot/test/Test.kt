@@ -1,15 +1,8 @@
-import com.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
 import com.github.zimoyin.qqbot.bot.message.type.KeyboardMessage
 import com.github.zimoyin.qqbot.net.bean.message.send.SendMessageBean
-import com.github.zimoyin.qqbot.utils.vertxWorker
+import com.github.zimoyin.qqbot.utils.ex.toJsonObject
+import io.vertx.core.json.JsonObject
 import io.vertx.kotlin.core.json.jsonObjectOf
-import kotlinx.coroutines.*
-import java.security.KeyPair
-import java.security.KeyPairGenerator
-import java.security.PrivateKey
-import java.security.PublicKey
-import javax.crypto.Cipher
-import kotlin.system.measureTimeMillis
 
 /**
  *
@@ -19,25 +12,10 @@ import kotlin.system.measureTimeMillis
 
 
 suspend fun main() {
-    val keyboardMessage = KeyboardMessage.create("5")
-    SendMessageBean(
-        content = null,
-        embed = null,
-        ark = null,
-        messageReference = null,
-        imageURI = null,
-        id = null,
-        eventID = null,
-        markdown = null,
-        keyboard = keyboardMessage,
-        channelFile = null,
-        channelFileBytes = null,
-        videoURI = null,
-        audioURI = null,
-        msgType = null,
-        media = null
-    ).toJson().apply {
-        println(this)
-    }
-    println(keyboardMessage)
+    println(BVBBB(AAA.A).toJsonObject())
+}
+data class BVBBB(val a: AAA)
+enum class AAA(val a: Int) {
+    A(1),
+    B(2)
 }

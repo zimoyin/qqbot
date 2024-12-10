@@ -152,13 +152,13 @@ enum class Intents(val code: Int) {
          * 公域机器人订阅推荐
          */
         PUBLIC_INTENTS(1812468739),
-        PUBLIC_GROUP_INTENTS(1812468739 or (1 shl 25)),
+        PUBLIC_GROUP_INTENTS(1812468739 or GROUP_INTENTS.code),
 
         /**
          * 私域机器人订阅推荐
          */
         PRIVATE_INTENTS(1007162883),
-        PRIVATE_GROUP_INTENTS(1007162883 or (1 shl 25));
+        PRIVATE_GROUP_INTENTS(1007162883 or GROUP_INTENTS.code or INTERACTION.code);
 
         operator fun plus(messageAudit: Intents): Int {
             return messageAudit.and(this.code)

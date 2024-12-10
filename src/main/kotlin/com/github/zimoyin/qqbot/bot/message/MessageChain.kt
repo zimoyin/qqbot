@@ -291,7 +291,7 @@ class MessageChain(
         val kb = internalItems.filterIsInstance<KeyboardMessage>().lastOrNull()
 
         return SendMessageBean(
-            id = if (md != null || kb != null) null else this.id,
+            id = if (md != null) null else this.id,
 //            id = this.id,
             messageReference = reference,
             content = if (sb.isEmpty()) null else sb.toString(),
