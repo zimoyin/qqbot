@@ -63,7 +63,10 @@ public class TMain {
                 .appendParam("rw", event.getMessageChain().content())
                 .build();
             KeyboardMessage keyboardMessage = KeyboardMessage.createByID("102077167_1706079223");
-            MessageChain messageChain = new MessageChainBuilder().append(mb).append(keyboardMessage).build();
+            MessageChain messageChain = new MessageChainBuilder()
+                .append(mb)
+                .append(keyboardMessage)
+                .build();
 
             System.out.println(event.getMessageChain().content());
             event.reply(messageChain).onFailure(e -> {

@@ -3,6 +3,7 @@ package com.github.zimoyin.qqbot.bot.message
 import com.github.zimoyin.qqbot.bot.message.type.MessageItem
 import com.github.zimoyin.qqbot.bot.message.type.PlainTextMessage
 import com.github.zimoyin.qqbot.bot.message.type.ReferenceMessage
+import com.github.zimoyin.qqbot.event.events.Event
 
 /**
  * 信息链构造器
@@ -54,8 +55,14 @@ class MessageChainBuilder(private var id: String? = null) {
         }
         return this
     }
+
     fun appendEventId(eventId0: String?): MessageChainBuilder {
         eventId = eventId0
+        return this
+    }
+
+    fun appendEventId(eventId0: Event?): MessageChainBuilder {
+        eventId = eventId0?.eventID
         return this
     }
 
