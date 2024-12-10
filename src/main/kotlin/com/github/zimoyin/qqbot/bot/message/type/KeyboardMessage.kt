@@ -1,7 +1,5 @@
 package com.github.zimoyin.qqbot.bot.message.type
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.github.zimoyin.qqbot.utils.ex.toJsonObject
 import io.vertx.core.json.JsonObject
 import io.vertx.kotlin.core.json.jsonObjectOf
@@ -213,32 +211,13 @@ data class CustomKeyboard(
 
 /**
  * 自定义 KeyboardMessage DSL
- * 示例：
- * ```
- * val keyboard = customKeyboard {
- *         rows {
- *             buttons {
- *                 button {
- *                     id = "1"
- *                     renderData {
- *                         label = "1"
- *                     }
- *                     action {
- *                         type = CustomKeyboard.ActionType.ActionTypeURL.value
- *                         data = "https://www.baidu.com"
- *                     }
- *                 }
- *             }
- *         }
- *     }
- * ```
  */
 class CustomKeyboardBuilder {
     private val rows = mutableListOf<CustomKeyboard.Row>()
 
     var style: CustomKeyboard.KeyboardStyle? = null
 
-    fun rows(block: RowsBuilder.() -> Unit) {
+    fun row(block: RowsBuilder.() -> Unit) {
         rows.addAll(RowsBuilder().apply(block).build())
     }
 
@@ -247,8 +226,15 @@ class CustomKeyboardBuilder {
     class RowsBuilder {
         private val rows = mutableListOf<CustomKeyboard.Row>()
 
+        @Deprecated("please use button")
         fun buttons(block: ButtonsBuilder.() -> Unit) {
             rows.add(CustomKeyboard.Row(ButtonsBuilder().apply(block).build()))
+        }
+
+        fun button(block: ButtonBuilder.() -> Unit) {
+            buttons {
+                button(block)
+            }
         }
 
         fun build(): List<CustomKeyboard.Row> = rows
@@ -299,6 +285,7 @@ class CustomKeyboardBuilder {
         var data: String? = null
         var enter: Boolean = false
         var atBotShowChannelList: Boolean = false
+        var unsupportTips: String = ""
         var subscribeData: CustomKeyboard.SubscribeData? = null
         private var modal: CustomKeyboard.Modal? = null
 
@@ -312,7 +299,17 @@ class CustomKeyboardBuilder {
 
         fun build(): CustomKeyboard.Action {
             require(type >= 0) { "Action type must be set." }
-            return CustomKeyboard.Action(type, permission, clickLimit, data, enter, atBotShowChannelList, subscribeData, modal)
+            return CustomKeyboard.Action(
+                type = type,
+                permission = permission,
+                click_limit = clickLimit,
+                data = data,
+                enter = enter,
+                at_bot_show_channel_list = atBotShowChannelList,
+                subscribe_data = subscribeData,
+                modal = modal,
+                unsupport_tips = unsupportTips
+            )
         }
     }
 

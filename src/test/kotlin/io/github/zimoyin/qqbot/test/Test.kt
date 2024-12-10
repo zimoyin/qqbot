@@ -1,8 +1,6 @@
 import com.github.zimoyin.qqbot.bot.message.type.CustomKeyboard
 import com.github.zimoyin.qqbot.bot.message.type.KeyboardMessage
 import com.github.zimoyin.qqbot.bot.message.type.customKeyboard
-import com.github.zimoyin.qqbot.net.bean.message.send.SendMessageBean
-import com.github.zimoyin.qqbot.utils.ex.toJsonObject
 
 /**
  *
@@ -14,19 +12,26 @@ import com.github.zimoyin.qqbot.utils.ex.toJsonObject
 suspend fun main() {
     KeyboardMessage.createByContent(CustomKeyboard())
     val keyboard = customKeyboard {
-        rows {
-            buttons {
-                button {
-                    id = "1"
-                    renderData {
-                        label = "1"
+        row {
+            button {
+                id = "1"
+                renderData {
+                    label = "同意"
+                    visitedLabel = "已同意"
+                    style = 2
+                }
+                action {
+                    type = CustomKeyboard.ActionType.ActionTypeCallback.value
+                    permission {
+                        type = CustomKeyboard.PermissionType.PermissionTypeAll.value
                     }
-                    action {
-                        type = CustomKeyboard.ActionType.ActionTypeURL.value
-                        data = "https://www.baidu.com"
-                    }
+                    data = "data"
+                    unsupportTips = "不支持按钮操作"
+                    clickLimit = 10
                 }
             }
         }
     }
+
+    println(keyboard.toJson())
 }
