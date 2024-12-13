@@ -62,7 +62,7 @@ public class TMain {
                 .appendParam("date", "123")
                 .appendParam("rw", event.getMessageChain().content())
                 .build();
-            KeyboardMessage keyboardMessage = KeyboardMessage.createByID("102077167_1733814467");
+            KeyboardMessage keyboardMessage = KeyboardMessage.createByID("102077167_1733995104");
             MessageChain messageChain = new MessageChainBuilder()
                 .append(mb)
                 .append(keyboardMessage)
@@ -80,10 +80,12 @@ public class TMain {
         bot.login().onSuccess(ws->{
             logger.info("登录成功");
             System.out.println("OK");
+            System.exit(1);
         }).onFailure(e->{
             logger.error("登录失败",e);
             bot.close();
             Config.getGLOBAL_VERTX_INSTANCE().close();
+            System.exit(1);
         });
     }
 }

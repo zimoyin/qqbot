@@ -1,9 +1,11 @@
 package com.github.zimoyin.qqbot
 
+import com.github.zimoyin.qqbot.utils.io
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.time.LocalDateTime
 
 val SystemLogger: Logger by lazy {
     Config.SystemLogger
@@ -36,12 +38,15 @@ object Config {
      */
     @JvmStatic
     val GLOBAL_VERTX_OPTIONS: VertxOptions by lazy {
-        VertxOptions().apply {
+        val vertxOptions = VertxOptions()
+        vertxOptions.apply {
             setWorkerPoolSize(12) // VertxOptions.DEFAULT_WORKER_POOL_SIZE
             setEventLoopPoolSize(VertxOptions.DEFAULT_EVENT_LOOP_POOL_SIZE)
             setInternalBlockingPoolSize(VertxOptions.DEFAULT_INTERNAL_BLOCKING_POOL_SIZE)
             setHAEnabled(true)
-            SystemLogger.debug("已完成一个全局的Vertx 实例的配置 : {}", this)
+            io {
+                SystemLogger.debug("[异步日志][{}]已完成一个全局的Vertx 实例的配置 : {}", LocalDateTime.now(), this)
+            }
         }
     }
 
@@ -53,12 +58,12 @@ object Config {
         val options = GLOBAL_VERTX_OPTIONS
         //集群判断，如果有集群配置就创建当前应用中的用于集群的 vertx
         if (options.clusterManager == null) {
-            SystemLogger.info("已创建一个全局的单机 Vertx 实例")
+            SystemLogger.info("创建一个全局的单机 Vertx 实例")
             Vertx.vertx(options).exceptionHandler {
                 SystemLogger.error("Global Vertx Exception", it)
             }
         } else {
-            SystemLogger.info("已创建一个全局的集群 Vertx 实例")
+            SystemLogger.info("创建一个全局的集群 Vertx 实例")
             Vertx.clusteredVertx(options).toCompletionStage().toCompletableFuture().get().exceptionHandler {
                 SystemLogger.error("Global Vertx Exception", it)
             }
