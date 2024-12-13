@@ -23,13 +23,23 @@ import org.slf4j.LoggerFactory;
  */
 public class TMain {
     public static void run(Token token) {
+
+        // 性能优化：关闭SSL 验证
+//        DefaultHttpClient.INSTANCE.setHeadSSL(false);
+
+        long start = System.currentTimeMillis();
+        long start2 = start;
         String url = "http://ts1.cn.mm.bing.net/th/id/R-C.23034dbcaded6ab4169b9514f76f51b5?rik=mSGADwV9o/teUA&riu=http://pic.bizhi360.com/bbpic/40/9640_1.jpg&ehk=RYei4n5qyNCPVysJmE2a3WhxSOXqGQMGJcvWBmFyfdg=&risl=&pid=ImgRaw&r=0";
 
         Logger logger = LoggerFactory.getLogger("Main");
+
         //全局事件监听
         GlobalEventBus.INSTANCE.onEvent(Event.class,true, event -> {
             logger.info("收到事件：{}", event);
         });
+
+        System.out.println("Vertx 与组件初始化耗时: "+(System.currentTimeMillis()-start));
+        start2 = System.currentTimeMillis();
 
         TencentOpenApiHttpClient.setSandBox(false);
 
@@ -38,9 +48,15 @@ public class TMain {
             config.setIntents(Intents.Presets.PRIVATE_GROUP_INTENTS);
         });
 
+        System.out.println("Bot 创建耗时: "+(System.currentTimeMillis()-start));
+        System.out.println("Bot 创建耗时: "+(System.currentTimeMillis()-start2));
+        start2 = System.currentTimeMillis();
+
 //        bot.getConfig().setRetry(99);
 //        bot.getContext().set("SESSION_ID", "d5141070-a591-47fa-b334-8ed1eff92ec6");
         API.setDebug(true);
+        bot.getContext().set("internal.isAbnormalCardiacArrest", true);
+        bot.getContext().set("internal.headerCycle", 5*1000);
         bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_LOG", false);
         bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG", false);
         bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT", false);
@@ -77,14 +93,20 @@ public class TMain {
         });
 
 
+        long finalStart = start2;
+        long finalStart1 = start2;
         bot.login().onSuccess(ws->{
             logger.info("登录成功");
             System.out.println("OK");
+            System.out.println("启动耗时: "+(System.currentTimeMillis()-start));
+            System.out.println("启动耗时: "+(System.currentTimeMillis()- finalStart));
             System.exit(1);
         }).onFailure(e->{
             logger.error("登录失败",e);
             bot.close();
             Config.getGLOBAL_VERTX_INSTANCE().close();
+            System.out.println("启动耗时: "+(System.currentTimeMillis()-start));
+            System.out.println("启动耗时: "+(System.currentTimeMillis()- finalStart1));
             System.exit(1);
         });
     }

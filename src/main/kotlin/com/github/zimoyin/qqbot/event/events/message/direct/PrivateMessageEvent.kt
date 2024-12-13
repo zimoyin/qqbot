@@ -1,8 +1,6 @@
 package com.github.zimoyin.qqbot.event.events.message.direct
 
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
-import com.github.zimoyin.qqbot.bot.contact.PrivateFriend
-import com.github.zimoyin.qqbot.bot.contact.User
 import com.github.zimoyin.qqbot.event.events.message.MessageEvent
 import com.github.zimoyin.qqbot.event.handler.message.MessageHandler
 

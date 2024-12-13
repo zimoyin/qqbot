@@ -1,7 +1,5 @@
 package com.github.zimoyin.qqbot.net
 
-import javax.management.Query.and
-
 /**
  * 事件的 intents 是一个标记位，每一位都代表不同的事件，如果需要接收某类事件，就将该位置为 1。
  *

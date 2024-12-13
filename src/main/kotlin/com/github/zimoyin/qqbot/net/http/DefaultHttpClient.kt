@@ -19,9 +19,28 @@ import java.net.URL
 
 
 /**
- * 创建一个专用于与腾讯服务器通信的HttpClient
+ * 创建一个 通用的 HttpClient
  */
-object DefaultHttpClient {
+class DefaultHttpClient(
+    val vertx: Vertx = GLOBAL_VERTX_INSTANCE,
+    val options: WebClientOptions = WebClientOptions()
+        .setConnectTimeout(5000)
+        .setKeepAlive(true)
+        .setSsl(true)
+        .setTrustAll(true)
+        .setFollowRedirects(true)
+        .setMaxRedirects(10)
+        .setDefaultPort(443)
+        .setPoolCleanerPeriod(5000)
+        .setPoolEventLoopSize(32)
+        .setMaxPoolSize(64)
+        .setMaxWaitQueueSize(-1),
+    /**
+     * 是否使用使用 head 查看服务器是否支持 SSL。如果设置为 false 则不自动修改 http 协议.(只对get/post/等方法有效)
+     * 注意：不针对 HEAD 方法
+     */
+    var isHeadSSL: Boolean = true
+) {
     val DefaultPorts: Map<String, Int> = HashMap<String, Int>().apply {
         put("http", 80)
         put("https", 443)
@@ -33,28 +52,8 @@ object DefaultHttpClient {
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(DefaultHttpClient::class.java) }
 
-    /**
-     * 是否使用使用 head 查看服务器是否支持 SSL。如果设置为 false 则不自动修改 http 协议.(只对get/post/等方法有效)
-     * 注意：不针对 HEAD 方法
-     */
-    var isHeadSSL = true
-    private val DefaultOptions: WebClientOptions by lazy {
-        WebClientOptions()
-            .setConnectTimeout(5000)
-            .setKeepAlive(true)
-            .setSsl(true)
-            .setTrustAll(true)
-            .setFollowRedirects(true)
-            .setMaxRedirects(10)
-            .setDefaultPort(443)
-            .setPoolCleanerPeriod(5000)
-            .setPoolEventLoopSize(32)
-            .setMaxPoolSize(64)
-            .setMaxWaitQueueSize(-1)
-    }
-
     val DefaultClient: WebClient by lazy {
-        WebClient.create(GLOBAL_VERTX_INSTANCE, DefaultOptions)
+        WebClient.create(vertx, options)
     }
 
     /**
@@ -224,7 +223,7 @@ object DefaultHttpClient {
 
     private fun URL.cPort(): Int {
         if (port == -1) {
-            return DefaultPorts.getOrDefault(protocol, DefaultOptions.defaultPort)
+            return DefaultPorts.getOrDefault(protocol, options.defaultPort)
         }
         return port
     }

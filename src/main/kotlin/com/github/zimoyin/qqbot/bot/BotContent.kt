@@ -65,12 +65,13 @@ class BotContent : Serializable {
      * @param key 要获取值的键。
      * @return 指定键的值，如果类型匹配则为该类型的值，否则为 null。
      */
-    inline fun <reified T : Any> get(key: String): T? {
+    inline operator fun <reified T : Any> get(key: String): T? {
         if (contentInternal[key] is T) {
             return contentInternal[key] as T
         }
         return null
     }
+
 
     /**
      * 获取指定键的值，如果类型匹配则返回值，否则返回 抛出异常

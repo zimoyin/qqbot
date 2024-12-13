@@ -9,7 +9,6 @@ import com.github.zimoyin.qqbot.net.bean.message.Message
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.*
 import com.github.zimoyin.qqbot.net.http.api.friend.sendFriendMessage
-import com.github.zimoyin.qqbot.net.http.api.group.recallGroupMessage
 import com.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Future
 import java.io.Serializable

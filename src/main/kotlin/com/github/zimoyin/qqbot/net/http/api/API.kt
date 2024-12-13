@@ -1,7 +1,6 @@
 package com.github.zimoyin.qqbot.net.http.api
 
 
-import com.github.zimoyin.qqbot.net.http.DefaultHttpClient
 import io.vertx.core.buffer.Buffer
 import io.vertx.ext.web.client.HttpRequest
 import org.slf4j.LoggerFactory
@@ -49,7 +48,8 @@ object API {
      * X-Union-Appid	string	是	格式值："BOT_APPID", 机器人 appid
      */
     val AccessToken: HttpRequest<Buffer> by LazyInit {
-        DefaultHttpClient.createPost("https://bots.qq.com/app/getAppAccessToken")
+        TencentOpenApiHttpClient.client.post("/app/getAppAccessToken")
+            .host("bots.qq.com")
     }
 
     /**

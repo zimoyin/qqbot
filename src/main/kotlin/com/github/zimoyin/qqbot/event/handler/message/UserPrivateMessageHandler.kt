@@ -2,7 +2,6 @@ package com.github.zimoyin.qqbot.event.handler.message
 
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.contact.PrivateFriend
-import com.github.zimoyin.qqbot.bot.contact.Sender
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.event.events.message.direct.UserPrivateMessageEvent
 import com.github.zimoyin.qqbot.event.supporter.AbsEventHandler

@@ -3,9 +3,7 @@ package com.github.zimoyin.qqbot.bot.message.type
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.net.bean.message.MessageAttachment
-import com.github.zimoyin.qqbot.net.bean.message.MessageReference
 import com.github.zimoyin.qqbot.net.bean.message.send.SendMediaBean
-import com.github.zimoyin.qqbot.net.bean.message.send.SendMessageBean
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.InputStream

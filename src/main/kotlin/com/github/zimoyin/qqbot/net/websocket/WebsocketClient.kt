@@ -39,20 +39,32 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
     private var reconnectTime: Long = 1 * 1000
     private var gatewayURL: String? = null // 网关接入点，通常为 TencentOpenApiHttpClient 中 定义的远程主机 host 与网关 path 组成
     private var client: WebSocketClient? = null
-    private val headerCycle: Long = 10 * 1000
+    private var headerCycle: Long = 10 * 1000
     private val handlerKey = "internal.handler"
+    private val headerCycleKey = "internal.headerCycle"
+    private val isAbnormalCardiacArrestKey = "internal.isAbnormalCardiacArrest"
     private val throwableKey = "internal.throwable"
     private var WS: WebSocket? = null
 
     override suspend fun start() {
+        val headerCycleValue:Long? = bot.context[headerCycleKey]
+        if (headerCycleValue != null){
+            headerCycle = headerCycleValue
+        }
+
         //配置 ws
         val options = WebSocketClientOptions()
             .setConnectTimeout(6000)
-//            .setWriteIdleTimeout((headerCycle / 1000 + 10).toInt()) //如果心跳在 10 s 内没有发送出去就抛出异常
             .setSsl(true)
             .setTrustAll(true)
+            .apply {
+                //如果心跳在 心跳周期 + 30s 内没有发送出去就抛出异常
+                val value:Boolean = bot.context[isAbnormalCardiacArrestKey] ?: return@apply
+                if (value) this.setWriteIdleTimeout((headerCycle / 1000 + 30).toInt())
+            }
         client = vertx.createWebSocketClient(options)
-        logger.info("WebSocketClient[${client.hashCode()}] 配置完成 -> 绑定 Bot AppID[${bot.config.token.appID}] nick[${bot.nick}]")
+
+        logger.info("WebSocketClient[${client.hashCode()}] 配置完成 -> 绑定 Bot AppID[${bot.config.token.appID}]")
         logger.debug("心跳周期为: ${headerCycle / 1000.0}s")
         //准备 服务器地址
         val gatewayURLByContent = bot.context.getString("gatewayURL")
@@ -134,7 +146,7 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
                 handler.close()
                 logger.info("WebSocketClient[${client.hashCode()}] 被关闭")
                 //广播机器人下线事件
-                GlobalEventBus.broadcast(BotOfflineEvent(bot.botInfo, bot.context.get(throwableKey)))
+                GlobalEventBus.broadcast(BotOfflineEvent(bot.botInfo, bot.context[throwableKey]))
             }
 
             ws.exceptionHandler {

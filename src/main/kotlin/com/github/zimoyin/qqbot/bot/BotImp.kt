@@ -7,6 +7,7 @@ import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.accessTokenUpdateAsync
 import com.github.zimoyin.qqbot.net.http.api.botInfo
 import com.github.zimoyin.qqbot.net.websocket.WebsocketClient
+import com.github.zimoyin.qqbot.utils.ex.await
 import com.github.zimoyin.qqbot.utils.ex.awaitToCompleteExceptionally
 import com.github.zimoyin.qqbot.utils.ex.isInitialStage
 import com.github.zimoyin.qqbot.utils.ex.promise
@@ -29,23 +30,29 @@ class BotImp(
     private var websocketClient: WebsocketClient? = null
     private val vertx = config.vertx
 
-    override val avatar: String
-    override val nick: String
-    override val unionOpenid: String
-    override val unionUserAccount: String
-    override val id: String
+    override var avatar: String = "not init"
+        private set
+    override var nick: String = "not init"
+        private set
+    override var unionOpenid: String = "not init"
+        private set
+    override var unionUserAccount: String = "not init"
+        private set
+    override var id: String = "not init"
+        private set
     override val botInfo: BotInfo by lazy {
         BotInfo.create(this)
     }
 
     init {
         try {
-            val user = HttpAPIClient.botInfo(token).awaitToCompleteExceptionally()
-            avatar = user.avatar ?: ""
-            nick = user.username
-            unionOpenid = user.unionOpenID ?: ""
-            unionUserAccount = user.unionUserAccount ?: ""
-            id = user.id
+            HttpAPIClient.botInfo(token).awaitToCompleteExceptionally().let { user ->
+                avatar = user.avatar ?: ""
+                nick = user.username
+                unionOpenid = user.unionOpenID ?: ""
+                unionUserAccount = user.unionUserAccount ?: ""
+                id = user.id
+            }
         } catch (e: NullPointerException) {
             throw HttpClientException("Unable to provide specific information about the robot", e)
         }
@@ -60,20 +67,28 @@ class BotImp(
         this.context["internal.promise"] = promise
         when (token.version) {
             2 -> {
-                HttpAPIClient.accessTokenUpdateAsync(token).onSuccess {
-                    websocketClient = WebsocketClient(this)
-                    vertx.deployVerticle(websocketClient).onFailure {
-                        promise.isInitialStage().apply {
-                            promise.tryFail(it)
-                            if (this) logger.error("无法启动 ws 客户端", it)
-                        }
-                    }
-                }.onFailure {
+                HttpAPIClient.accessTokenUpdateAsync(token).awaitToCompleteExceptionally()
+                websocketClient = WebsocketClient(this)
+                vertx.deployVerticle(websocketClient).onFailure {
                     promise.isInitialStage().apply {
                         promise.tryFail(it)
-                        if (this) logger.error("无法获取到 Access Token，禁止启动 ws 客户端", it)
+                        if (this) logger.error("无法启动 ws 客户端", it)
                     }
                 }
+//                HttpAPIClient.accessTokenUpdateAsync(token).onSuccess {
+//                    websocketClient = WebsocketClient(this)
+//                    vertx.deployVerticle(websocketClient).onFailure {
+//                        promise.isInitialStage().apply {
+//                            promise.tryFail(it)
+//                            if (this) logger.error("无法启动 ws 客户端", it)
+//                        }
+//                    }
+//                }.onFailure {
+//                    promise.isInitialStage().apply {
+//                        promise.tryFail(it)
+//                        if (this) logger.error("无法获取到 Access Token，禁止启动 ws 客户端", it)
+//                    }
+//                }
             }
 
             1 -> {
@@ -96,7 +111,7 @@ class BotImp(
         }
 
         if (websocketClient == null) {
-            promise.tryFail(NullPointerException("websocketClient is null"))
+            promise.tryFail(NullPointerException("WebsocketClient is null"))
         } else {
             this.context["internal.websocketClient"] = websocketClient
         }

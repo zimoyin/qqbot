@@ -10,7 +10,6 @@ import com.github.zimoyin.qqbot.net.bean.message.MessageMarkdown
 import com.github.zimoyin.qqbot.net.bean.message.MessageReference
 import com.github.zimoyin.qqbot.utils.JSON
 import io.vertx.core.json.JsonObject
-import io.vertx.kotlin.core.json.Json
 import java.io.File
 
 /**

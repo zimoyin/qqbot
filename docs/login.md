@@ -171,7 +171,13 @@ config.setRetry(99);
 bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_LOG", true);    // 命令处理器日志
 bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG", false); // 命令元数据日志
 bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT", false);// 心跳日志,不能单独开启应该与上面两个其中一个一并开启
+bot.getContext().set("internal.isAbnormalCardiacArrest", true); //如果心跳在 心跳周期 + 30s 内没有发送出去就抛出异常
+bot.getContext().set("internal.headerCycle", 5*1000); // 修改心跳周期
 
+
+// 只读上下文
+bot.context["shards"] // 分片
+bot.context["internal.throwable"]
 // ....
 ```
 
@@ -188,3 +194,4 @@ io.netty
 ```
 
 ### 3. [示例文档](%E7%A4%BA%E4%BE%8B.md)
+### 4. [HttpClientAPI.md](HttpClientAPI.md)

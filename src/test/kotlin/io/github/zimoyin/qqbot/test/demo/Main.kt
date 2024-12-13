@@ -9,22 +9,13 @@ import com.github.zimoyin.qqbot.bot.message.type.ImageMessage
 import com.github.zimoyin.qqbot.bot.message.type.PlainTextMessage
 import com.github.zimoyin.qqbot.bot.onEvent
 import com.github.zimoyin.qqbot.event.events.Event
-import com.github.zimoyin.qqbot.event.events.channel.forum.post.ForumPostCreateEvent
-import com.github.zimoyin.qqbot.event.events.channel.forum.thread.ForumThreadCreateEvent
-import com.github.zimoyin.qqbot.event.events.friend.OpenFriendBotEvent
-import com.github.zimoyin.qqbot.event.events.group.member.AddGroupEvent
-import com.github.zimoyin.qqbot.event.events.group.operation.OpenGroupBotEvent
 import com.github.zimoyin.qqbot.event.events.message.MessageEvent
-import com.github.zimoyin.qqbot.event.events.revoke.MessageRevokeEvent
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.net.Intents
-import com.github.zimoyin.qqbot.net.http.DefaultHttpClient
 import com.github.zimoyin.qqbot.net.http.api.TencentOpenApiHttpClient
-import com.github.zimoyin.qqbot.net.http.api.TencentOpenApiHttpClient.isSandBox
 import openDebug
 import org.slf4j.LoggerFactory
 import token
-import java.io.File
 
 @OptIn(UntestedApi::class)
 suspend fun main() {

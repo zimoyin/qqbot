@@ -20,7 +20,10 @@ fun HttpAPIClient.accessTokenUpdateAsync(token: Token): Future<String> {
     val promise = promise<String>()
     API.AccessToken.sendJsonObject(JSON.toJsonObject(token)).onSuccess {
         runCatching {
-            val json = it.bodyAsJsonObject()
+            val json = kotlin.runCatching { it.bodyAsJsonObject() }.getOrNull()
+            if (json == null){
+                throw HttpClientException("[AccessToken] Token 更新失败: 响应不是JSON对象: ${it.bodyAsString()}")
+            }
             if (json.getInteger("code") != null) {
                 throw HttpClientException("[AccessToken] Token 更新失败: ${json.getString("message")}")
             }
