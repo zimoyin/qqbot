@@ -107,7 +107,7 @@ class WebsocketClient(private val bot: Bot, private val promise0: Promise<WebSoc
         client.connect(443, url.host, url.path).onSuccess { ws ->
             bot.context["ws"] = ws
             WS = ws
-            this.payloadCmdHandler = PayloadCmdHandler(bot, promise)
+            this.payloadCmdHandler = PayloadCmdHandler(bot, promise,ws)
             if (!bot.context.contains(handlerKey)) bot.context[handlerKey] =  this.payloadCmdHandler
             logger.info("WebSocketClient[${client.hashCode()}] 完成创建 WebSocket[${ws.hashCode()}] : 链接服务器成功")
         }.onSuccess { ws ->
@@ -117,7 +117,7 @@ class WebsocketClient(private val bot: Bot, private val promise0: Promise<WebSoc
             ws.handler { buffer ->
                 vertx.executeBlockingKt {
                     kotlin.runCatching {
-                        handler.handle(buffer)
+                        handler.handle(buffer,ws)
                     }.onFailure {
                         when (it) {
                             // 接收到处理器发出的重连申请

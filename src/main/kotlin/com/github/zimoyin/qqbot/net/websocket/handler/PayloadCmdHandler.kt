@@ -30,8 +30,19 @@ import org.slf4j.LoggerFactory
  * @author : zimo
  * @date : 2023/12/07
  */
-class PayloadCmdHandler(private val bot: Bot, private var promise: Promise<WebSocket>? = null) {
+class PayloadCmdHandler(
+    private val bot: Bot,
+    private var promise: Promise<WebSocket>? = null,
+    private var ws: WebSocket? = null
+) {
 
+    companion object {
+        @JvmStatic
+        @JvmOverloads
+        fun create(bot: Bot, promise: Promise<WebSocket>? = null, ws: WebSocket? = null): PayloadCmdHandler {
+            return PayloadCmdHandler(bot, promise, ws)
+        }
+    }
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PayloadCmdHandler::class.java) }
     private var debugMataData = false
@@ -39,7 +50,6 @@ class PayloadCmdHandler(private val bot: Bot, private var promise: Promise<WebSo
     private var debugHeartbeat = false
 
     private var vertx: Vertx
-    private var ws: WebSocket
     private var eventBus: BotEventBus
 
 
@@ -70,14 +80,14 @@ class PayloadCmdHandler(private val bot: Bot, private var promise: Promise<WebSo
     init {
         EventMapping
         headerCycle = bot.context.getValue<Long>("internal.headerCycle")
-        ws = bot.context.getValue<WebSocket>("ws")
+        ws = ws ?: bot.context.getValue<WebSocket>("ws")
         vertx = bot.context.getValue<Vertx>("vertx")
         promise = bot.context.getValue<Promise<WebSocket>>("internal.promise")
         eventBus = bot.config.botEventBus
         if (bot.context.getString("SESSION_ID") != null) {
             sessionID = bot.context.getString("SESSION_ID")
         }
-        ws.closeHandler {
+        ws!!.closeHandler {
             close()
         }
         debugLog = bot.context.getBoolean("PAYLOAD_CMD_HANDLER_DEBUG_LOG") ?: debugLog
@@ -87,9 +97,9 @@ class PayloadCmdHandler(private val bot: Bot, private var promise: Promise<WebSo
     }
 
 
-    fun handle(buffer: Buffer) {
-        if (ws.isClosed) {
-            ws = bot.context.getValue<WebSocket>("ws")
+    fun handle(buffer: Buffer, ws0: WebSocket? = null) {
+        if (ws!!.isClosed) {
+            ws = ws0 ?: bot.context.getValue<WebSocket>("ws")
             vertx = bot.context.getValue<Vertx>("vertx")
             promise = bot.context.getValue<Promise<WebSocket>>("internal.promise")
             eventBus = bot.config.botEventBus
@@ -298,7 +308,7 @@ class PayloadCmdHandler(private val bot: Bot, private var promise: Promise<WebSo
         val pch = this
         if (!openHeartbeat) {
             heartbeatId = vertx.setPeriodic(headerCycle) {
-                if (ws.isClosed) {
+                if (ws!!.isClosed) {
                     close()
                     return@setPeriodic
                 }
@@ -315,7 +325,7 @@ class PayloadCmdHandler(private val bot: Bot, private var promise: Promise<WebSo
     }
 
     private fun heartbeat() {
-        if (ws.isClosed) return
+        if (ws!!.isClosed) return
         val payload = Payload(opcode = 1, hid = id)
         if (debugLog && debugHeartbeat) logger.debug("ws send(1): 心跳呼叫")
         send(payload)
@@ -341,7 +351,7 @@ class PayloadCmdHandler(private val bot: Bot, private var promise: Promise<WebSo
                 payload
             )
         }
-        ws.writeTextMessage(payload.toJsonString())
+        ws!!.writeTextMessage(payload.toJsonString())
     }
 
 

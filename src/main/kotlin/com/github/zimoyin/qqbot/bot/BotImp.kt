@@ -47,13 +47,14 @@ class BotImp(
 
     init {
         try {
-            HttpAPIClient.botInfo(token).awaitToCompleteExceptionally().let { user ->
-                avatar = user.avatar ?: ""
-                nick = user.username
-                unionOpenid = user.unionOpenID ?: ""
-                unionUserAccount = user.unionUserAccount ?: ""
-                id = user.id
-            }
+//            HttpAPIClient.botInfo(token).awaitToCompleteExceptionally().let { user ->
+//                avatar = user.avatar ?: ""
+//                nick = user.username
+//                unionOpenid = user.unionOpenID ?: ""
+//                unionUserAccount = user.unionUserAccount ?: ""
+//                id = user.id
+//            }
+
 //            io {
 //                HttpAPIClient.botInfo(token).onSuccess { user->
 //                    avatar = user.avatar ?: ""
