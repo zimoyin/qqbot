@@ -26,7 +26,7 @@ interface MessageAuditEvent : Event {
 
 @EventAnnotation.EventMetaType("Platform_MessageStartAuditEvent")
 @EventAnnotation.EventHandler(NoneEventHandler::class, true)
-class MessageStartAuditEvent(
+data class MessageStartAuditEvent(
     override val botInfo: BotInfo,
     override val metadata: String = "Platform_MessageAuditEvent",
     override val metadataType: String = "Platform_MessageAuditEvent",
@@ -35,7 +35,7 @@ class MessageStartAuditEvent(
 
 @EventAnnotation.EventMetaType("MESSAGE_AUDIT_PASS")
 @EventAnnotation.EventHandler(MessageAuditPassHandler::class)
-class MessageAuditPassEvent(
+data class MessageAuditPassEvent(
     override val botInfo: BotInfo,
     override val metadata: String,
     override val metadataType: String = "MESSAGE_AUDIT_PASS",
@@ -43,9 +43,13 @@ class MessageAuditPassEvent(
     override val eventID: String ="",
 ) : MessageAuditEvent
 
+
+/**
+ * 信息审核不通过
+ */
 @EventAnnotation.EventMetaType("MESSAGE_AUDIT_REJECT")
 @EventAnnotation.EventHandler(MessageAuditRejectHandler::class)
-class MessageAuditRejectEvent(
+data class MessageAuditRejectEvent(
     override val botInfo: BotInfo,
     override val metadata: String,
     override val metadataType: String = "MESSAGE_AUDIT_REJECT",

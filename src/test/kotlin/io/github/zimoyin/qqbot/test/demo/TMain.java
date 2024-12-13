@@ -57,7 +57,7 @@ public class TMain {
         API.setDebug(true);
         bot.getContext().set("internal.isAbnormalCardiacArrest", true);
         bot.getContext().set("internal.headerCycle", 5*1000);
-        bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_LOG", false);
+        bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_LOG", true);
         bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG", false);
         bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT", false);
 
@@ -67,22 +67,22 @@ public class TMain {
 //                logger.error("发送失败",e);
 //            });
 
-//            MessageChain messageChain = MessageMarkdown.create("102077167_1706091638")
-//                .appendParam("date", "123")
-//                .appendParam("rw", event.getMessageChain().content())
-//                .build()
-//                .toMessageChain();
-
-
-            MarkdownMessage mb = MessageMarkdown.create("102077167_1706091638")
+            MessageChain messageChain = MessageMarkdown.create("102077167_1706091638")
                 .appendParam("date", "123")
                 .appendParam("rw", event.getMessageChain().content())
-                .build();
-            KeyboardMessage keyboardMessage = KeyboardMessage.createByID("102077167_1733995104");
-            MessageChain messageChain = new MessageChainBuilder()
-                .append(mb)
-                .append(keyboardMessage)
-                .build();
+                .build()
+                .toMessageChain();
+
+
+//            MarkdownMessage mb = MessageMarkdown.create("102077167_1706091638")
+//                .appendParam("date", "123")
+//                .appendParam("rw", event.getMessageChain().content())
+//                .build();
+//            KeyboardMessage keyboardMessage = KeyboardMessage.createByID("102077167_1733995104");
+//            MessageChain messageChain = new MessageChainBuilder()
+//                .append(mb)
+////                .append(keyboardMessage)
+//                .build();
 
             System.out.println(event.getMessageChain().content());
             event.reply(messageChain).onFailure(e -> {
