@@ -11,6 +11,7 @@ import com.github.zimoyin.qqbot.utils.ex.await
 import com.github.zimoyin.qqbot.utils.ex.awaitToCompleteExceptionally
 import com.github.zimoyin.qqbot.utils.ex.isInitialStage
 import com.github.zimoyin.qqbot.utils.ex.promise
+import com.github.zimoyin.qqbot.utils.io
 import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.http.WebSocket
@@ -53,6 +54,17 @@ class BotImp(
                 unionUserAccount = user.unionUserAccount ?: ""
                 id = user.id
             }
+//            io {
+//                HttpAPIClient.botInfo(token).onSuccess { user->
+//                    avatar = user.avatar ?: ""
+//                    nick = user.username
+//                    unionOpenid = user.unionOpenID ?: ""
+//                    unionUserAccount = user.unionUserAccount ?: ""
+//                    id = user.id
+//                }.onFailure {
+//                    throw it
+//                }
+//            }
         } catch (e: NullPointerException) {
             throw HttpClientException("Unable to provide specific information about the robot", e)
         }
@@ -68,31 +80,18 @@ class BotImp(
         when (token.version) {
             2 -> {
                 HttpAPIClient.accessTokenUpdateAsync(token).awaitToCompleteExceptionally()
-                websocketClient = WebsocketClient(this)
+                websocketClient = WebsocketClient(this,promise)
+                logger.info("Vertx 部署Verticle： WebSocketClient")
                 vertx.deployVerticle(websocketClient).onFailure {
                     promise.isInitialStage().apply {
                         promise.tryFail(it)
                         if (this) logger.error("无法启动 ws 客户端", it)
                     }
                 }
-//                HttpAPIClient.accessTokenUpdateAsync(token).onSuccess {
-//                    websocketClient = WebsocketClient(this)
-//                    vertx.deployVerticle(websocketClient).onFailure {
-//                        promise.isInitialStage().apply {
-//                            promise.tryFail(it)
-//                            if (this) logger.error("无法启动 ws 客户端", it)
-//                        }
-//                    }
-//                }.onFailure {
-//                    promise.isInitialStage().apply {
-//                        promise.tryFail(it)
-//                        if (this) logger.error("无法获取到 Access Token，禁止启动 ws 客户端", it)
-//                    }
-//                }
             }
 
             1 -> {
-                websocketClient = WebsocketClient(this)
+                websocketClient = WebsocketClient(this,promise)
                 vertx.deployVerticle(websocketClient).onFailure {
                     promise.isInitialStage().apply {
                         promise.tryFail(it)

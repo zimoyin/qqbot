@@ -178,6 +178,9 @@ bot.getContext().set("internal.headerCycle", 5*1000); // 修改心跳周期
 // 只读上下文
 bot.context["shards"] // 分片
 bot.context["internal.throwable"]
+bot.context["internal.promise"] // 登录 的promise
+bot.context["ws"] // ws
+bot.context["internal.handler"] // PayloadCmdHandler
 // ....
 ```
 

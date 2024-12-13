@@ -23,8 +23,6 @@ import org.slf4j.LoggerFactory
 import java.net.InetAddress
 import java.net.SocketException
 
-private const val s = "internal.handler"
-
 /**
  *
  * @author : zimo
@@ -33,9 +31,9 @@ private const val s = "internal.handler"
  * @description ：
  */
 //class WebsocketClient(private val bot: Bot) : AbstractVerticle() {
-class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
+class WebsocketClient(private val bot: Bot, private val promise0: Promise<WebSocket>? = null) : CoroutineVerticle() {
     private val logger = LoggerFactory.getLogger(WebsocketClient::class.java)
-    private val promise: Promise<WebSocket> = bot.context.getValue<Promise<WebSocket>>("internal.promise")
+    private val promise: Promise<WebSocket> = promise0 ?: bot.context.getValue<Promise<WebSocket>>("internal.promise")
     private var reconnectTime: Long = 1 * 1000
     private var gatewayURL: String? = null // 网关接入点，通常为 TencentOpenApiHttpClient 中 定义的远程主机 host 与网关 path 组成
     private var client: WebSocketClient? = null
@@ -45,10 +43,12 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
     private val isAbnormalCardiacArrestKey = "internal.isAbnormalCardiacArrest"
     private val throwableKey = "internal.throwable"
     private var WS: WebSocket? = null
+    private var payloadCmdHandler: PayloadCmdHandler? = null
+
 
     override suspend fun start() {
-        val headerCycleValue:Long? = bot.context[headerCycleKey]
-        if (headerCycleValue != null){
+        val headerCycleValue: Long? = bot.context[headerCycleKey]
+        if (headerCycleValue != null) {
             headerCycle = headerCycleValue
         }
 
@@ -59,7 +59,7 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
             .setTrustAll(true)
             .apply {
                 //如果心跳在 心跳周期 + 30s 内没有发送出去就抛出异常
-                val value:Boolean = bot.context[isAbnormalCardiacArrestKey] ?: return@apply
+                val value: Boolean = bot.context[isAbnormalCardiacArrestKey] ?: return@apply
                 if (value) this.setWriteIdleTimeout((headerCycle / 1000 + 30).toInt())
             }
         client = vertx.createWebSocketClient(options)
@@ -107,10 +107,11 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
         client.connect(443, url.host, url.path).onSuccess { ws ->
             bot.context["ws"] = ws
             WS = ws
-            if (!bot.context.contains(handlerKey)) bot.context[handlerKey] = PayloadCmdHandler(bot)
+            this.payloadCmdHandler = PayloadCmdHandler(bot, promise)
+            if (!bot.context.contains(handlerKey)) bot.context[handlerKey] =  this.payloadCmdHandler
             logger.info("WebSocketClient[${client.hashCode()}] 完成创建 WebSocket[${ws.hashCode()}] : 链接服务器成功")
         }.onSuccess { ws ->
-            val handler = bot.context.getValue<PayloadCmdHandler>(handlerKey)
+            val handler = this.payloadCmdHandler ?: bot.context.getValue<PayloadCmdHandler>(handlerKey)
 
 
             ws.handler { buffer ->
@@ -165,7 +166,7 @@ class WebsocketClient(private val bot: Bot) : CoroutineVerticle() {
         }.onFailure {
             logger.warn("WebSocketClient[${client.hashCode()}] 启动失败,由于没有建立连接不予重连，请新建连接并保证网络畅通")
             logger.error("WebSocketClient[${client.hashCode()}] 启动失败", it)
-            promise.fail(it)
+            promise.tryFail(it)
         }
     }
 

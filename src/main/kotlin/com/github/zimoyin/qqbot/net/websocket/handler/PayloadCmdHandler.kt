@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory
  * @author : zimo
  * @date : 2023/12/07
  */
-class PayloadCmdHandler(private val bot: Bot) {
+class PayloadCmdHandler(private val bot: Bot, private var promise: Promise<WebSocket>? = null) {
 
 
     private val logger: Logger by lazy { LoggerFactory.getLogger(PayloadCmdHandler::class.java) }
@@ -40,7 +40,6 @@ class PayloadCmdHandler(private val bot: Bot) {
 
     private var vertx: Vertx
     private var ws: WebSocket
-    private var promise: Promise<WebSocket>
     private var eventBus: BotEventBus
 
 
@@ -195,11 +194,11 @@ class PayloadCmdHandler(private val bot: Bot) {
         openHeartbeat()
         // 链接服务器事件
         if (payload.eventType == "READY") {
-            promise.complete(ws)
+            promise?.tryComplete(ws)
             sessionID = JSON.toJsonObject(payload.metadata).getJsonObject("d").let {
                 JSON.toJsonObject(it).getString("session_id")
             }
-            //平台事件机器人上线事件，非平台事件 见 RESUMED
+            //平台事件机器人上线事件 见 READY
             eventBus.broadcastAuto(
                 BotOnlineEvent(
                     metadata = payload.metadata,
@@ -208,7 +207,7 @@ class PayloadCmdHandler(private val bot: Bot) {
             )
             logger.info("WebSocket[${ws.hashCode()}] 鉴权成功:建立长连接 [SESSION_ID: $sessionID]")
         } else if (payload.eventType == "RESUMED") {
-            //平台事件机器人上线事件，非平台事件 见 RESUMED
+            //平台事件机器人上线事件 见 RESUMED
             eventBus.broadcastAuto(
                 BotOnlineEvent(
                     metadata = payload.metadata,
@@ -227,7 +226,11 @@ class PayloadCmdHandler(private val bot: Bot) {
             if (debugLog) logger.debug("WebSocket[${ws.hashCode()}] receive(0) 元事件类型: $this")
             EventMapping.get(this)?.apply {// 获取注册的元事件
                 eventHandler.getDeclaredConstructor().newInstance().apply { // 获取该事件类型的处理器
-                    if (debugLog) logger.debug("WebSocket[{}] receive(0) 事件处理器: {}", ws.hashCode(), this::class.java.typeName)
+                    if (debugLog) logger.debug(
+                        "WebSocket[{}] receive(0) 事件处理器: {}",
+                        ws.hashCode(),
+                        this::class.java.typeName
+                    )
                     try {
                         eventBus.broadcastAuto(handle(payload)) //广播事件
                     } catch (e: Exception) {

@@ -100,14 +100,12 @@ public class TMain {
             System.out.println("OK");
             System.out.println("启动耗时: "+(System.currentTimeMillis()-start));
             System.out.println("启动耗时: "+(System.currentTimeMillis()- finalStart));
-            System.exit(1);
         }).onFailure(e->{
             logger.error("登录失败",e);
             bot.close();
             Config.getGLOBAL_VERTX_INSTANCE().close();
             System.out.println("启动耗时: "+(System.currentTimeMillis()-start));
             System.out.println("启动耗时: "+(System.currentTimeMillis()- finalStart1));
-            System.exit(1);
         });
     }
 }
