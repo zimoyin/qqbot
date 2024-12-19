@@ -85,11 +85,11 @@ private fun HttpAPIClient.sendGroupMessage(
     }
     //发送信息处理
     val finalMessage = message0.convertChannelMessage().inferMsgType()
-    if (finalMessage.channelFileBytes != null || finalMessage.channelFile != null) {
-        logError("sendGroupMessage", "ChannelFileBytes or ChannelFile 不能在群组和私聊中使用")
-        promise.tryFail(IllegalArgumentException("ChannelFileBytes or ChannelFile cannot be used for resource sending in group chats or friends"))
-        return promise.future()
-    }
+//    if (finalMessage.fileBytes != null || finalMessage.file != null) {
+//        logError("sendGroupMessage", "ChannelFileBytes or ChannelFile 不能在群组和私聊中使用")
+//        promise.tryFail(IllegalArgumentException("ChannelFileBytes or ChannelFile cannot be used for resource sending in group chats or friends"))
+//        return promise.future()
+//    }
     if (finalMessage.msgType == SendMessageBean.MSG_TYPE_MEDIA && finalMessage.media == null) {
         uploadMediaToGroup(id, token, finalMessage.toMediaBean()).onSuccess {
             sendGroupMessage0(finalMessage, client, id, token, promise, group, message, it)
@@ -124,7 +124,7 @@ private fun HttpAPIClient.sendGroupMessage0(
         remove("image") // 移除image字段,因为不适用于Group和 单聊
     }
 
-//    logDebug("sendGroupMessage", "发送消息: $finalMessageJson")
+    logDebug("sendGroupMessage", "发送消息: $finalMessageJson")
     //发送信息
     client.addRestfulParam(id).putHeaders(token.getHeaders()).sendJsonObject(finalMessageJson).onFailure {
         logPreError(promise, "sendGroupMessage", "发送消息失败", it).let { isLog ->
@@ -143,14 +143,14 @@ private fun HttpAPIClient.sendGroupMessage0(
  */
 fun HttpAPIClient.uploadMediaToGroup(id: String, token: Token, mediaBean: SendMediaBean): Future<MediaMessageBean> {
     if (MediaManager.isEnable) {
-        val mediaMessageBean = MediaManager.instance[mediaBean.url]
+        val mediaMessageBean = MediaManager.instance[mediaBean.url?:mediaBean.file_data]
         if (mediaMessageBean != null){
             return Future.succeededFuture(mediaMessageBean)
         }
     }
 
     val promise = Promise.promise<MediaMessageBean>()
-    logDebug("sendGroupMessage", "预备上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url}")
+    logDebug("sendGroupMessage", "预备上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url?:"file_data"}")
     API.uploadGroupMediaResource.addRestfulParam(id).putHeaders(token.getHeaders())
         .sendJsonObject(JSON.toJsonObject(mediaBean)).onSuccess {
             runCatching {

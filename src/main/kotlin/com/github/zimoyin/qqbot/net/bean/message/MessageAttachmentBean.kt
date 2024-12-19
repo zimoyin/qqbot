@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.slf4j.LoggerFactory
 import java.io.Serializable
+import java.net.URI
 import java.net.URL
 
 /**
@@ -65,8 +66,9 @@ data class MessageAttachment(
     private val logger = LoggerFactory.getLogger(MessageAttachment::class.java)
 
     @JsonIgnore
-    fun getURL(): String {
+    fun getURL(): String? {
+        if (uri == null) return null
         if (protocol != "https") logger.warn("附件协议不是https: $protocol://$uri")
-        return URL("$protocol://$uri").toString()
+        return URI.create("$protocol://$uri").toURL().toString()
     }
 }

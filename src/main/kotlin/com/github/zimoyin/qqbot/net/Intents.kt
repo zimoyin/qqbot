@@ -156,7 +156,7 @@ enum class Intents(val code: Int) {
          * 私域机器人订阅推荐
          */
         PRIVATE_INTENTS(1007162883 or INTERACTION.code),
-        PRIVATE_GROUP_INTENTS(1007162883 or GROUP_INTENTS.code);
+        PRIVATE_GROUP_INTENTS(1007162883 or GROUP_INTENTS.code or INTERACTION.code);
 
         operator fun plus(messageAudit: Intents): Int {
             return messageAudit.and(this.code)

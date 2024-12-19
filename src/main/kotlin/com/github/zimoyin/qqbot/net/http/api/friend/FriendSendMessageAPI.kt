@@ -86,7 +86,7 @@ private fun HttpAPIClient.sendFriendMessage(
     }
     //发送信息处理
     val finalMessage = message0.convertChannelMessage().inferMsgType()
-    if (finalMessage.channelFileBytes != null || finalMessage.channelFile != null) {
+    if (finalMessage.fileBytes != null || finalMessage.file != null) {
         logError("sendFirendMessage0", "ChannelFileBytes or ChannelFile 不能在群组或者私聊中使用")
         promise.tryFail(IllegalArgumentException("ChannelFileBytes or ChannelFile cannot be used for resource sending in group chats or friends"))
         return promise.future()

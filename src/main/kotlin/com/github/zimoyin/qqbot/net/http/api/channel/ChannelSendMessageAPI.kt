@@ -10,10 +10,12 @@ import com.github.zimoyin.qqbot.event.events.platform.MessageSendPreEvent
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.exception.HttpClientException
 import com.github.zimoyin.qqbot.net.bean.message.Message
+import com.github.zimoyin.qqbot.net.bean.message.send.SendMediaBean
 import com.github.zimoyin.qqbot.net.bean.message.send.SendMessageBean
 import com.github.zimoyin.qqbot.net.http.addRestfulParam
 import com.github.zimoyin.qqbot.net.http.api.API
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
+import com.github.zimoyin.qqbot.utils.ex.toJsonObject
 import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.buffer.Buffer
@@ -21,6 +23,8 @@ import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.client.HttpRequest
 import io.vertx.ext.web.client.HttpResponse
 import io.vertx.ext.web.multipart.MultipartForm
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.util.*
 
 
@@ -105,16 +109,18 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
     finalMessageJson.forEach {
         if (it.key != null && it.value != null && it.value.toString() != "") form.attribute(it.key, it.value.toString())
     }
-    if (finalMessage.channelFile != null) {
+
+    if (finalMessage.file != null) {
         form.binaryFileUpload(
-            "file_image", UUID.randomUUID().toString(), finalMessage.channelFile.path, "file"
+            "file_image", finalMessage.file.name, finalMessage.file.path, "file"
         )
-    } else if (finalMessage.channelFileBytes != null) {
+    } else if (finalMessage.fileBytes != null) {
         form.binaryFileUpload(
-            "file_image", UUID.randomUUID().toString(), Buffer.buffer(finalMessage.channelFileBytes), "file"
+            "file_image", UUID.randomUUID().toString(), Buffer.buffer(finalMessage.fileBytes), "file"
         )
     }
-    if (finalMessage.audioURI != null || finalMessage.videoURI != null) {
+
+    if (finalMessage.fileType == SendMediaBean.FILE_TYPE_VIDEO || finalMessage.fileType == SendMediaBean.FILE_TYPE_AUDIO) {
         logError("sendChannelMessageAsync", "AudioURI 和 videoURI 不能在频道中使用")
         promise.tryFail(IllegalArgumentException("AudioURI and videoURI cannot be used for resource sending in channels"))
         return promise.future()
@@ -123,7 +129,8 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
 //    logDebug("sendChannelMessageAsync", "发送消息: ${finalMessage.toStrings().replace("\n", "\\n")}")
     //发送信息
     val client0 = client.addRestfulParam(id).putHeaders(token.getHeaders())
-    if (finalMessageJson.getString("channelFile") == null && finalMessageJson.getString("channelFileBytes") == null) {
+//    if (finalMessageJson.getString("file") == null && finalMessageJson.getString("fileBytes") == null) {
+    if (finalMessage.file == null && finalMessage.fileBytes == null) {
         logDebug("sendChannelMessageAsync", "以JSON形式发生信息")
         logDebug("sendChannelMessageAsync", "发送消息: $finalMessageJson")
         // JSON 发生方式，markdown 参数在 from 方式下无法被服务器正确的解析
@@ -137,6 +144,18 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
     } else {
         logDebug("sendChannelMessageAsync", "以MultipartForm形式发生信息")
         logDebug("sendChannelMessageAsync", "发送消息(还原JSON): $finalMessageJson")
+        if (finalMessageJson.getString("message_reference") != null) {
+            logWarn("sendChannelMessageAsync0", "发送本地图片时发送引用消息可能会导致无法发送")
+        }
+        if (finalMessageJson.getString("markdown") != null) {
+            logWarn("sendChannelMessageAsync0", "发送本地图片时发送MD消息可能会导致无法发送")
+        }
+        if (finalMessageJson.getString("ark") != null) {
+            logWarn("sendChannelMessageAsync0", "发送本地图片时发送ARK消息可能会导致无法发送")
+        }
+        if (finalMessageJson.getString("embed") != null) {
+            logWarn("sendChannelMessageAsync0", "发送本地图片时发送EMBED消息可能会导致无法发送")
+        }
         client0.sendMultipartForm(form).onFailure {
             logPreError(promise, "sendChannelPrivateMessageAsync", "网络错误: 发送消息失败", it).let { isLog ->
                 if (!promise.tryFail(it)) {

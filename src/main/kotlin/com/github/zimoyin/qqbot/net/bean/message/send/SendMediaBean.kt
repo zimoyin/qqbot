@@ -29,15 +29,18 @@ data class SendMediaBean(
     val srv_send_msg: Boolean? = false,
 
     /**
-     * 【暂未支持】
+     *  Base64
      */
-    @Deprecated("暂不支持")
     val file_data: String? = null,
 ) {
     companion object {
         const val FILE_TYPE_IMAGE = 1
         const val FILE_TYPE_VIDEO = 2
         const val FILE_TYPE_AUDIO = 3
+    }
+
+    override fun toString(): String {
+        return "SendMediaBean(fileType=$fileType, url=$url, srv_send_msg=$srv_send_msg, file_data=${if (file_data==null) "null" else "not null"})"
     }
 }
 

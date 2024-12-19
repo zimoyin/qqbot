@@ -5,6 +5,7 @@ import com.github.zimoyin.qqbot.bot.contact.Contact
 import com.github.zimoyin.qqbot.bot.message.type.*
 import com.github.zimoyin.qqbot.net.bean.message.Message
 import com.github.zimoyin.qqbot.net.bean.message.MessageReference
+import com.github.zimoyin.qqbot.net.bean.message.send.SendMediaBean
 import com.github.zimoyin.qqbot.net.bean.message.send.SendMessageBean
 import io.vertx.core.Future
 import org.slf4j.LoggerFactory
@@ -280,30 +281,45 @@ class MessageChain(
             if (it is AtOnlineAll) sb.append(it.toMetaContent())
             if (it is AtChannelOwnerAll) sb.append(it.toMetaContent())
         }
-        val image = internalItems.filterIsInstance<ImageMessage>().lastOrNull()?.attachment?.getURL()
-        val imageFile = internalItems.filterIsInstance<ImageMessage>().lastOrNull()?.localFile
-        val imageInput = internalItems.filterIsInstance<ImageMessage>().lastOrNull()?.localFileBytes
-        val audioURL = internalItems.filterIsInstance<ProactiveAudioMessage>().lastOrNull()?.attachment?.getURL()
-        val videoURL = internalItems.filterIsInstance<ProactiveVideoMessage>().lastOrNull()?.attachment?.getURL()
+        val image = internalItems.filterIsInstance<ImageMessage>().lastOrNull()
+        val imageURL = image?.attachment?.getURL()
+        val imageFile = image?.localFile
+        val imageFileBytes = image?.localFileBytes
+
+        val audio = internalItems.filterIsInstance<AudioMessage>().lastOrNull()
+        val audioURL = audio?.attachment?.getURL()
+        val audioFile = audio?.localFile
+        val audioFileByte = audio?.localFileBytes
+
+        val video = internalItems.filterIsInstance<VideoMessage>().lastOrNull()
+        val videoURL = video?.attachment?.getURL()
+        val videoFile = video?.localFile
+        val videoFileBytes = video?.localFileBytes
+
         val ark = internalItems.filterIsInstance<ArkMessage>().lastOrNull()?.ark
         val embed = internalItems.filterIsInstance<EmbedMessage>().lastOrNull()?.embed
         val md = internalItems.filterIsInstance<MarkdownMessage>().lastOrNull()?.markdown
         val kb = internalItems.filterIsInstance<KeyboardMessage>().lastOrNull()
 
+        val fileType = when {
+            image != null -> SendMediaBean.FILE_TYPE_IMAGE
+            audio != null -> SendMediaBean.FILE_TYPE_AUDIO
+            video != null -> SendMediaBean.FILE_TYPE_VIDEO
+            else -> SendMediaBean.FILE_TYPE_IMAGE
+        }
+
         return SendMessageBean(
             id = if (md != null) null else this.id,
-//            id = this.id,
             messageReference = reference,
             content = if (sb.isEmpty()) null else sb.toString(),
-            imageURI = image,
             ark = ark,
             embed = embed,
             markdown = md,
             keyboard = kb,
-            channelFile = imageFile,
-            channelFileBytes = imageInput,
-            videoURI = videoURL,
-            audioURI = audioURL,
+            file = imageFile ?: audioFile ?: videoFile,
+            fileBytes = imageFileBytes ?: audioFileByte ?: videoFileBytes,
+            fileUri = imageURL ?: audioURL ?: videoURL,
+            fileType = fileType,
             eventID = replyEventID,
         )
     }

@@ -61,6 +61,13 @@ data class ImageMessage(val name: String?, val attachment: MessageAttachment) : 
             }
         }
 
+        @JvmStatic
+        fun create(file: ByteArray): ImageMessage {
+            return ImageMessage(UUID.randomUUID().toString(), MessageAttachment()).apply {
+                localFileBytes = file
+            }
+        }
+
         /**
          * 构建网络图片信息
          */

@@ -9,6 +9,7 @@ import com.github.zimoyin.qqbot.net.bean.message.MessageEmbed
 import com.github.zimoyin.qqbot.net.bean.message.MessageMarkdown
 import com.github.zimoyin.qqbot.net.bean.message.MessageReference
 import com.github.zimoyin.qqbot.utils.JSON
+import com.github.zimoyin.qqbot.utils.ex.toBase64
 import io.vertx.core.json.JsonObject
 import java.io.File
 
@@ -30,6 +31,7 @@ import java.io.File
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SendMessageBean(
+
     /**
      * 选填，消息内容，文本内容，支持内嵌格式
      * 【私聊群聊的必填】
@@ -67,7 +69,7 @@ data class SendMessageBean(
      * 注意：私聊与群聊未支持
      */
     @field:JsonProperty("image")
-    val imageURI: String? = null,
+    val fileUri: String? = null,
 
     /**
      * 选填，要回复的消息id(Message.id), 在 AT_CREATE_MESSAGE 事件中获取。
@@ -93,13 +95,14 @@ data class SendMessageBean(
     val keyboard: KeyboardMessage?,
 
     @JsonIgnore
-    val channelFile: File? = null,
+    val file: File? = null,
     @JsonIgnore
-    val channelFileBytes: ByteArray? = null,
+    val fileType: Int = SendMediaBean.FILE_TYPE_IMAGE,
     @JsonIgnore
-    val videoURI: String? = null,
-    @JsonIgnore
-    val audioURI: String? = null,
+    val fileBytes: ByteArray? = null,
+
+//    @JsonIgnore
+//    val fileUri: String? = null,
 
 
     /////////////////   群聊和私聊的字段   /////////////////
@@ -126,9 +129,9 @@ data class SendMessageBean(
         return this.apply {
             when {
                 media != null -> msgType = MSG_TYPE_MEDIA
-                imageURI != null -> msgType = MSG_TYPE_MEDIA
-                audioURI != null -> msgType = MSG_TYPE_MEDIA
-                videoURI != null -> msgType = MSG_TYPE_MEDIA
+                fileUri != null -> msgType = MSG_TYPE_MEDIA
+                file != null -> msgType = MSG_TYPE_MEDIA
+                fileBytes != null -> msgType = MSG_TYPE_MEDIA
                 content != null -> msgType = MSG_TYPE_TEXT
                 markdown != null -> msgType = MSG_TYPE_MARKDOWN
                 ark != null -> msgType = MSG_TYPE_ARK
@@ -143,34 +146,40 @@ data class SendMessageBean(
      */
     @JsonIgnore
     fun toMediaBean(): SendMediaBean {
-        require(!(channelFile != null || channelFileBytes != null)) { "ChannelFile and channelFileBytes must be null" }
-        require(!(imageURI == null && audioURI == null && videoURI == null)) { "ImageURI, audioURI, and videoURI cannot all be null" }
+        require(!(file != null && fileBytes != null && fileUri != null)) {
+            "file or url is null"
+        }
         val isSrvSendMsg = id == null
+
+
         return when {
-            imageURI != null -> SendMediaBean(
-                fileType = SendMediaBean.FILE_TYPE_IMAGE,
-                url = imageURI,
+
+            fileUri != null -> SendMediaBean(
+                fileType = fileType,
+                url = fileUri,
                 srv_send_msg = isSrvSendMsg
             )
 
-            audioURI != null -> SendMediaBean(
-                fileType = SendMediaBean.FILE_TYPE_AUDIO,
-                url = audioURI,
+            fileBytes != null -> SendMediaBean(
+                fileType = fileType,
+                file_data = fileBytes.toBase64(),
                 srv_send_msg = isSrvSendMsg
             )
 
-            else -> SendMediaBean(
-                fileType = SendMediaBean.FILE_TYPE_VIDEO,
-                url = videoURI,
+            file != null -> SendMediaBean(
+                fileType = fileType,
+                file_data = file.readBytes().toBase64(),
                 srv_send_msg = isSrvSendMsg
             )
+
+            else -> throw IllegalArgumentException("file or url is null")
         }
     }
 
     @JsonIgnore
     fun toJson(): JsonObject {
         val json = JSON.toJsonObject(this)
-        if (keyboard != null) json.put("keyboard",  JSON.toJsonObject(keyboard.keyboard))
+        if (keyboard != null) json.put("keyboard", JSON.toJsonObject(keyboard.keyboard))
         return JsonObject().apply {
             json.forEach {
                 if (it.key != null && it.value != null)
@@ -187,15 +196,15 @@ data class SendMessageBean(
         if (embed != other.embed) return false
         if (ark != other.ark) return false
         if (messageReference != other.messageReference) return false
-        if (imageURI != other.imageURI) return false
+        if (fileUri != other.fileUri) return false
         if (id != other.id) return false
         if (markdown != other.markdown) return false
         if (keyboard != other.keyboard) return false
-        if (channelFile != other.channelFile) return false
-        if (channelFileBytes != null) {
-            if (other.channelFileBytes == null) return false
-            if (!channelFileBytes.contentEquals(other.channelFileBytes)) return false
-        } else if (other.channelFileBytes != null) return false
+        if (file != other.file) return false
+        if (fileBytes != null) {
+            if (other.fileBytes == null) return false
+            if (!fileBytes.contentEquals(other.fileBytes)) return false
+        } else if (other.fileBytes != null) return false
         if (msgType != other.msgType) return false
         if (media != other.media) return false
 //        if (fileType != other.fileType) return false
@@ -211,12 +220,12 @@ data class SendMessageBean(
         result = 31 * result + (embed?.hashCode() ?: 0)
         result = 31 * result + (ark?.hashCode() ?: 0)
         result = 31 * result + (messageReference?.hashCode() ?: 0)
-        result = 31 * result + (imageURI?.hashCode() ?: 0)
+        result = 31 * result + (fileUri?.hashCode() ?: 0)
         result = 31 * result + (id?.hashCode() ?: 0)
         result = 31 * result + (markdown?.hashCode() ?: 0)
         result = 31 * result + (keyboard?.hashCode() ?: 0)
-        result = 31 * result + (channelFile?.hashCode() ?: 0)
-        result = 31 * result + (channelFileBytes?.contentHashCode() ?: 0)
+        result = 31 * result + (file?.hashCode() ?: 0)
+        result = 31 * result + (fileBytes?.contentHashCode() ?: 0)
         result = 31 * result + (msgType ?: 0)
         result = 31 * result + (media?.hashCode() ?: 0)
 //        result = 31 * result + (fileType ?: 0)
@@ -228,7 +237,7 @@ data class SendMessageBean(
 
     fun toStrings(): String {
 //        return "{\"content\":  \"$content\", ${if (embed != null) "\"embed\":  $embed, " else ""}${if (ark != null) "\"ark\":  $ark, " else ""}${if (messageReference != null) "\"message_reference\":  $messageReference, " else ""}${if (image != null) "\"image\":  \"$image\", " else ""}${if (id != null) "\"msg_id\":  \"$id\", " else ""}${if (markdown != null) "\"markdown\":  $markdown, " else ""}${if (keyboard != null) "\"keyboard\":  \"$keyboard\", " else ""}${if (channelFile != null) "\"channel_file\":  $channelFile, " else ""}${if (channelFileBytes != null) "\"channel_file_bytes\":  $channelFileBytes, " else ""}${if (msg_type != null) "\"msg_type\":  $msg_type, " else ""}${if (media != null) "\"media\":  $media, " else ""}${if (fileType != null) "\"file_type\":  $fileType, " else ""}${if (url != null) "\"url\":  \"$url\", " else ""}${if (srv_send_msg != null) "\"srv_send_msg\":  $srv_send_msg, " else ""}${if (file_data != null) "\"file_data\":  \"$file_data\" " else ""}}"
-        return "{\"content\":  \"$content\", ${if (embed != null) "\"embed\":  $embed, " else ""}${if (ark != null) "\"ark\":  $ark, " else ""}${if (messageReference != null) "\"message_reference\":  $messageReference, " else ""}${if (imageURI != null) "\"image\":  \"$imageURI\", " else ""}${if (id != null) "\"msg_id\":  \"$id\", " else ""}${if (markdown != null) "\"markdown\":  $markdown, " else ""}${if (keyboard != null) "\"keyboard\":  \"$keyboard\", " else ""}${if (channelFile != null) "\"channel_file\":  $channelFile, " else ""}${if (channelFileBytes != null) "\"channel_file_bytes\":  $channelFileBytes, " else ""}${if (msgType != null) "\"msg_type\":  $msgType, " else ""}${if (media != null) "\"media\":  $media, " else ""}]}"
+        return "{\"content\":  \"$content\", ${if (embed != null) "\"embed\":  $embed, " else ""}${if (ark != null) "\"ark\":  $ark, " else ""}${if (messageReference != null) "\"message_reference\":  $messageReference, " else ""}${if (fileUri != null) "\"image\":  \"$fileUri\", " else ""}${if (id != null) "\"msg_id\":  \"$id\", " else ""}${if (markdown != null) "\"markdown\":  $markdown, " else ""}${if (keyboard != null) "\"keyboard\":  \"$keyboard\", " else ""}${if (file != null) "\"channel_file\":  $file, " else ""}${if (fileBytes != null) "\"channel_file_bytes\":  $fileBytes, " else ""}${if (msgType != null) "\"msg_type\":  $msgType, " else ""}${if (media != null) "\"media\":  $media, " else ""}]}"
     }
 
 
