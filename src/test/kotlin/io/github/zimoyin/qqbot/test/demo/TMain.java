@@ -66,8 +66,10 @@ public class TMain {
 //            MessageChain chain = new MessageChainBuilder().append(ImageMessage.create(url)).append("你好").build();
             MessageChain chain = new MessageChainBuilder().append(ImageMessage.create(new File("C:\\Users\\zimoa\\Pictures\\106067275_p0.jpg"))).append("你好").build();
 //            MessageChain chain = new MessageChainBuilder().append(VideoMessage.create(new File("C:\\Users\\zimoa\\Downloads\\Video\\21.mp4"))).append("你好").build();
-            event.reply(chain).onFailure(e -> {
+            event.quote(chain).onFailure(e -> {
                 logger.error("发送失败", e);
+            }).onSuccess(r -> {
+                r.recall();
             });
 
 //

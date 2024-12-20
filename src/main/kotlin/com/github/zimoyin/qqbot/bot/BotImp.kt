@@ -3,6 +3,7 @@ package com.github.zimoyin.qqbot.bot
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.exception.HttpClientException
 import com.github.zimoyin.qqbot.net.Token
+import com.github.zimoyin.qqbot.net.bean.SendMessageResultBean
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.accessTokenUpdateAsync
 import com.github.zimoyin.qqbot.net.http.api.botInfo
@@ -126,7 +127,7 @@ class BotImp(
         logger.info("the bot[${this.config.token.appID}] 上下文被清空")
     }
 
-    override fun send(message: MessageChain): Future<MessageChain> {
+    override fun send(message: MessageChain): Future<SendMessageResultBean> {
         throw IllegalStateException("You cannot send yourself a message by yourself")
     }
 

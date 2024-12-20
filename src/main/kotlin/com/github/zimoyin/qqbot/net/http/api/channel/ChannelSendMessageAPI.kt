@@ -9,13 +9,12 @@ import com.github.zimoyin.qqbot.event.events.platform.MessageSendInterceptEvent
 import com.github.zimoyin.qqbot.event.events.platform.MessageSendPreEvent
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.exception.HttpClientException
-import com.github.zimoyin.qqbot.net.bean.message.Message
+import com.github.zimoyin.qqbot.net.bean.SendMessageResultBean
 import com.github.zimoyin.qqbot.net.bean.message.send.SendMediaBean
 import com.github.zimoyin.qqbot.net.bean.message.send.SendMessageBean
 import com.github.zimoyin.qqbot.net.http.addRestfulParam
 import com.github.zimoyin.qqbot.net.http.api.API
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
-import com.github.zimoyin.qqbot.utils.ex.toJsonObject
 import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.buffer.Buffer
@@ -23,8 +22,6 @@ import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.client.HttpRequest
 import io.vertx.ext.web.client.HttpResponse
 import io.vertx.ext.web.multipart.MultipartForm
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 import java.util.*
 
 
@@ -41,7 +38,7 @@ import java.util.*
 fun HttpAPIClient.sendChannelMessageAsync(
     channel: Channel,
     message: MessageChain,
-): Future<MessageChain> {
+): Future<SendMessageResultBean> {
     return sendChannelMessageAsync0(channel, channel.channelID!!, message, API.SendChannelMessage)
 }
 
@@ -53,7 +50,7 @@ fun HttpAPIClient.sendChannelMessageAsync(
 fun HttpAPIClient.sendChannelPrivateMessageAsync(
     channel: Channel,
     message: MessageChain,
-): Future<MessageChain> {
+): Future<SendMessageResultBean> {
     return sendChannelMessageAsync0(channel, channel.guildID, message, API.SendChannelPrivateMessage)
 }
 
@@ -70,7 +67,7 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
     id: String,
     message: MessageChain,
     client: HttpRequest<Buffer>,
-): Future<MessageChain> {
+): Future<SendMessageResultBean> {
     val token = channel.botInfo.token
     var intercept: Boolean = true
     var message0: MessageChain
@@ -85,7 +82,7 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
         message0 = result.messageChain
     }
 
-    val promise = Promise.promise<MessageChain>()
+    val promise = Promise.promise<SendMessageResultBean>()
 
     // 拦截待发送的信息,并禁止该信息发送
     if (intercept) {
@@ -129,7 +126,6 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
 //    logDebug("sendChannelMessageAsync", "发送消息: ${finalMessage.toStrings().replace("\n", "\\n")}")
     //发送信息
     val client0 = client.addRestfulParam(id).putHeaders(token.getHeaders())
-//    if (finalMessageJson.getString("file") == null && finalMessageJson.getString("fileBytes") == null) {
     if (finalMessage.file == null && finalMessage.fileBytes == null) {
         logDebug("sendChannelMessageAsync", "以JSON形式发生信息")
         logDebug("sendChannelMessageAsync", "发送消息: $finalMessageJson")
@@ -174,7 +170,7 @@ private fun HttpAPIClient.httpSuccess(
     resp: HttpResponse<Buffer>,
     channel: Channel,
     message: MessageChain,
-    promise: Promise<MessageChain>,
+    promise: Promise<SendMessageResultBean>,
 ) {
     kotlin.runCatching {
         resp.bodyAsJsonObject()
@@ -198,17 +194,18 @@ private fun HttpAPIClient.parseJsonSuccess(
     it: JsonObject,
     channel: Channel,
     message: MessageChain,
-    promise: Promise<MessageChain>,
+    promise: Promise<SendMessageResultBean>,
 ) {
+    val result =
+        SendMessageResultBean(
+            metadata = it.toString(),
+            msgID = it.getString("id") ?: it.getString("message_id"),
+            contact = channel
+        )
     if (it.containsKey("code")) when (it.getInteger("code")) {
-        304023 -> {
+        304023, 304024 -> {
             //信息审核事件推送
             broadcastChannelMessageAuditEvent(it, channel)
-            //发送成功广播一个事件该事件为 广播后 通过返回值获取构建事件
-            val chain =
-                kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }.getOrDefault(MessageChain())
-            broadcastChannelMessageSendEvent(message, channel, chain)
-            promise.tryComplete(chain)
             logDebug("sendChannelMessage", "信息审核事件中: $it")
         }
 
@@ -221,7 +218,7 @@ private fun HttpAPIClient.parseJsonSuccess(
                     )
                 }
             }
-
+            return
         }
 
         else -> {
@@ -234,15 +231,18 @@ private fun HttpAPIClient.parseJsonSuccess(
                     )
                 }
             }
-
+            return
         }
-    } else {
-        //发送成功广播一个事件该事件为 广播后 通过返回值获取构建事件
-        val chain =
-            kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }.getOrDefault(MessageChain())
-        broadcastChannelMessageSendEvent(message, channel, chain)
-        promise.tryComplete(chain)
     }
+
+    val event = ChannelMessageSendEvent(
+        contact = channel,
+        msgID = result.msgID ?: "",
+        messageChain = message,
+        result = result
+    )
+    broadcastChannelMessageSendEvent(event)
+    promise.tryComplete(result)
 }
 
 
@@ -258,13 +258,7 @@ private fun HttpAPIClient.broadcastChannelMessageAuditEvent(
 }
 
 private fun HttpAPIClient.broadcastChannelMessageSendEvent(
-    message: MessageChain,
-    channel: Channel,
-    it: MessageChain,
+    event: ChannelMessageSendEvent
 ) {
-    GlobalEventBus.broadcastAuto(
-        ChannelMessageSendEvent(
-            msgID = message.id ?: "", messageChain = message, contact = channel, result = it
-        )
-    )
+    GlobalEventBus.broadcastAuto(event)
 }

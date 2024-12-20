@@ -5,6 +5,7 @@ import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.contact.channel.ChannelImpl
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.net.bean.ContactPermission
+import com.github.zimoyin.qqbot.net.bean.SendMessageResultBean
 import com.github.zimoyin.qqbot.net.bean.message.Message
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.*
@@ -99,7 +100,7 @@ open class Sender(
 
 
 
-    override fun send(message: MessageChain): Future<MessageChain> {
+    override fun send(message: MessageChain): Future<SendMessageResultBean> {
 //        return HttpAPIClient.sendFriendMessage(this, message)
         // TODO 自动分别群组和频道，并向用户发起私聊
         TODO("暂时未能实现")
@@ -133,7 +134,7 @@ data class PrivateFriend(
         )
     }
 
-    override fun send(message: MessageChain): Future<MessageChain> {
+    override fun send(message: MessageChain): Future<SendMessageResultBean> {
         return HttpAPIClient.sendFriendMessage(this, message)
     }
 }
@@ -171,8 +172,8 @@ data class ChannelUser(
         }
     }
 
-    override fun send(message: MessageChain): Future<MessageChain> {
-        val promise = promise<MessageChain>()
+    override fun send(message: MessageChain): Future<SendMessageResultBean> {
+        val promise = promise<SendMessageResultBean>()
         if (!channel.isPrivateChat) {
             promise.fail("The current robot is not allowed to send messages to the channel and can only send messages to the current contact. [Channel unable to obtain temporary contact ID]")
             return promise.future()

@@ -4,6 +4,7 @@ import com.github.zimoyin.qqbot.exception.HttpClientException
 import com.github.zimoyin.qqbot.exception.HttpHandlerException
 import com.github.zimoyin.qqbot.exception.HttpStateCodeException
 import com.github.zimoyin.qqbot.utils.ex.isInitialStage
+import com.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.buffer.Buffer
@@ -96,7 +97,7 @@ object HttpAPIClient {
             logDebug(apiName, "API Response Code: ${it.statusCode()}")
             onSuccess0(promise, apiName, errorMessage, it, callback)
         }.onFailure {
-            if (!promise.tryFail(it)) logError(apiName, errorMessage, it)
+            if (!promise.tryFail(it) || promise.isInitialStage()) logError(apiName, errorMessage, it)
         }
     }
 
@@ -138,10 +139,8 @@ object HttpAPIClient {
                     }
                 }
                 //避免 callback 不promise 告知处理结果，导致流程卡住
-                logPreError(promise, apiName, "API 错误 -> [$code] $message").let { isLog ->
-                    if (!promise.tryFail(HttpHandlerException("API 错误 -> [$code] $message"))) {
-                        if (!isLog) logError(apiName, "API 错误 -> [$code] $message")
-                    }
+                if (!promise.tryFail(HttpHandlerException("API 错误 -> [$code] $message"))) {
+                    logDebug(apiName, "API 错误 -> [$code] $message")
                 }
 
                 return@runCatching
@@ -178,6 +177,7 @@ object HttpAPIClient {
             kotlin.runCatching {
                 //处理API访问成功的情况，callback 需要使用 promise 告知处理结果，否则会在下个流程抛出异常
                 callback(APIJsonResult(json, true, response))
+                return
             }.onFailure {
                 logPreError(promise, apiName, "API 错误 -> [$code] $message").let { isLog ->
                     promise.tryFail(

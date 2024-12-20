@@ -6,6 +6,7 @@ import com.github.zimoyin.qqbot.bot.contact.Contact
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.bot.message.MessageChainBuilder
 import com.github.zimoyin.qqbot.event.handler.group.AddGroupHandler
+import com.github.zimoyin.qqbot.net.bean.SendMessageResultBean
 import io.vertx.core.Future
 import java.util.*
 
@@ -36,7 +37,7 @@ data class AddGroupEvent(
      * 被动回复信息
      * 注意无法通过事件发送主动信息，请查询 Content.send 方法
      */
-    fun reply(message: String): Future<MessageChain> {
+    fun reply(message: String): Future<SendMessageResultBean> {
         return windows.send(MessageChainBuilder().appendEventId(eventID).append(message).build())
     }
 
@@ -45,7 +46,7 @@ data class AddGroupEvent(
      * 注意无法通过事件发送主动信息，请查询 Content.send 方法
      * 注: 对于非文本等形式的消息，可能会受限于主动信息推送
      */
-    fun reply(messageBuild: MessageChainBuilder): Future<MessageChain> {
+    fun reply(messageBuild: MessageChainBuilder): Future<SendMessageResultBean> {
         messageBuild.appendEventId(eventID)
         return windows.send(messageBuild.build())
     }

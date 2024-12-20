@@ -31,7 +31,6 @@ fun HttpAPIClient.recallFriendMessage(
                 //                promise.complete(false)
                 logPreError(
                     promise, "recallFriendMessage", it.errorMessage ?: "未知错误,导致撤回失败"
-
                 ).let { isLog ->
                     if (!promise.tryFail(HttpClientException(it.errorMessage ?: "未知错误,导致撤回失败"))) {
                         if (!isLog) logError(

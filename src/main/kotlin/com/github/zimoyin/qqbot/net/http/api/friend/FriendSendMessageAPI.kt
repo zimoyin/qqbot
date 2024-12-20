@@ -12,7 +12,7 @@ import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.exception.HttpClientException
 import com.github.zimoyin.qqbot.exception.HttpHandlerException
 import com.github.zimoyin.qqbot.net.Token
-import com.github.zimoyin.qqbot.net.bean.message.Message
+import com.github.zimoyin.qqbot.net.bean.SendMessageResultBean
 import com.github.zimoyin.qqbot.net.bean.message.send.MediaMessageBean
 import com.github.zimoyin.qqbot.net.bean.message.send.SendMediaBean
 import com.github.zimoyin.qqbot.net.bean.message.send.SendMessageBean
@@ -37,7 +37,7 @@ import io.vertx.ext.web.client.HttpResponse
 fun HttpAPIClient.sendFriendMessage(
     friend: Friend,
     message: MessageChain,
-): Future<MessageChain> {
+): Future<SendMessageResultBean> {
     return sendFriendMessage(friend, friend.id, message, API.SendFriendMessage)
 }
 
@@ -54,7 +54,7 @@ private fun HttpAPIClient.sendFriendMessage(
     id: String,
     message: MessageChain,
     client: HttpRequest<Buffer>,
-): Future<MessageChain> {
+): Future<SendMessageResultBean> {
     val token = friend.botInfo.token
     var intercept: Boolean = true
     var message0: MessageChain
@@ -69,7 +69,7 @@ private fun HttpAPIClient.sendFriendMessage(
         message0 = result.messageChain
     }
 
-    val promise = Promise.promise<MessageChain>()
+    val promise = Promise.promise<SendMessageResultBean>()
 
     // 拦截待发送的信息,并禁止该信息发送
     if (intercept) {
@@ -86,11 +86,6 @@ private fun HttpAPIClient.sendFriendMessage(
     }
     //发送信息处理
     val finalMessage = message0.convertChannelMessage().inferMsgType()
-    if (finalMessage.fileBytes != null || finalMessage.file != null) {
-        logError("sendFirendMessage0", "ChannelFileBytes or ChannelFile 不能在群组或者私聊中使用")
-        promise.tryFail(IllegalArgumentException("ChannelFileBytes or ChannelFile cannot be used for resource sending in group chats or friends"))
-        return promise.future()
-    }
     if (finalMessage.msgType == SendMessageBean.MSG_TYPE_MEDIA && finalMessage.media == null) {
         uploadMediaToFriend(id, token, finalMessage.toMediaBean()).onSuccess {
             sendFriendMessage0(finalMessage, client, id, token, promise, friend, message, it)
@@ -113,7 +108,7 @@ private fun HttpAPIClient.sendFriendMessage0(
     client: HttpRequest<Buffer>,
     id: String,
     token: Token,
-    promise: Promise<MessageChain>,
+    promise: Promise<SendMessageResultBean>,
     friend: Friend,
     message: MessageChain,
     mediaMsg: MediaMessageBean? = null,
@@ -202,7 +197,7 @@ private fun HttpAPIClient.httpSuccess(
     resp: HttpResponse<Buffer>,
     friend: Friend,
     message: MessageChain,
-    promise: Promise<MessageChain>,
+    promise: Promise<SendMessageResultBean>,
 ) {
     kotlin.runCatching {
         resp.bodyAsJsonObject()
@@ -232,17 +227,17 @@ private fun HttpAPIClient.parseJsonSuccess(
     it: JsonObject,
     friend: Friend,
     message: MessageChain,
-    promise: Promise<MessageChain>,
+    promise: Promise<SendMessageResultBean>,
 ) {
+    val result = SendMessageResultBean(
+        metadata = it.toString(),
+        msgID = it.getString("id") ?: it.getString("message_id"),
+        contact = friend,
+    )
     if (it.containsKey("code")) when (it.getInteger("code")) {
-        304023 -> {
+        304023, 304024 -> {
             //信息审核事件推送
             broadcastChannelMessageAuditEvent(it, friend.botInfo)
-            //发送成功广播一个事件该事件为 广播后 通过返回值获取构建事件
-            val chain =
-                kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }.getOrDefault(MessageChain())
-            broadcastChannelMessageSendEvent(message, friend, chain)
-            promise.tryComplete(chain)
             logDebug("sendChannelMessage", "信息审核事件中: $it")
         }
 
@@ -256,15 +251,20 @@ private fun HttpAPIClient.parseJsonSuccess(
                     )
                 }
             }
-
+            return
         }
-    } else {
-        //发送成功广播一个事件该事件为 广播后 通过返回值获取构建事件
-        val chain =
-            kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }.getOrDefault(MessageChain())
-        broadcastChannelMessageSendEvent(message, friend, chain)
-        promise.tryComplete(chain)
     }
+    //发送成功广播一个事件该事件为 广播后 通过返回值获取构建事件
+//    val chain =
+//        kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }.getOrDefault(MessageChain())
+    val event = FriendMessageSendEvent(
+        msgID = result.msgID ?: "",
+        contact = friend,
+        messageChain = message,
+        result = result,
+    )
+    broadcastChannelMessageSendEvent(event)
+    promise.tryComplete(result)
 }
 
 
@@ -280,13 +280,7 @@ private fun HttpAPIClient.broadcastChannelMessageAuditEvent(
 }
 
 private fun HttpAPIClient.broadcastChannelMessageSendEvent(
-    message: MessageChain,
-    friend: Friend,
-    it: MessageChain,
+    event: FriendMessageSendEvent,
 ) {
-    GlobalEventBus.broadcastAuto(
-        FriendMessageSendEvent(
-            msgID = message.id ?: "", messageChain = message, contact = friend, result = it
-        )
-    )
+    GlobalEventBus.broadcastAuto(event)
 }

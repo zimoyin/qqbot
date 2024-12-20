@@ -5,6 +5,7 @@ import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.contact.Contact
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.event.handler.NoneEventHandler
+import com.github.zimoyin.qqbot.net.bean.SendMessageResultBean
 
 /**
  *
@@ -22,7 +23,7 @@ open class MessageSendEvent(
     override val metadataType: String = "Platform_MessageSendEvent",
     open val msgID: String,
     open val messageChain: MessageChain,
-    open val result: MessageChain, //服务器返回的信息
+    open val result: SendMessageResultBean, //服务器返回的信息
     open val contact: Contact,
     override val botInfo: BotInfo = contact.botInfo,
     override val eventID: String ="",

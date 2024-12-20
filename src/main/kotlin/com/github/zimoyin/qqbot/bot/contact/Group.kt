@@ -3,6 +3,7 @@ package com.github.zimoyin.qqbot.bot.contact
 import com.github.zimoyin.qqbot.annotation.UntestedApi
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.message.MessageChain
+import com.github.zimoyin.qqbot.net.bean.SendMessageResultBean
 import com.github.zimoyin.qqbot.net.bean.message.Message
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.group.recallGroupMessage
@@ -23,7 +24,7 @@ interface Group : Contact {
         return HttpAPIClient.recallGroupMessage(this, messageID)
     }
 
-    override fun send(message: MessageChain): Future<MessageChain> {
+    override fun send(message: MessageChain): Future<SendMessageResultBean> {
         return HttpAPIClient.sendGroupMessage(this, message)
     }
 }

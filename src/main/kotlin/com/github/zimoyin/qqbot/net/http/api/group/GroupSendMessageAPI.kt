@@ -11,7 +11,7 @@ import com.github.zimoyin.qqbot.event.events.platform.MessageSendPreEvent
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.exception.HttpClientException
 import com.github.zimoyin.qqbot.net.Token
-import com.github.zimoyin.qqbot.net.bean.message.Message
+import com.github.zimoyin.qqbot.net.bean.SendMessageResultBean
 import com.github.zimoyin.qqbot.net.bean.message.send.MediaMessageBean
 import com.github.zimoyin.qqbot.net.bean.message.send.SendMediaBean
 import com.github.zimoyin.qqbot.net.bean.message.send.SendMessageBean
@@ -36,7 +36,7 @@ import io.vertx.ext.web.client.HttpResponse
 fun HttpAPIClient.sendGroupMessage(
     group: Group,
     message: MessageChain,
-): Future<MessageChain> {
+): Future<SendMessageResultBean> {
     return sendGroupMessage(group, group.id, message, API.SendGroupMessage)
 }
 
@@ -53,7 +53,7 @@ private fun HttpAPIClient.sendGroupMessage(
     id: String,
     message: MessageChain,
     client: HttpRequest<Buffer>,
-): Future<MessageChain> {
+): Future<SendMessageResultBean> {
     val token = group.botInfo.token
     var intercept: Boolean = true
     var message0: MessageChain
@@ -68,7 +68,7 @@ private fun HttpAPIClient.sendGroupMessage(
         message0 = result.messageChain
     }
 
-    val promise = Promise.promise<MessageChain>()
+    val promise = Promise.promise<SendMessageResultBean>()
 
     // 拦截待发送的信息,并禁止该信息发送
     if (intercept) {
@@ -112,7 +112,7 @@ private fun HttpAPIClient.sendGroupMessage0(
     client: HttpRequest<Buffer>,
     id: String,
     token: Token,
-    promise: Promise<MessageChain>,
+    promise: Promise<SendMessageResultBean>,
     group: Group,
     message: MessageChain,
     mediaMsg: MediaMessageBean? = null,
@@ -143,21 +143,21 @@ private fun HttpAPIClient.sendGroupMessage0(
  */
 fun HttpAPIClient.uploadMediaToGroup(id: String, token: Token, mediaBean: SendMediaBean): Future<MediaMessageBean> {
     if (MediaManager.isEnable) {
-        val mediaMessageBean = MediaManager.instance[mediaBean.url?:mediaBean.file_data]
-        if (mediaMessageBean != null){
+        val mediaMessageBean = MediaManager.instance[mediaBean.url ?: mediaBean.file_data]
+        if (mediaMessageBean != null) {
             return Future.succeededFuture(mediaMessageBean)
         }
     }
 
     val promise = Promise.promise<MediaMessageBean>()
-    logDebug("sendGroupMessage", "预备上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url?:"file_data"}")
+    logDebug("sendGroupMessage", "预备上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url ?: "file_data"}")
     API.uploadGroupMediaResource.addRestfulParam(id).putHeaders(token.getHeaders())
         .sendJsonObject(JSON.toJsonObject(mediaBean)).onSuccess {
             runCatching {
                 val json = it.bodyAsJsonObject()
-                if (json.getInteger("code") != null){
+                if (json.getInteger("code") != null) {
                     promise.fail(HttpClientException("Upload media resource failed: $json"))
-                }else{
+                } else {
                     logDebug("sendGroupMessage", "上传富媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 成功: $json")
                 }
                 json.mapTo(MediaMessageBean::class.java).apply {
@@ -196,7 +196,7 @@ private fun HttpAPIClient.httpSuccess(
     resp: HttpResponse<Buffer>,
     group: Group,
     message: MessageChain,
-    promise: Promise<MessageChain>,
+    promise: Promise<SendMessageResultBean>,
 ) {
     kotlin.runCatching {
         resp.bodyAsJsonObject()
@@ -220,17 +220,18 @@ private fun HttpAPIClient.parseJsonSuccess(
     it: JsonObject,
     group: Group,
     message: MessageChain,
-    promise: Promise<MessageChain>,
+    promise: Promise<SendMessageResultBean>,
 ) {
+    val result =
+        SendMessageResultBean(
+            metadata = it.toString(),
+            msgID = it.getString("id") ?: it.getString("message_id"),
+            contact = group
+        )
     if (it.containsKey("code")) when (it.getInteger("code")) {
-        304023 -> {
+        304023, 304024 -> {
             //信息审核事件推送
             broadcastChannelMessageAuditEvent(it, group.botInfo)
-            //发送成功广播一个事件该事件为 广播后 通过返回值获取构建事件
-            val chain =
-                kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }.getOrDefault(MessageChain())
-            broadcastChannelMessageSendEvent(message, group, chain)
-            promise.tryComplete(chain)
             logDebug("sendGroupMessage", "信息审核事件中: $it")
         }
 
@@ -244,15 +245,18 @@ private fun HttpAPIClient.parseJsonSuccess(
                     )
                 }
             }
-
+            return
         }
-    } else {
-        //发送成功广播一个事件该事件为 广播后 通过返回值获取构建事件
-        val chain =
-            kotlin.runCatching { MessageChain.convert(it.mapTo(Message::class.java)) }.getOrDefault(MessageChain())
-        broadcastChannelMessageSendEvent(message, group, chain)
-        promise.tryComplete(chain)
     }
+
+    val event = GroupMessageSendEvent(
+        contact = group,
+        msgID = result.msgID ?: "",
+        messageChain = message,
+        result = result
+    )
+    broadcastChannelMessageSendEvent(event)
+    promise.tryComplete(result)
 }
 
 
@@ -268,13 +272,7 @@ private fun HttpAPIClient.broadcastChannelMessageAuditEvent(
 }
 
 private fun HttpAPIClient.broadcastChannelMessageSendEvent(
-    message: MessageChain,
-    group: Group,
-    it: MessageChain,
+    event: GroupMessageSendEvent
 ) {
-    GlobalEventBus.broadcastAuto(
-        GroupMessageSendEvent(
-            msgID = message.id ?: "", messageChain = message, contact = group, result = it
-        )
-    )
+    GlobalEventBus.broadcastAuto(event)
 }

@@ -5,6 +5,7 @@ import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.bot.contact.Group
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.event.handler.NoneEventHandler
+import com.github.zimoyin.qqbot.net.bean.SendMessageResultBean
 
 /**
  *
@@ -24,7 +25,7 @@ data class GroupMessageSendEvent(
     override val botInfo: BotInfo = contact.botInfo,
     override val msgID: String,
     override val messageChain: MessageChain,
-    override val result: MessageChain,
+    override val result: SendMessageResultBean,
     override val eventID: String ="",
 ) : MessageSendEvent(
     metadata = metadata,
