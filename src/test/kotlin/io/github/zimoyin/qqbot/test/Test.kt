@@ -3,10 +3,12 @@ import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.bot.message.type.CustomKeyboard
 import com.github.zimoyin.qqbot.bot.message.type.KeyboardMessage
 import com.github.zimoyin.qqbot.bot.message.type.customKeyboard
+import com.github.zimoyin.qqbot.net.bean.message.MessageMarkdown
 import com.github.zimoyin.qqbot.utils.ex.isInitialStage
 import com.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Future
 import io.vertx.core.Vertx
+import java.time.LocalDate
 import kotlin.system.measureTimeMillis
 import kotlin.time.measureTime
 
@@ -16,15 +18,10 @@ import kotlin.time.measureTime
  * @date : 2023/12/26
  */
 suspend fun main(){
-    val promise = promise<Boolean>()
-    println(promise.isInitialStage())
-    val future = promise.future()
-    println(promise.isInitialStage())
-    future.onFailure {
-        println(it)
-    }
-    println(promise.isInitialStage())
-    promise.tryFail("")
-    println(promise.isInitialStage())
-
+    println(
+        MessageMarkdown.create("102077167_1706091638")
+            .appendParam("date", LocalDate.now().toString())
+            .appendParam("rw", "你好")
+            .build().markdown.toJson()
+    )
 }

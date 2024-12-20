@@ -16,12 +16,14 @@ import com.github.zimoyin.qqbot.net.http.addRestfulParam
 import com.github.zimoyin.qqbot.net.http.api.API
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import io.vertx.core.Future
+import io.vertx.core.MultiMap
 import io.vertx.core.Promise
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.client.HttpRequest
 import io.vertx.ext.web.client.HttpResponse
 import io.vertx.ext.web.multipart.MultipartForm
+import io.vertx.ext.web.multipart.impl.FormDataPartImpl
 import java.util.*
 
 
@@ -127,7 +129,7 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
     //发送信息
     val client0 = client.addRestfulParam(id).putHeaders(token.getHeaders())
     if (finalMessage.file == null && finalMessage.fileBytes == null) {
-        logDebug("sendChannelMessageAsync", "以JSON形式发生信息")
+        logDebug("sendChannelMessageAsync", "以JSON形式发送信息")
         logDebug("sendChannelMessageAsync", "发送消息: $finalMessageJson")
         // JSON 发生方式，markdown 参数在 from 方式下无法被服务器正确的解析
         client0.sendJsonObject(finalMessageJson).onFailure {
@@ -141,16 +143,16 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
         logDebug("sendChannelMessageAsync", "以MultipartForm形式发生信息")
         logDebug("sendChannelMessageAsync", "发送消息(还原JSON): $finalMessageJson")
         if (finalMessageJson.getString("message_reference") != null) {
-            logWarn("sendChannelMessageAsync0", "发送本地图片时发送引用消息可能会导致无法发送")
+            logError("sendChannelMessageAsync0", "在频道发送本地图片时发送引用消息会导致无法发送")
         }
         if (finalMessageJson.getString("markdown") != null) {
-            logWarn("sendChannelMessageAsync0", "发送本地图片时发送MD消息可能会导致无法发送")
+            logDebug("sendChannelMessageAsync0", "在频道发送本地图片时发送MD消息可能会导致无法发送")
         }
         if (finalMessageJson.getString("ark") != null) {
-            logWarn("sendChannelMessageAsync0", "发送本地图片时发送ARK消息可能会导致无法发送")
+            logDebug("sendChannelMessageAsync0", "在频道发送本地图片时发送ARK消息可能会导致无法发送")
         }
         if (finalMessageJson.getString("embed") != null) {
-            logWarn("sendChannelMessageAsync0", "发送本地图片时发送EMBED消息可能会导致无法发送")
+            logDebug("sendChannelMessageAsync0", "在频道发送本地图片时发送EMBED消息可能会导致无法发送")
         }
         client0.sendMultipartForm(form).onFailure {
             logPreError(promise, "sendChannelPrivateMessageAsync", "网络错误: 发送消息失败", it).let { isLog ->
