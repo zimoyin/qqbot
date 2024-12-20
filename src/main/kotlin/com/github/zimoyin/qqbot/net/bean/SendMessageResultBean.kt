@@ -17,6 +17,6 @@ data class SendMessageResultBean(
 ):Serializable {
     fun recall(): Future<Boolean> {
         if (msgID.isNullOrEmpty()) return Future.failedFuture("消息ID为空")
-        return contact.recall("msgID")
+        return contact.recall(msgID)
     }
 }
