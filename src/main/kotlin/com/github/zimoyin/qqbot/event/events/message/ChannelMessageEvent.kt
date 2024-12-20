@@ -7,9 +7,11 @@ import com.github.zimoyin.qqbot.bot.contact.ChannelUser
 import com.github.zimoyin.qqbot.bot.message.EmojiType
 import com.github.zimoyin.qqbot.event.events.channel.ChannelEvent
 import com.github.zimoyin.qqbot.event.handler.message.MessageHandler
+import com.github.zimoyin.qqbot.net.bean.User
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.addEmoji
 import com.github.zimoyin.qqbot.net.http.api.channel.deleteEmoji
+import com.github.zimoyin.qqbot.net.http.api.channel.getEmojiUserList
 import com.github.zimoyin.qqbot.net.http.api.channel.recallChannelMessage
 import io.vertx.core.Future
 
@@ -33,6 +35,14 @@ interface ChannelMessageEvent : MessageEvent, ChannelEvent {
     }
 
     /**
+     * 张贴表情
+     */
+    @OptIn(UntestedApi::class)
+    fun addEmoji(emojiType: EmojiType, messageID: String): Future<Boolean> {
+        return HttpAPIClient.addEmoji(channel, messageID, emojiType)
+    }
+
+    /**
      * 删除表情
      */
     @OptIn(UntestedApi::class)
@@ -41,11 +51,27 @@ interface ChannelMessageEvent : MessageEvent, ChannelEvent {
     }
 
     /**
+     * 删除表情
+     */
+    @OptIn(UntestedApi::class)
+    fun removeEmoji(emojiType: EmojiType, messageID: String): Future<Boolean> {
+        return HttpAPIClient.deleteEmoji(channel, messageID, emojiType)
+    }
+
+    /**
      * 获取对此信息张贴表情的用户列表
      */
     @UntestedApi
-    fun getEmojiList() {
-        TODO("由于该API是需要 message_id,channel_id,type_id,type_value 作为参数并且是一个分包的API。实用性不大，故暂不实现")
+    fun getEmojiList(emojiType: EmojiType): Future<List<User>> {
+        return HttpAPIClient.getEmojiUserList(channel, msgID, emojiType)
+    }
+
+    /**
+     * 获取对此信息张贴表情的用户列表
+     */
+    @UntestedApi
+    fun getEmojiList(emojiType: EmojiType, messageID: String = msgID): Future<List<User>> {
+        return HttpAPIClient.getEmojiUserList(channel, messageID, emojiType)
     }
 
 
@@ -56,6 +82,15 @@ interface ChannelMessageEvent : MessageEvent, ChannelEvent {
     @OptIn(UntestedApi::class)
     fun recall(hidetip: Boolean): Future<Boolean> {
         return HttpAPIClient.recallChannelMessage(channel, msgID, hidetip)
+    }
+
+    /**
+     * 撤回消息
+     * @param hidetip 是否隐藏提示小灰条
+     */
+    @OptIn(UntestedApi::class)
+    fun recall(hidetip: Boolean, messageID: String): Future<Boolean> {
+        return HttpAPIClient.recallChannelMessage(channel, messageID, hidetip)
     }
 
     /**

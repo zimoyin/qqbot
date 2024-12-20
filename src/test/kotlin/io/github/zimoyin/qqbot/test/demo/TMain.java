@@ -2,11 +2,14 @@ package io.github.zimoyin.qqbot.test.demo;
 
 import com.github.zimoyin.qqbot.Config;
 import com.github.zimoyin.qqbot.bot.Bot;
+import com.github.zimoyin.qqbot.bot.contact.Channel;
+import com.github.zimoyin.qqbot.bot.message.EmojiType;
 import com.github.zimoyin.qqbot.bot.message.MessageChain;
 import com.github.zimoyin.qqbot.bot.message.MessageChainBuilder;
 import com.github.zimoyin.qqbot.bot.message.type.ImageMessage;
 import com.github.zimoyin.qqbot.bot.message.type.VideoMessage;
 import com.github.zimoyin.qqbot.event.events.Event;
+import com.github.zimoyin.qqbot.event.events.message.ChannelMessageEvent;
 import com.github.zimoyin.qqbot.event.events.message.MessageEvent;
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus;
 import com.github.zimoyin.qqbot.net.Intents;
@@ -66,11 +69,23 @@ public class TMain {
 //            MessageChain chain = new MessageChainBuilder().append(ImageMessage.create(url)).append("你好").build();
             MessageChain chain = new MessageChainBuilder().append(ImageMessage.create(new File("C:\\Users\\zimoa\\Pictures\\106067275_p0.jpg"))).append("你好").build();
 //            MessageChain chain = new MessageChainBuilder().append(VideoMessage.create(new File("C:\\Users\\zimoa\\Downloads\\Video\\21.mp4"))).append("你好").build();
-            event.quote(chain).onFailure(e -> {
+            event.reply(chain).onFailure(e -> {
                 logger.error("发送失败", e);
-            }).onSuccess(r -> {
-                r.recall();
             });
+
+            if (event instanceof ChannelMessageEvent){
+                ((ChannelMessageEvent) event).addEmoji(EmojiType.ZAN);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                ((ChannelMessageEvent) event).getEmojiList(EmojiType.ZAN).onSuccess(emojiList -> {
+                    logger.info("点赞列表: {}", emojiList);
+                });
+            }
+
+
 
 //
 //            MessageChain messageChain = MessageMarkdown.create("102077167_1706091638")

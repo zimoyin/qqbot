@@ -455,6 +455,13 @@ object API {
     }
 
     /**
+     * 获取消息表情表态的用户列表
+     */
+    val GetEmojiUserList: HttpRequest<Buffer> by LazyInit {
+        TencentOpenApiHttpClient.client.get("/channels/{channel_id}/messages/{message_id}/reactions/{type}/{id}")
+    }
+
+    /**
      * 撤回朋友聊天时的我的信息
      */
     val RecallFriendMyMessage: HttpRequest<Buffer> by LazyInit {
