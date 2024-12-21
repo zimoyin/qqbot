@@ -2,6 +2,9 @@ package com.github.zimoyin.qqbot.net.webhook
 
 import com.github.zimoyin.qqbot.LocalLogger
 import com.github.zimoyin.qqbot.bot.Bot
+import com.github.zimoyin.qqbot.bot.BotInfo
+import com.github.zimoyin.qqbot.event.events.platform.bot.BotOfflineEvent
+import com.github.zimoyin.qqbot.event.events.platform.bot.BotOnlineEvent
 import com.github.zimoyin.qqbot.net.webhook.handler.PayloadCmdHandler
 import com.github.zimoyin.qqbot.net.webhook.handler.Verify
 import com.github.zimoyin.qqbot.utils.ex.await
@@ -33,7 +36,7 @@ class WebHookHttpServer(
 
     private lateinit var webHttpServer: HttpServer
     private val logger = LocalLogger(WebHookHttpServer::class.java)
-    private lateinit var payloadCmdHandler: PayloadCmdHandler
+    private val payloadCmdHandler: PayloadCmdHandler = PayloadCmdHandler(bot)
 
     fun init() {
         router = Router.router(vertx)
@@ -41,6 +44,7 @@ class WebHookHttpServer(
             val request = it.request()
             val response = it.response()
 
+            response.setChunked(true)
             request.bodyHandler {
                 kotlin.runCatching {
                     payloadCmdHandler.handle(request.headers(), it, response)
@@ -80,6 +84,12 @@ class WebHookHttpServer(
     }
 
     fun close() {
+        bot.config.botEventBus.broadcastAuto(
+            BotOfflineEvent(
+                botInfo = bot.botInfo,
+                throwable = null
+            )
+        )
         webHttpServer.close()
     }
 

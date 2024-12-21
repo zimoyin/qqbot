@@ -6,14 +6,7 @@
 
     <groupId>com.github.zimoyin</groupId>
     <artifactId>qqbot</artifactId>
-    <version>1.0.21</version>
-
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
+    <version>1.1.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -26,12 +19,12 @@
         <junit-jupiter.version>5.9.1</junit-jupiter.version>
 
         <main.verticle>com.example.starter.MainVerticle</main.verticle>
-        <launcher.class>io.vertx.core.Launcher</launcher.class>
+        <launcher.class>com.github.zimoyin.qqbot.MainKt</launcher.class>
 
         <!-- 1.7.21 -->
         <!-- 1.9.21 -->
 
-        <kotlin.version>2.0.20</kotlin.version>
+        <kotlin.version>2.1.0</kotlin.version>
         <!-- 4.5.0 -->
         <!--        <vertx.version>4.5.1</vertx.version>-->
         <vertx.version>4.5.11</vertx.version>
@@ -53,11 +46,6 @@
     </dependencyManagement>
 
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>org.bouncycastle</groupId>-->
-<!--            <artifactId>bcprov-jdk15on</artifactId>-->
-<!--            <version>1.70</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
@@ -74,11 +62,6 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-lang-kotlin</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.vertx</groupId>
-            <artifactId>vertx-junit5</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
@@ -166,6 +149,16 @@
                             </transformers>
                             <outputFile>${project.build.directory}/${project.artifactId}-${project.version}-fat.jar
                             </outputFile>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>

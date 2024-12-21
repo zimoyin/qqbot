@@ -112,7 +112,7 @@ class PayloadCmdHandler(
         eventBus.broadcastAuto(
             BotOnlineEvent(
                 metadata = payload.metadata,
-                botInfo = BotInfo.create(payload.appID!!)
+                botInfo = bot.botInfo
             )
         )
         response.write(json.encode())
