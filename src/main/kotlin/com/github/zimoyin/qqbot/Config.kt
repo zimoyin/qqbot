@@ -5,11 +5,10 @@ import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.io.IOException
+import java.net.URL
 import java.time.LocalDateTime
-
-val SystemLogger: Logger by lazy {
-    Config.SystemLogger
-}
+import java.util.*
 
 /**
  * 全局 vertx 实例配置
@@ -27,11 +26,6 @@ val GLOBAL_VERTX_INSTANCE: Vertx by lazy {
 }
 
 object Config {
-    @JvmStatic
-    val SystemLogger: Logger by lazy {
-        LoggerFactory.getLogger("System")
-    }
-
     /**
      * 全局 vertx 实例配置
      * 他将在被调用的时候被初始化，你应该在 GLOBAL_VERTX_INSTANCE 初始化之前完成他的修改
@@ -45,7 +39,7 @@ object Config {
             setInternalBlockingPoolSize(VertxOptions.DEFAULT_INTERNAL_BLOCKING_POOL_SIZE)
             setHAEnabled(true)
             io {
-                SystemLogger.debug("[异步日志][{}]已完成一个全局的Vertx 实例的配置 : {}", LocalDateTime.now(), this)
+                SystemLogger.debug("[异步日志][${LocalDateTime.now()}]已完成一个全局的Vertx 实例的配置 : $this")
             }
         }
     }
@@ -74,4 +68,6 @@ object Config {
     fun createVertx(options: VertxOptions = GLOBAL_VERTX_OPTIONS): Vertx {
         return Vertx.vertx(options)
     }
+
+
 }

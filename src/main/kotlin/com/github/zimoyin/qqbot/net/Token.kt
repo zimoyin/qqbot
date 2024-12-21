@@ -36,8 +36,8 @@ data class Token(
 
     init {
         if (version == -1) {
-            version = if (token.isNotEmpty()) 1
-            else if (clientSecret.isNotEmpty()) 2
+            version = if (clientSecret.isNotEmpty()) 2
+            else if (token.isNotEmpty()) 1
             else throw IllegalArgumentException("Token authentication method not specified")
         }
     }

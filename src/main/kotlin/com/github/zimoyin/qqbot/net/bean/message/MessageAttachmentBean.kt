@@ -3,6 +3,7 @@ package com.github.zimoyin.qqbot.net.bean.message
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.github.zimoyin.qqbot.LocalLogger
 import org.slf4j.LoggerFactory
 import java.io.Serializable
 import java.net.URI
@@ -63,7 +64,7 @@ data class MessageAttachment(
 ) : Serializable {
 
     @JsonIgnore
-    private val logger = LoggerFactory.getLogger(MessageAttachment::class.java)
+    private val logger = LocalLogger(MessageAttachment::class.java)
 
     @JsonIgnore
     fun getURL(): String? {

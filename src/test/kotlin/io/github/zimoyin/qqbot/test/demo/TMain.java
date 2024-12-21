@@ -16,6 +16,7 @@ import com.github.zimoyin.qqbot.net.Intents;
 import com.github.zimoyin.qqbot.net.Token;
 import com.github.zimoyin.qqbot.net.http.api.API;
 import com.github.zimoyin.qqbot.net.http.api.TencentOpenApiHttpClient;
+import io.vertx.ext.web.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +85,6 @@ public class TMain {
                     logger.info("点赞列表: {}", emojiList);
                 });
             }
-
 
 
 //

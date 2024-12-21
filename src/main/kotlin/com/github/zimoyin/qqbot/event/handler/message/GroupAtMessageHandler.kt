@@ -29,19 +29,9 @@ class GroupAtMessageHandler : AbsEventHandler<GroupAtMessageEvent>() {
         val jsonNode = mapper.readTree(jsonString)
 
         var jsonObject = jsonNode.toJsonObject()
-//        jsonObject = jsonObject.apply {
-//            val value = getJsonObject("d")?.apply {
-//                val value = getJsonObject("author")?.apply {
-//                    if (getString("username") != null) logger.error("Group At Message Event: Group 下发了 username，请联系开发者修正该部分代码")
-//                    else put("username", getString("id"))
-//                }
-//                put("author", value)
-//            }
-//            put("d", value)
-//        }
         jsonObject = jsonObject.apply {
             val value = getJsonObject("author")?.apply {
-                if (getString("username") != null) logger.error("Group At Message Event: Group 下发了 username，请联系开发者修正该部分代码")
+                if (getString("username") != null) throw IllegalArgumentException("Group At Message Event: Group 下发了 username，请联系开发者修正该部分代码")
                 else put("username", getString("id"))
             }
             put("author", value)

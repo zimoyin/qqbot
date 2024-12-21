@@ -1,5 +1,6 @@
 package com.github.zimoyin.qqbot.net.websocket.handler
 
+import com.github.zimoyin.qqbot.LocalLogger
 import com.github.zimoyin.qqbot.bot.Bot
 import com.github.zimoyin.qqbot.bot.BotInfo
 import com.github.zimoyin.qqbot.event.events.platform.bot.BotHelloEvent
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory
  * @author : zimo
  * @date : 2023/12/07
  */
+@Deprecated("The official has abandoned the WebSocket method")
 class PayloadCmdHandler(
     private val bot: Bot,
     private var promise: Promise<WebSocket>? = null,
@@ -44,7 +46,7 @@ class PayloadCmdHandler(
         }
     }
 
-    private val logger: Logger by lazy { LoggerFactory.getLogger(PayloadCmdHandler::class.java) }
+    private val logger by lazy { LocalLogger(PayloadCmdHandler::class.java) }
     private var debugMataData = false
     private var debugLog = false
     private var debugHeartbeat = false
@@ -130,13 +132,11 @@ class PayloadCmdHandler(
     private fun handle(payload: Payload) {
         if (payload.opcode == 11) {
             if (debugMataData && debugHeartbeat) logger.debug(
-                "WebSocket[${ws.hashCode()}][MataData] ws receive(${payload.opcode}): {}",
-                payload
-            )
+                "WebSocket[${ws.hashCode()}][MataData] ws receive(${payload.opcode}): ${payload}",
+                            )
         } else {
             if (debugMataData) logger.debug(
-                "WebSocket[${ws.hashCode()}][MataData] ws receive(${payload.opcode}): {}",
-                payload
+                "WebSocket[${ws.hashCode()}][MataData] ws receive(${payload.opcode}): ${payload}",
             )
         }
         if (payload.hid != null) id = payload.hid
@@ -148,7 +148,7 @@ class PayloadCmdHandler(
                 11 -> opcode11() // 服务器响应心跳
                 7 -> opcode7(payload) // 服务器通知客户端重新连接
                 9 -> opcode9(payload) // 参数错误比如要求的权限不合适
-                else -> logger.error("WebSocket[${ws.hashCode()}] receive(unknown) : {}", payload)
+                else -> logger.error("WebSocket[${ws.hashCode()}] receive(unknown) : ${payload}")
             }
         } catch (e: Exception) {
             logger.error(
@@ -237,9 +237,7 @@ class PayloadCmdHandler(
             EventMapping.get(this)?.apply {// 获取注册的元事件
                 eventHandler.getDeclaredConstructor().newInstance().apply { // 获取该事件类型的处理器
                     if (debugLog) logger.debug(
-                        "WebSocket[{}] receive(0) 事件处理器: {}",
-                        ws.hashCode(),
-                        this::class.java.typeName
+                        "WebSocket[${ws.hashCode()}] receive(0) 事件处理器: ${this::class.java.typeName}",
                     )
                     try {
                         eventBus.broadcastAuto(handle(payload)) //广播事件
@@ -248,7 +246,7 @@ class PayloadCmdHandler(
                     }
                 }
             } ?: logger.warn("未注册的事件类型: ${payload.eventType} -> ${payload.metadata}")
-        } ?: logger.debug("WebSocket[${ws.hashCode()}] 服务器推送的消息为空(ws send(0)): {}", payload.metadata)
+        } ?: logger.debug("WebSocket[${ws.hashCode()}] 服务器推送的消息为空(ws send(0)): ${payload.metadata}", )
     }
 
     /**
@@ -342,13 +340,11 @@ class PayloadCmdHandler(
     private fun send(payload: Payload) {
         if (payload.opcode == 1) {
             if (debugMataData && debugHeartbeat) logger.debug(
-                "WebSocket[${ws.hashCode()}][MataData] ws send(${payload.opcode}): {}",
-                payload
+                "WebSocket[${ws.hashCode()}][MataData] ws send(${payload.opcode}): ${payload}",
             )
         } else {
             if (debugMataData) logger.debug(
-                "WebSocket[${ws.hashCode()}][MataData] ws send(${payload.opcode}): {}",
-                payload
+                "WebSocket[${ws.hashCode()}][MataData] ws send(${payload.opcode}): ${payload}",
             )
         }
         ws!!.writeTextMessage(payload.toJsonString())

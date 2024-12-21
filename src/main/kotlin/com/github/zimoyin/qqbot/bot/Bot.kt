@@ -13,6 +13,7 @@ import com.github.zimoyin.qqbot.net.bean.GuildBean
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.channel.getGuildInfos
 import com.github.zimoyin.qqbot.net.http.api.channel.getGuilds
+import com.github.zimoyin.qqbot.net.webhook.WebHookConfig
 import com.github.zimoyin.qqbot.utils.vertx
 import com.github.zimoyin.qqbot.utils.vertxWorker
 import io.vertx.core.Future
@@ -20,6 +21,8 @@ import io.vertx.core.Vertx
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.eventbus.Message
 import io.vertx.core.eventbus.MessageConsumer
+import io.vertx.core.http.HttpServer
+import io.vertx.core.http.HttpServerOptions
 import io.vertx.core.http.WebSocket
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +49,7 @@ interface Bot : Serializable, Contact {
          * @param token Token
          * @param intents 订阅事件
          */
+        @Deprecated("The official has abandoned the WebSocket method")
         @JvmStatic
         fun createBot(token: Token, intents: Int): Bot {
             val config = BotConfigBuilder().setToken(token).setIntents(intents).build()
@@ -59,6 +63,7 @@ interface Bot : Serializable, Contact {
          * @param token Token
          * @param intents 订阅事件
          */
+        @Deprecated("The official has abandoned the WebSocket method")
         @JvmStatic
         fun createBot(token: Token, intents: Intents.Presets): Bot {
             val config = BotConfigBuilder().setToken(token).setIntents(intents).build()
@@ -67,7 +72,6 @@ interface Bot : Serializable, Contact {
             return botImp
         }
 
-        @Deprecated("Not recommended for use")
         fun createBot(token: Token): Bot {
             val config = BotConfigBuilder().setToken(token).build()
             val botImp = BotImp(config.token, config = config)
@@ -75,6 +79,14 @@ interface Bot : Serializable, Contact {
             return botImp
         }
 
+        fun createBot(appid: String, secret: String): Bot {
+            val config = BotConfigBuilder().setToken(Token.createByAppSecret(appid, secret)).build()
+            val botImp = BotImp(config.token, config = config)
+            map[config.token.appID] = botImp
+            return botImp
+        }
+
+        @Deprecated("The official has abandoned the WebSocket method")
         @JvmName("kotlinCreateBot")
         fun createBot(token: Token, callback: BotConfigBuilder.() -> Unit): Bot {
             val config = BotConfigBuilder().setToken(token).apply { callback() }.build()
@@ -83,6 +95,7 @@ interface Bot : Serializable, Contact {
             return botImp
         }
 
+        @Deprecated("The official has abandoned the WebSocket method")
         @JvmStatic
         fun createBot(callback: Consumer<BotConfigBuilder>): Bot {
             val config = BotConfigBuilder().apply { callback.accept(this) }.build()
@@ -91,6 +104,7 @@ interface Bot : Serializable, Contact {
             return botImp
         }
 
+        @Deprecated("The official has abandoned the WebSocket method")
         @JvmStatic
         fun createBot(configBuilder: BotConfigBuilder): Bot {
             val config = configBuilder.build()
@@ -134,7 +148,14 @@ interface Bot : Serializable, Contact {
      * 登录
      * 警告： 如果使用 await 后会严重阻塞协程
      */
+    @Deprecated("The official has abandoned the WebSocket method")
     fun login(): Future<WebSocket>
+
+    /**
+     * 启动机器人 webhook 服务器
+     * 警告： 如果使用 await 后会严重阻塞协程
+     */
+    fun start(config: WebHookConfig? = null): Future<HttpServer>
 
     /**
      * 关闭机器人
@@ -186,8 +207,8 @@ interface Bot : Serializable, Contact {
         config.apply {
             val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
             val consumer = getVertxEventBus().localConsumer<T>(cls.name) { msg ->
-                 val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
-            CoroutineScope(scope).launch {
+                val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
+                CoroutineScope(scope).launch {
                     kotlin.runCatching {
                         callback.accept(msg.body())
                     }.onFailure {
@@ -202,7 +223,7 @@ interface Bot : Serializable, Contact {
     /**
      * Bot 事件监听，监听来自于创建该 vertx 的事件监听。 但凡是在该 vertx 中传播的事件都能被捕捉
      */
-    fun <T : Event> onVertxEvent(cls: Class<out T>,  callback: Consumer<T>) {
+    fun <T : Event> onVertxEvent(cls: Class<out T>, callback: Consumer<T>) {
         onVertxEvent(cls, false, callback)
     }
 
@@ -214,8 +235,8 @@ interface Bot : Serializable, Contact {
             val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
             val consumer = getVertxEventBus().localConsumer<T>(cls.name) { msg ->
                 if (msg.body().botInfo.token.appID == this.token.appID) {
-                     val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
-            CoroutineScope(scope).launch {
+                    val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
+                    CoroutineScope(scope).launch {
                         kotlin.runCatching {
                             callback.accept(msg.body())
                         }.onFailure {
@@ -237,15 +258,19 @@ interface Bot : Serializable, Contact {
 }
 
 data class BotConfig(
+    @Deprecated("The official has abandoned the WebSocket method")
     val intents: Int,
     val vertx: Vertx,
+    @Deprecated("The official has abandoned the WebSocket method")
     val shards: BotSection,
     val consumers: HashSet<MessageConsumer<*>>,
     val token: Token,
+    @Deprecated("The official has abandoned the WebSocket method")
     var reconnect: Boolean = true,
     /**
      * Bot丢失链接后的重试次数
      */
+    @Deprecated("The official has abandoned the WebSocket method")
     var retry: Int = -1,
 ) : Serializable {
 
@@ -259,6 +284,7 @@ data class BotConfig(
     /**
      * 配置监听通道列表
      */
+    @Deprecated("The official has abandoned the WebSocket method")
     val intentsSet: Set<Intents>
         get() = Intents.decodeIntents(intents)
 
@@ -296,16 +322,19 @@ class BotConfigBuilder(token0: Token? = null) {
      */
     private var intents: Int = Intents.Presets.DEFAULT.code
 
+    @Deprecated("The official has abandoned the WebSocket method")
     fun setIntents(intents0: Int): BotConfigBuilder {
         intents = intents0
         return this
     }
 
+    @Deprecated("The official has abandoned the WebSocket method")
     fun setIntents(vararg intents0: Intents): BotConfigBuilder {
         intents = Intents.START.and(*intents0)
         return this
     }
 
+    @Deprecated("The official has abandoned the WebSocket method")
     fun setIntents(intents0: Intents.Presets): BotConfigBuilder {
         intents = intents0.code
         return this
@@ -326,8 +355,10 @@ class BotConfigBuilder(token0: Token? = null) {
     /**
      * 机器人切片，vertx 会根据当前切片进行启动机器人
      */
+    @Deprecated("The official has abandoned the WebSocket method")
     private var shards: BotSection = BotSection()
 
+    @Deprecated("The official has abandoned the WebSocket method")
     fun setShards(shards0: BotSection): BotConfigBuilder {
         shards = shards0
         return this
@@ -362,7 +393,10 @@ class BotConfigBuilder(token0: Token? = null) {
     /**
      * 是否允许重连
      */
+    @Deprecated("The official has abandoned the WebSocket method")
     private var reconnect: Boolean = true
+
+    @Deprecated("The official has abandoned the WebSocket method")
     fun setReconnect(reconnect0: Boolean): BotConfigBuilder {
         reconnect = reconnect0
         return this
@@ -371,7 +405,10 @@ class BotConfigBuilder(token0: Token? = null) {
     /**
      * 是否允许重试
      */
+    @Deprecated("The official has abandoned the WebSocket method")
     private var retry: Int = 8
+
+    @Deprecated("The official has abandoned the WebSocket method")
     fun setRetry(retry0: Int): BotConfigBuilder {
         retry = retry0
         return this
@@ -396,11 +433,14 @@ class BotConfigBuilder(token0: Token? = null) {
  *
  */
 @JvmOverloads
-inline fun <reified T : Event> Bot.onVertxEvent(isUseWorkerThread: Boolean = false,crossinline callback: suspend Message<T>.(message: T) -> Unit) {
+inline fun <reified T : Event> Bot.onVertxEvent(
+    isUseWorkerThread: Boolean = false,
+    crossinline callback: suspend Message<T>.(message: T) -> Unit
+) {
     this.config.apply {
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
         val consumer = getVertxEventBus().localConsumer<T>(T::class.java.name) { msg ->
-             val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
+            val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
             CoroutineScope(scope).launch {
                 kotlin.runCatching {
                     msg.callback(msg.body())
@@ -418,13 +458,16 @@ inline fun <reified T : Event> Bot.onVertxEvent(isUseWorkerThread: Boolean = fal
  *
  */
 @JvmOverloads
-inline fun <reified T : Event> Bot.onEvent(isUseWorkerThread: Boolean = false,crossinline callback: suspend Message<T>.(message: T) -> Unit) {
+inline fun <reified T : Event> Bot.onEvent(
+    isUseWorkerThread: Boolean = false,
+    crossinline callback: suspend Message<T>.(message: T) -> Unit
+) {
     this.config.apply {
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
         val consumer = getVertxEventBus().localConsumer<T>(T::class.java.name) { msg ->
             if (msg.body().botInfo.token.appID == this.token.appID) {
-                 val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
-            CoroutineScope(scope).launch {
+                val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
+                CoroutineScope(scope).launch {
                     kotlin.runCatching {
                         callback(msg, msg.body())
                     }.onFailure {

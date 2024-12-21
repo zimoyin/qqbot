@@ -1,5 +1,6 @@
 package com.github.zimoyin.qqbot.net.http.api
 
+import com.github.zimoyin.qqbot.LocalLogger
 import com.github.zimoyin.qqbot.exception.HttpClientException
 import com.github.zimoyin.qqbot.exception.HttpHandlerException
 import com.github.zimoyin.qqbot.exception.HttpStateCodeException
@@ -17,7 +18,7 @@ import org.slf4j.LoggerFactory
  * API 访问入口
  */
 object HttpAPIClient {
-    val logger: Logger by lazy { LoggerFactory.getLogger(HttpAPIClient::class.java) }
+    val logger = LocalLogger(HttpAPIClient::class.java)
 
 
     init {

@@ -1,6 +1,7 @@
 package com.github.zimoyin.qqbot.net.http
 
 import com.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
+import com.github.zimoyin.qqbot.LocalLogger
 import com.github.zimoyin.qqbot.utils.ex.awaitToCompleteExceptionally
 import com.github.zimoyin.qqbot.utils.ex.toUrl
 import io.vertx.core.Vertx
@@ -50,7 +51,7 @@ class DefaultHttpClient(
         put("pop3", 110)
     }
 
-    private val logger: Logger by lazy { LoggerFactory.getLogger(DefaultHttpClient::class.java) }
+    private val logger = LocalLogger(DefaultHttpClient::class.java)
 
     val DefaultClient: WebClient by lazy {
         WebClient.create(vertx, options)

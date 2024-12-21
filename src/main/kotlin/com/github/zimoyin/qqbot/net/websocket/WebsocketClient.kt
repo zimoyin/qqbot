@@ -1,5 +1,6 @@
 package com.github.zimoyin.qqbot.net.websocket
 
+import com.github.zimoyin.qqbot.LocalLogger
 import com.github.zimoyin.qqbot.bot.Bot
 import com.github.zimoyin.qqbot.bot.BotSection
 import com.github.zimoyin.qqbot.event.events.platform.bot.BotOfflineEvent
@@ -30,9 +31,10 @@ import java.net.SocketException
  * @date : 2023/12/06/18:30
  * @description ：
  */
+@Deprecated("The official has abandoned the WebSocket method")
 //class WebsocketClient(private val bot: Bot) : AbstractVerticle() {
 class WebsocketClient(private val bot: Bot, private val promise0: Promise<WebSocket>? = null) : CoroutineVerticle() {
-    private val logger = LoggerFactory.getLogger(WebsocketClient::class.java)
+    private val logger = LocalLogger(WebsocketClient::class.java)
     private val promise: Promise<WebSocket> = promise0 ?: bot.context.getValue<Promise<WebSocket>>("internal.promise")
     private var reconnectTime: Long = 1 * 1000
     private var gatewayURL: String? = null // 网关接入点，通常为 TencentOpenApiHttpClient 中 定义的远程主机 host 与网关 path 组成
@@ -107,7 +109,7 @@ class WebsocketClient(private val bot: Bot, private val promise0: Promise<WebSoc
         client.connect(443, url.host, url.path).onSuccess { ws ->
             bot.context["ws"] = ws
             WS = ws
-            this.payloadCmdHandler = PayloadCmdHandler(bot, promise,ws)
+            this.payloadCmdHandler = com.github.zimoyin.qqbot.net.websocket.handler.PayloadCmdHandler(bot, promise, ws)
             if (!bot.context.contains(handlerKey)) bot.context[handlerKey] =  this.payloadCmdHandler
             logger.info("WebSocketClient[${client.hashCode()}] 完成创建 WebSocket[${ws.hashCode()}] : 链接服务器成功")
         }.onSuccess { ws ->

@@ -1,5 +1,6 @@
 package com.github.zimoyin.qqbot.bot
 
+import com.github.zimoyin.qqbot.LocalLogger
 import com.github.zimoyin.qqbot.bot.message.MessageChain
 import com.github.zimoyin.qqbot.exception.HttpClientException
 import com.github.zimoyin.qqbot.net.Token
@@ -7,6 +8,8 @@ import com.github.zimoyin.qqbot.net.bean.SendMessageResultBean
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.accessTokenUpdateAsync
 import com.github.zimoyin.qqbot.net.http.api.botInfo
+import com.github.zimoyin.qqbot.net.webhook.WebHookConfig
+import com.github.zimoyin.qqbot.net.webhook.WebHookHttpServer
 import com.github.zimoyin.qqbot.net.websocket.WebsocketClient
 import com.github.zimoyin.qqbot.utils.ex.await
 import com.github.zimoyin.qqbot.utils.ex.awaitToCompleteExceptionally
@@ -15,6 +18,8 @@ import com.github.zimoyin.qqbot.utils.ex.promise
 import com.github.zimoyin.qqbot.utils.io
 import io.vertx.core.Future
 import io.vertx.core.Promise
+import io.vertx.core.http.HttpServer
+import io.vertx.core.http.HttpServerOptions
 import io.vertx.core.http.WebSocket
 import org.slf4j.LoggerFactory
 
@@ -28,8 +33,12 @@ class BotImp(
     override val context: BotContent = BotContent(),
     override val config: BotConfig = BotConfigBuilder().setToken(token).build(),
 ) : Bot {
-    private val logger = LoggerFactory.getLogger(BotImp::class.java)
+    private val logger = LocalLogger(BotImp::class.java)
+
+    @Deprecated("The official has abandoned the WebSocket method")
     private var websocketClient: WebsocketClient? = null
+    var webHookHttpServer: WebHookHttpServer? = null
+        private set
     private val vertx = config.vertx
 
     override var avatar: String = "not init"
@@ -55,24 +64,13 @@ class BotImp(
                 unionUserAccount = user.unionUserAccount ?: ""
                 id = user.id
             }
-
-//            io {
-//                HttpAPIClient.botInfo(token).onSuccess { user->
-//                    avatar = user.avatar ?: ""
-//                    nick = user.username
-//                    unionOpenid = user.unionOpenID ?: ""
-//                    unionUserAccount = user.unionUserAccount ?: ""
-//                    id = user.id
-//                }.onFailure {
-//                    throw it
-//                }
-//            }
         } catch (e: NullPointerException) {
             throw HttpClientException("Unable to provide specific information about the robot", e)
         }
     }
 
 
+    @Deprecated("The official has abandoned the WebSocket method")
     override fun login(): Future<WebSocket> {
         val promise = Promise.promise<WebSocket>()
         if (websocketClient != null) {
@@ -82,7 +80,7 @@ class BotImp(
         when (token.version) {
             2 -> {
                 HttpAPIClient.accessTokenUpdateAsync(token).awaitToCompleteExceptionally()
-                websocketClient = WebsocketClient(this,promise)
+                websocketClient = WebsocketClient(this, promise)
                 logger.info("Vertx 部署Verticle： WebSocketClient")
                 vertx.deployVerticle(websocketClient).onFailure {
                     promise.isInitialStage().apply {
@@ -93,7 +91,7 @@ class BotImp(
             }
 
             1 -> {
-                websocketClient = WebsocketClient(this,promise)
+                websocketClient = WebsocketClient(this, promise)
                 vertx.deployVerticle(websocketClient).onFailure {
                     promise.isInitialStage().apply {
                         promise.tryFail(it)
@@ -120,9 +118,19 @@ class BotImp(
         return promise.future()
     }
 
+    override fun start(config: WebHookConfig?): Future<HttpServer> {
+        val promise = promise<HttpServer>()
+        webHookHttpServer = WebHookHttpServer(promise, this, config ?: WebHookConfig())
+        vertx.deployVerticle(webHookHttpServer).onFailure {
+            promise.tryFail(it)
+        }
+        return promise.future()
+    }
+
+    @Deprecated("The official has abandoned the WebSocket method")
     override fun close() {
-        val promise = promise<Boolean>()
         if (websocketClient != null) websocketClient!!.close()
+        if (webHookHttpServer != null) webHookHttpServer!!.close()
         this.context.clear()
         logger.info("the bot[${this.config.token.appID}] 上下文被清空")
     }

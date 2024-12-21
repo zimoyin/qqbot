@@ -81,7 +81,7 @@ fun main() {
                 }
             }
         } ?: logger.warn("未注册的事件类型: ${payload.eventType} -> ${payload.metadata}")
-    } ?: logger.debug("服务器推送的消息为空(ws send(0)): {}", payload.metadata)
+    } ?: logger.debug("服务器推送的消息为空(ws send(0)): ${payload.metadata}", )
 
     GLOBAL_VERTX_INSTANCE.close()
 }

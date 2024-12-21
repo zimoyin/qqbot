@@ -2,6 +2,7 @@ package com.github.zimoyin.qqbot.event.supporter
 
 
 import com.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
+import com.github.zimoyin.qqbot.LocalLogger
 import com.github.zimoyin.qqbot.SystemLogger
 import com.github.zimoyin.qqbot.bot.Bot
 import com.github.zimoyin.qqbot.event.events.Event
@@ -24,7 +25,7 @@ import java.util.function.Consumer
  * 事件总线基础类
  */
 open class BotEventBus(val bus: EventBus) {
-    val logger: Logger by lazy { LoggerFactory.getLogger(EventBus::class.java) }
+    val logger by lazy { LocalLogger(BotEventBus::class.java) }
     val consumers = HashSet<MessageConsumer<*>>()
     val openLogger = false
 
@@ -86,16 +87,14 @@ open class BotEventBus(val bus: EventBus) {
         }
         while (currentClass != null && (root.isAssignableFrom(currentClass) || root == currentClass)) {
             if (openLogger) logger.debug(
-                "发布事件[${message.metadataType}:${message.botInfo.token.appID}]: {}",
-                currentClass.name
+                "发布事件[${message.metadataType}:${message.botInfo.token.appID}]: ${currentClass.name}",
             )
             bus.publish(currentClass.name, message)
             currentClass.interfaces.forEach {
                 if (it != null && (root.isAssignableFrom(it) || root == it)) {
                     bus.publish(it.name, message)
                     if (openLogger) logger.debug(
-                        "发布事件[${message.metadataType}::${message.botInfo.token.appID}]: {}",
-                        it.name
+                        "发布事件[${message.metadataType}::${message.botInfo.token.appID}]: ${it.name}"
                     )
                 }
             }
@@ -120,8 +119,7 @@ open class BotEventBus(val bus: EventBus) {
         }
         while (currentClass != null && (root.isAssignableFrom(currentClass) || root == currentClass)) {
             if (openLogger) logger.debug(
-                "发布事件[${message.metadataType}:${message.botInfo.token.appID}]: {}",
-                currentClass.name
+                "发布事件[${message.metadataType}:${message.botInfo.token.appID}]: ${currentClass.name}"
             )
             bus.publish(currentClass.name, message)
             broadcastInterface(currentClass.interfaces, root, message)
@@ -138,8 +136,7 @@ open class BotEventBus(val bus: EventBus) {
         val root = Event::class.java
         while (currentClass != null && (root.isAssignableFrom(currentClass) || root == currentClass)) {
             if (openLogger) logger.debug(
-                "发布事件[${message.metadataType}:${message.botInfo.token.appID}]: {}",
-                currentClass.name
+                "发布事件[${message.metadataType}:${message.botInfo.token.appID}]: ${currentClass.name}"
             )
             bus.publish(currentClass.name, message)
             broadcastInterface(currentClass.interfaces, root, message)
@@ -158,8 +155,7 @@ open class BotEventBus(val bus: EventBus) {
             if (root.isAssignableFrom(it) || root == it) {
                 bus.publish(it.name, message)
                 if (openLogger) logger.debug(
-                    "发布事件[${message.metadataType}:${message.botInfo.token.appID}]: {}",
-                    it.name
+                    "发布事件[${message.metadataType}:${message.botInfo.token.appID}]: ${it.name}",
                 )
                 blackList.add(it)
             } else {

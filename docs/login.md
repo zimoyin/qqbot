@@ -8,6 +8,8 @@ Bot.INSTANCE.createBot() {
     it.setIntents(github.zimoyin.net.Intents.Presets.PRIVATE_INTENTS) //设置权限
     it.setToken(appid, token, appsecret) // token 与 appsecret 允许各选其一
 }.login()
+
+    .start() // 用于开启 WebHook
 ```
 
 Java:

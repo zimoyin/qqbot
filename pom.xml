@@ -8,6 +8,13 @@
     <artifactId>qqbot</artifactId>
     <version>1.0.21</version>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
@@ -22,19 +29,16 @@
         <launcher.class>io.vertx.core.Launcher</launcher.class>
 
         <!-- 1.7.21 -->
-        <kotlin.version>1.9.21</kotlin.version>
-        <!-- 4.5.0 -->
-        <vertx.version>4.5.1</vertx.version>
-        <slf4j.api.version>2.0.9</slf4j.api.version>
-        <coroutines.version>1.8.0-RC</coroutines.version>
-    </properties>
+        <!-- 1.9.21 -->
 
-    <repositories>
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
+        <kotlin.version>2.0.20</kotlin.version>
+        <!-- 4.5.0 -->
+        <!--        <vertx.version>4.5.1</vertx.version>-->
+        <vertx.version>4.5.11</vertx.version>
+        <slf4j.api.version>2.0.9</slf4j.api.version>
+        <!-- 1.8.0-RC -->
+        <coroutines.version>1.10.0</coroutines.version>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -50,10 +54,19 @@
 
     <dependencies>
 <!--        <dependency>-->
-<!--            <groupId>com.github.zimoyin</groupId>-->
-<!--            <artifactId>ClassSeeker</artifactId>-->
-<!--            <version>0.0.4</version>-->
+<!--            <groupId>org.bouncycastle</groupId>-->
+<!--            <artifactId>bcprov-jdk15on</artifactId>-->
+<!--            <version>1.70</version>-->
 <!--        </dependency>-->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>1.79</version>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-web</artifactId>
+        </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-web-client</artifactId>
@@ -70,19 +83,6 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-lang-kotlin-coroutines</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit-jupiter.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit-jupiter.version}</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>

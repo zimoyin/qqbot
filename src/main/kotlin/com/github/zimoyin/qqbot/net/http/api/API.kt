@@ -1,6 +1,7 @@
 package com.github.zimoyin.qqbot.net.http.api
 
 
+import com.github.zimoyin.qqbot.LocalLogger
 import io.vertx.core.buffer.Buffer
 import io.vertx.ext.web.client.HttpRequest
 import org.slf4j.LoggerFactory
@@ -475,7 +476,7 @@ object API {
         TencentOpenApiHttpClient.client.delete("/v2/users/{openid}/messages/{message_id}")
     }
 
-    private val logger = LoggerFactory.getLogger(API::class.java)
+    private val logger = LocalLogger(API::class.java)
 
     /**
      *  @param repeat 是否重复生成
@@ -491,7 +492,7 @@ object API {
             } else {
                 client.init()
             }
-            if (isDebug) logger.debug("Http Request[{}] {}", request.method(), request.uri())
+            if (isDebug) logger.debug("Http Request[${request.method()}] ${request.uri()}")
             return request
         }
 

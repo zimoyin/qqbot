@@ -1,5 +1,6 @@
 package com.github.zimoyin.qqbot.event.supporter
 
+import com.github.zimoyin.qqbot.LocalLogger
 import com.github.zimoyin.qqbot.annotation.EventAnnotation
 import com.github.zimoyin.qqbot.event.events.*
 import com.github.zimoyin.qqbot.event.events.bot.BotReadyEvent
@@ -72,7 +73,7 @@ import org.slf4j.LoggerFactory
 object EventMapping {
     private val mapping = mutableMapOf<String, MateEventMapping>()
     private val history: HashSet<Class<*>> = HashSet()
-    private val logger: Logger by lazy { LoggerFactory.getLogger(EventMapping::class.java) }
+    private val logger = LocalLogger(EventMapping::class.java)
 
     init {
         //添加框架预先实现的元事件。如果不添加的话，父事件无法接收到没有开启监听的子事件的信息
@@ -193,7 +194,7 @@ object EventMapping {
                     success.add(cls.simpleName)
                 }
         }
-        logger.debug("EventMapping 初始化成功: {}", success)
+        logger.debug("EventMapping 初始化成功: $success")
     }
 
     fun add(str: String, mate: MateEventMapping) {
@@ -204,7 +205,7 @@ object EventMapping {
         if (history.contains(cls)) return
         runCatching {
             val initAdd = initAdd(cls)
-            logger.debug("EventMapping add mapping: {} ", initAdd)
+            logger.debug("EventMapping add mapping: $initAdd ", )
         }.onFailure {
             logger.error("EventMapping add error: class $cls", it)
         }

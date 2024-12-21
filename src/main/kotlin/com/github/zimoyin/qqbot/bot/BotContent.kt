@@ -1,5 +1,6 @@
 package com.github.zimoyin.qqbot.bot
 
+import com.github.zimoyin.qqbot.LocalLogger
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
 import org.slf4j.Logger
@@ -24,7 +25,7 @@ class BotContent : Serializable {
      */
     private val contextSettingRecord: HashMap<String, StackTraceElement> = HashMap()
 
-    private val logger: Logger by lazy { LoggerFactory.getLogger(BotContent::class.java) }
+    private val logger = LocalLogger(BotContent::class.java)
 
     /**
      * 设置指定键的值。如果值为 null，则记录警告日志。
