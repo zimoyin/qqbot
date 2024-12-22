@@ -1,4 +1,4 @@
-package example.java.comand;
+package com.github;
 
 import com.github.zimoyin.qqbot.bot.Bot;
 import com.github.zimoyin.qqbot.bot.BotConfigBuilder;
@@ -9,14 +9,13 @@ import com.github.zimoyin.qqbot.exception.CommandHandlerException;
 import com.github.zimoyin.qqbot.exception.CommandNotFoundException;
 import com.github.zimoyin.qqbot.net.Intents;
 import com.github.zimoyin.qqbot.net.Token;
-import com.github.zimoyin.qqbot.net.http.DefaultHttpClient;
-
+import com.github.zimoyin.qqbot.net.http.api.TencentOpenApiHttpClient;
 
 /**
  * @author : zimo
- * @date : 2024/05/10
+ * @date : 2024/12/22
  */
-public class Main1 {
+public class Main {
     public static String AppID = "xxx";
     public static String Tokens = "xxxx";
     public static String Secret = "xxxxx";
@@ -29,7 +28,7 @@ public class Main1 {
             .setToken(token);
 
         // 设置沙盒环境
-        DefaultHttpClient.INSTANCE.setSandBox(true);
+        TencentOpenApiHttpClient.setSandBox(true);
 
         // 创建命令注册中心
         SimpleCommandRegistrationCenter registrationCenter = SimpleCommandRegistrationCenter.INSTANCE;

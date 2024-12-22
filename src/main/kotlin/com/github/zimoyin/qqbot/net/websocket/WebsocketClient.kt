@@ -6,6 +6,7 @@ import com.github.zimoyin.qqbot.bot.BotSection
 import com.github.zimoyin.qqbot.event.events.platform.bot.BotOfflineEvent
 import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import com.github.zimoyin.qqbot.exception.WebSocketReconnectException
+import com.github.zimoyin.qqbot.net.Intents
 import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import com.github.zimoyin.qqbot.net.http.api.TencentOpenApiHttpClient
 import com.github.zimoyin.qqbot.net.http.api.gatewayV2Async
@@ -80,14 +81,17 @@ class WebsocketClient(private val bot: Bot, private val promise0: Promise<WebSoc
         } else {
             val gateway = HttpAPIClient.gatewayV2Async(bot.config.token).await()
             gateway.getInteger("code")?.apply {
-                check(gateway.getString("message") != "Token错误") { "无法获取到登录点,原因为 Token / AppID / Secret 错误" }
-                check(gateway.getString("message") != "接口访问源IP不在白名单") { "无法获取到登录点,原因为当前环境为正式环境(非沙盒环境)，请将当前服务器IP 添加到QQ开发平台的IP白名单中。或者设置环境为沙盒环境(测试环境) > DefaultHttpClient.isSandBox = true" }
-                throw IllegalStateException("无法获取到登录点,原因为: " + gateway.getString("message"))
+                check(gateway.getString("message") != "Token错误") { "cannot get the login point, reason is Token / AppID / Secret error" }
+                check(gateway.getString("message") != "接口访问源IP不在白名单") {
+                    if (bot.config.intents == Intents.Presets.DEFAULT.code) "cannot get the login point, reason is intents not set"
+                    else "cannot get the login point, reason is IP access source is not in the white list, please add the current server IP to the IP white list of QQ development platform. Or set the environment to sandbox environment (test environment) > TencentOpenApiHttpClient.isSandBox = true"
+                }
+                throw IllegalStateException("cannot get the login point, reason is: " + gateway.getString("message"))
             }
             bot.context["shards"] = gateway.getInteger("shards") ?: 1 //推荐分片数
             //获取 ws 地址
             gatewayURL = gateway.getString("url")
-            gatewayURL ?: throw NullPointerException("无法获取到 WSS 接入点")
+            gatewayURL ?: throw NullPointerException("not found the WSS access point")
         }
         bot.context["internal.headerCycle"] = bot.context.getOrDefault<Long>("internal.headerCycle", headerCycle)
         connect(client!!, bot.config.reconnect, bot.config.retry)

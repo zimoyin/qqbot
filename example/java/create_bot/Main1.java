@@ -22,7 +22,7 @@ public class Main1 {
 
     public static void main(String[] args) {
         // 设置沙盒环境
-        DefaultHttpClient.INSTANCE.setSandBox(true);
+        TencentOpenApiHttpClient.setSandBox(true);
 
         // 创建Token，并使用鉴权方式 1
         Token token = Token.create(AppID, Tokens, Secret).version(1);

@@ -384,7 +384,7 @@ class BotConfigBuilder(token0: Token? = null) {
     }
 
     @JvmOverloads
-    fun setToken(appid: String, token: String, appSecret: String = ""): BotConfigBuilder {
+    fun setToken(appid: String, token: String="", appSecret: String = ""): BotConfigBuilder {
         this.token = Token(appid, token, appSecret)
         return this
     }

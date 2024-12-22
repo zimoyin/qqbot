@@ -73,6 +73,7 @@ class BotImp(
     @Deprecated("The official has abandoned the WebSocket method")
     override fun login(): Future<WebSocket> {
         val promise = Promise.promise<WebSocket>()
+        logger.warn("QQ 官方机器人平台计划于 2024 年停止使用 WebSocket 协议，请使用 HTTP API 进行机器人操作。使用 start 进行启动")
         if (websocketClient != null) {
             return Future.failedFuture(IllegalStateException("Web socket has already been started"))
         }
