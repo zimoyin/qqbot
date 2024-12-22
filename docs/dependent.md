@@ -11,10 +11,15 @@
 ```xml
 <!--添加该库的仓库地址-->
 <repositories>
-  <repository>
-    <id>jitpack.io</id>
-    <url>https://jitpack.io</url>
-  </repository>
+    <!-- Maven 中央仓库 ： 如果需要使用国内镜像仓库也可以添加，该仓库是为了兼容低版本 idea-->
+    <repository>
+        <id>central</id>
+        <url>https://repo.maven.apache.org/maven2</url>
+    </repository>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
 </repositories>
 <!--引入依赖-->
 <dependencies>
@@ -31,13 +36,14 @@
 #### <a name="tab2"></a>Gradle
 ```groovy
 // 添加jitpack仓库
-dependencyResolutionManagement {
-  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-  repositories {
-    mavenCentral()
-    maven { url 'https://jitpack.io' }
-  }
-}
+//dependencyResolutionManagement {
+//  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+//  repositories {
+//    mavenCentral()
+//    maven { url 'https://jitpack.io' }
+//  }
+//}
+
 // 或者 添加jitpack仓库
 repositories {
   mavenCentral()
@@ -53,6 +59,7 @@ implementation 'com.github.zimoyin:qqbot:1.1.0'
 ```kotlin
 // 添加jitpack仓库
 repositories {
+    mavenCentral()
   maven("https://jitpack.io")
 }
 // 引入依赖
