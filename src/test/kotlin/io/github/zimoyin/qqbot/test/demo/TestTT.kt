@@ -1,7 +1,7 @@
 package io.github.zimoyin.qqbot.test.demo
 
-import com.github.zimoyin.qqbot.utils.ex.await
-import com.github.zimoyin.qqbot.utils.ex.toJsonObject
+import io.github.zimoyin.qqbot.utils.ex.await
+import io.github.zimoyin.qqbot.utils.ex.toJsonObject
 import io.vertx.core.http.WebSocketClientOptions
 import io.vertx.kotlin.core.json.json
 import io.vertx.kotlin.core.json.jsonObjectOf

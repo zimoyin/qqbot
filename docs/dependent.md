@@ -24,7 +24,7 @@
 <!--引入依赖-->
 <dependencies>
   <dependency>
-    <groupId>com.github.zimoyin</groupId>
+    <groupId>io.github.zimoyin</groupId>
     <artifactId>qqbot</artifactId>
     <version>1.1.0</version>
   </dependency>
@@ -50,7 +50,7 @@ repositories {
   maven { url 'https://jitpack.io' }
 }
 // 引入依赖
-implementation 'com.github.zimoyin:qqbot:1.1.0'
+implementation 'io.github.zimoyin:qqbot:1.1.0'
 ```
 
 ---
@@ -63,6 +63,6 @@ repositories {
   maven("https://jitpack.io")
 }
 // 引入依赖
-implementation("com.github.zimoyin:qqbot:1.1.0")
+implementation("io.github.zimoyin:qqbot:1.1.0")
 ```
 ---

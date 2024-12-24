@@ -1,7 +1,7 @@
 package io.github.zimoyin.qqbot.test.demo
 
-import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
-import com.github.zimoyin.qqbot.utils.io
+import io.github.zimoyin.qqbot.event.supporter.GlobalEventBus
+import io.github.zimoyin.qqbot.utils.io
 import openDebug
 import token
 

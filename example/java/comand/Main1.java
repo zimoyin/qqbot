@@ -1,15 +1,15 @@
 package com.github;
 
-import com.github.zimoyin.qqbot.bot.Bot;
-import com.github.zimoyin.qqbot.bot.BotConfigBuilder;
-import com.github.zimoyin.qqbot.command.SimpleCommandRegistrationCenter;
-import com.github.zimoyin.qqbot.event.events.message.MessageEvent;
-import com.github.zimoyin.qqbot.exception.CommandException;
-import com.github.zimoyin.qqbot.exception.CommandHandlerException;
-import com.github.zimoyin.qqbot.exception.CommandNotFoundException;
-import com.github.zimoyin.qqbot.net.Intents;
-import com.github.zimoyin.qqbot.net.Token;
-import com.github.zimoyin.qqbot.net.http.api.TencentOpenApiHttpClient;
+import io.github.zimoyin.qqbot.bot.Bot;
+import io.github.zimoyin.qqbot.bot.BotConfigBuilder;
+import io.github.zimoyin.qqbot.command.SimpleCommandRegistrationCenter;
+import io.github.zimoyin.qqbot.event.events.message.MessageEvent;
+import io.github.zimoyin.qqbot.exception.CommandException;
+import io.github.zimoyin.qqbot.exception.CommandHandlerException;
+import io.github.zimoyin.qqbot.exception.CommandNotFoundException;
+import io.github.zimoyin.qqbot.net.Intents;
+import io.github.zimoyin.qqbot.net.Token;
+import io.github.zimoyin.qqbot.net.http.api.TencentOpenApiHttpClient;
 
 /**
  * @author : zimo

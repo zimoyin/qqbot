@@ -1,19 +1,19 @@
 package example.kotlin
 
 
-import com.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
-import com.github.zimoyin.qqbot.annotation.UntestedApi
-import com.github.zimoyin.qqbot.bot.Bot
-import com.github.zimoyin.qqbot.bot.message.MessageChainBuilder
-import com.github.zimoyin.qqbot.bot.message.type.ImageMessage
-import com.github.zimoyin.qqbot.bot.onEvent
-import com.github.zimoyin.qqbot.event.events.Event
-import com.github.zimoyin.qqbot.event.events.message.MessageEvent
-import com.github.zimoyin.qqbot.event.events.platform.MessageSendPreEvent
-import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
-import com.github.zimoyin.qqbot.net.Intents
-import com.github.zimoyin.qqbot.net.http.DefaultHttpClient
-import com.github.zimoyin.qqbot.net.plus
+import io.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
+import io.github.zimoyin.qqbot.annotation.UntestedApi
+import io.github.zimoyin.qqbot.bot.Bot
+import io.github.zimoyin.qqbot.bot.message.MessageChainBuilder
+import io.github.zimoyin.qqbot.bot.message.type.ImageMessage
+import io.github.zimoyin.qqbot.bot.onEvent
+import io.github.zimoyin.qqbot.event.events.Event
+import io.github.zimoyin.qqbot.event.events.message.MessageEvent
+import io.github.zimoyin.qqbot.event.events.platform.MessageSendPreEvent
+import io.github.zimoyin.qqbot.event.supporter.GlobalEventBus
+import io.github.zimoyin.qqbot.net.Intents
+import io.github.zimoyin.qqbot.net.http.DefaultHttpClient
+import io.github.zimoyin.qqbot.net.plus
 import openDebug
 import org.slf4j.LoggerFactory
 import token

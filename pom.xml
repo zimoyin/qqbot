@@ -4,9 +4,37 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.zimoyin</groupId>
+<!--    <groupId>io.github.zimoyin</groupId>-->
+    <groupId>io.github.zimoyin</groupId>
+<!--    <groupId>io.gitee.zimoyin</groupId>-->
     <artifactId>qqbot</artifactId>
     <version>1.1.0</version>
+    <description>QQBOT SDK</description>
+    <url>https://github.com/zimoyin/qqbot</url>
+
+    <developers>
+        <developer>
+            <id>zimoyin</id>
+            <name>zimoyin</name>
+            <email>tianxuanzimo@qq.com</email>
+            <roles>
+                <role>Project Manager</role>
+                <role>Architect</role>
+            </roles>
+        </developer>
+    </developers>
+    <scm>
+        <connection>https://github.com/zimoyin/qqbot.git</connection>
+        <developerConnection>scm:git:ssh://github.com/zimoyin/qqbot.git</developerConnection>
+        <url>https://github.com/zimoyin/qqbot</url>
+    </scm>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -19,7 +47,7 @@
         <junit-jupiter.version>5.9.1</junit-jupiter.version>
 
         <main.verticle>com.example.starter.MainVerticle</main.verticle>
-        <launcher.class>com.github.zimoyin.qqbot.MainKt</launcher.class>
+        <launcher.class>io.github.zimoyin.qqbot.MainKt</launcher.class>
 
         <!-- 1.7.21 -->
         <!-- 1.9.21 -->
@@ -186,6 +214,70 @@
                     <source>11</source>
                     <target>11</target>
                 </configuration>
+            </plugin>
+            <!--   source源码插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--   javadoc插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.9.1</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <additionalparam>-Xdoclint:none</additionalparam>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--   central发布插件    -->
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.6.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>zimoyin</publishingServerId>
+                </configuration>
+            </plugin>
+            <!--   gpg插件    -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.5</version>
+                <configuration>
+                    <executable>gpg</executable>
+<!--                    <keyname>2BE3D6E4A9735D7E0E59111F6DF59EA65F82D2CD</keyname>-->
+                    <keyname>zimoyin</keyname>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

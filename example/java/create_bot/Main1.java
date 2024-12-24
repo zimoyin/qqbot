@@ -1,12 +1,12 @@
 package example.java.create_bot;
 
-import com.github.zimoyin.qqbot.ConfigKt;
-import com.github.zimoyin.qqbot.bot.Bot;
-import com.github.zimoyin.qqbot.event.events.Event;
-import com.github.zimoyin.qqbot.event.events.message.MessageEvent;
-import com.github.zimoyin.qqbot.net.Intents;
-import com.github.zimoyin.qqbot.net.Token;
-import com.github.zimoyin.qqbot.net.http.DefaultHttpClient;
+import io.github.zimoyin.qqbot.ConfigKt;
+import io.github.zimoyin.qqbot.bot.Bot;
+import io.github.zimoyin.qqbot.event.events.Event;
+import io.github.zimoyin.qqbot.event.events.message.MessageEvent;
+import io.github.zimoyin.qqbot.net.Intents;
+import io.github.zimoyin.qqbot.net.Token;
+import io.github.zimoyin.qqbot.net.http.DefaultHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

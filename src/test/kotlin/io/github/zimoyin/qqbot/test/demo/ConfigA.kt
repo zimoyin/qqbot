@@ -1,12 +1,12 @@
-import com.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
-import com.github.zimoyin.qqbot.bot.Bot
-import com.github.zimoyin.qqbot.event.events.message.at.ChannelAtMessageEvent
-import com.github.zimoyin.qqbot.event.supporter.EventMapping
-import com.github.zimoyin.qqbot.event.supporter.GlobalEventBus
-import com.github.zimoyin.qqbot.net.Token
-import com.github.zimoyin.qqbot.net.bean.Payload
-import com.github.zimoyin.qqbot.net.http.api.HttpAPIClient.logger
-import com.github.zimoyin.qqbot.utils.JSON
+import io.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
+import io.github.zimoyin.qqbot.bot.Bot
+import io.github.zimoyin.qqbot.event.events.message.at.ChannelAtMessageEvent
+import io.github.zimoyin.qqbot.event.supporter.EventMapping
+import io.github.zimoyin.qqbot.event.supporter.GlobalEventBus
+import io.github.zimoyin.qqbot.net.Token
+import io.github.zimoyin.qqbot.net.bean.Payload
+import io.github.zimoyin.qqbot.net.http.api.HttpAPIClient.logger
+import io.github.zimoyin.qqbot.utils.JSON
 import org.slf4j.LoggerFactory
 import java.io.File
 

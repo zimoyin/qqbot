@@ -48,7 +48,7 @@ Bot.createBot(token) {
     // 设置 群域权限 Intents
     setIntents(Intents.Presets.PUBLIC_GROUP_INTENTS)
     // 自定义 Intents
-    setIntents(Intents.START + Intents.DIRECT_MESSAGE) // 注意导入 com.github.zimoyin.qqbot.net.plus
+    setIntents(Intents.START + Intents.DIRECT_MESSAGE) // 注意导入 io.github.zimoyin.qqbot.net.plus
     // 设置自定义 Intents 并且十进制值
     setIntents(0)
 }
