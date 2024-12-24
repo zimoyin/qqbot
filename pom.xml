@@ -4,9 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-<!--    <groupId>io.github.zimoyin</groupId>-->
     <groupId>io.github.zimoyin</groupId>
-<!--    <groupId>io.gitee.zimoyin</groupId>-->
     <artifactId>qqbot</artifactId>
     <version>1.1.0</version>
     <description>QQBOT SDK</description>
@@ -229,23 +227,17 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--   javadoc插件 -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.9.1</version>
-                <configuration>
-                    <failOnError>false</failOnError>
-                </configuration>
+                <groupId>org.jetbrains.dokka</groupId>
+                <artifactId>dokka-maven-plugin</artifactId>
+                <version>1.9.20</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
+                        <phase>prepare-package</phase>
                         <goals>
-                            <goal>jar</goal>
+                            <goal>javadocJar</goal>
                         </goals>
-                        <configuration>
-                            <additionalparam>-Xdoclint:none</additionalparam>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -266,8 +258,7 @@
                 <version>1.5</version>
                 <configuration>
                     <executable>gpg</executable>
-<!--                    <keyname>2BE3D6E4A9735D7E0E59111F6DF59EA65F82D2CD</keyname>-->
-                    <keyname>zimoyin</keyname>
+                    <keyname>2BE3D6E4A9735D7E0E59111F6DF59EA65F82D2CD</keyname>
                 </configuration>
                 <executions>
                     <execution>

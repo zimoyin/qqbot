@@ -1,3 +1,13 @@
+# 已经发布到 Maven 仓库
+```xml
+<dependency>
+    <groupId>io.github.zimoyin</groupId>
+    <artifactId>qqbot</artifactId>
+    <version>1.1.0</version>
+</dependency>
+```
+
+
 # 如何添加依赖
 - [Maven](#maven)
 - [Gradle](#gradle)
