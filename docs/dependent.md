@@ -8,7 +8,7 @@
 ```
 
 
-# 如何添加依赖
+~~# 如何添加依赖（废弃）~~
 - [Maven](#maven)
 - [Gradle](#gradle)
 - [GradleKts](#gradleKt)
@@ -16,7 +16,7 @@
 - [Version](https://github.com/zimoyin/qqbot/releases) 列表: 请查看该列表并选择一个新的版本 （Github）
 ---
 
-#### <a name="maven"></a>Maven
+~~#### <a name="maven"></a>Maven~~
 
 ```xml
 <!--添加该库的仓库地址-->
