@@ -81,11 +81,7 @@ class BotImp(
         this.context["internal.promise"] = promise
         when (token.version) {
             2 -> {
-                if (this.config.webSocketForwardingAddress == null) {
-                    HttpAPIClient.accessTokenUpdateAsync(token).awaitToCompleteExceptionally()
-                }else{
-                    logger.warn("您正在使用 WebHook 转发 WebSocket，该模式将不会访问腾讯 WS 服务器")
-                }
+                HttpAPIClient.accessTokenUpdateAsync(token).awaitToCompleteExceptionally()
                 websocketClient = WebsocketClient(this, promise)
                 logger.info("Vertx 部署Verticle： WebSocketClient")
                 vertx.deployVerticle(websocketClient).onFailure {

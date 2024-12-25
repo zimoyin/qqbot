@@ -310,8 +310,7 @@ class PayloadCmdHandler(
                     close()
                     return@setPeriodic
                 }
-                if (bot.config.token.version > 1 && bot.config.webSocketForwardingAddress == null)
-                    HttpAPIClient.accessTokenUpdateAsync(
+                if (bot.config.token.version > 1) HttpAPIClient.accessTokenUpdateAsync(
                         bot.config.token
                     ).onFailure {
                         logger.error("PayloadCmdHandler[${this.uid()}] 无法更新 Access Token", it)
