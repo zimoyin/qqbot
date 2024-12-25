@@ -13,6 +13,7 @@ import io.github.zimoyin.qqbot.event.events.message.MessageEvent
 import io.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import io.github.zimoyin.qqbot.net.Intents
 import io.github.zimoyin.qqbot.net.http.api.TencentOpenApiHttpClient
+import io.github.zimoyin.qqbot.net.webhook.WebHookConfig
 import openDebug
 import org.slf4j.LoggerFactory
 import token

@@ -27,6 +27,12 @@ data class WebHookConfig(
     val host: String = "0.0.0.0",
 ) {
     companion object {
+        @JvmStatic
+        @JvmOverloads
+        fun createBySslPath(sslPath: String, password: String = ""): WebHookConfig {
+            return WebHookConfig(sslPath, password)
+        }
+
         /**
          * 自动加载证书
          * @param options HttpServerOptions 实例
