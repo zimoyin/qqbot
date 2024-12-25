@@ -8,8 +8,6 @@ Bot.INSTANCE.createBot() {
     it.setIntents(github.zimoyin.net.Intents.Presets.PRIVATE_INTENTS) //设置权限
     it.setToken(appid, token, appsecret) // token 与 appsecret 允许各选其一
 }.login()
-
-    .start() // 用于开启 WebHook
 ```
 
 Java:
@@ -18,6 +16,22 @@ Bot bot = Bot.INSTANCE.createBot(config -> {
     config.setIntents(Intents.Presets.PRIVATE_INTENTS);
     config.setToken(appid, token, appsecret); // token 与 appsecret 允许各选其一
 });
+bot.login();
+```
+
+2. 使用 WebHook
+
+```kotlin
+bot.start(WebHookConfig("./127.0.0.1")) // 用于开启 WebHook
+```
+
+3. 开启 WebHook 到 WebSocket 转发
+```kotlin
+bot.start(WebHookConfig("./127.0.0.1", enableWebSocketForwarding = true)) // 用于开启 WebHook
+```
+> 客户端端连接服务器时 WebHook 开启的服务器； 使用该方法可以让 WebHook 将事件转发到 WebSocket 客户端。免于重启服务器
+```kotlin
+config.webSocketForwardingAddress = "wss://127.0.0.1/ws"
 bot.login();
 ```
 
