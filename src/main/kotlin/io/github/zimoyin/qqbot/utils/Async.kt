@@ -9,6 +9,8 @@ import io.vertx.core.Vertx
 import io.vertx.core.impl.WorkerPool
 import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.*
+import java.util.function.Consumer
+import kotlin.reflect.KProperty
 
 /**
  * 在后台线程执行非挂起的代码块。
@@ -18,7 +20,7 @@ import kotlinx.coroutines.*
  * @param callback 需要在后台线程执行的非挂起代码块。
  * @return 一个 [Job] 对象，用于管理协程的生命周期。
  */
-fun io(callback: () -> Unit): Job = CoroutineScope(Dispatchers.IO).launch {
+fun io(callback: suspend () -> Unit): Job = CoroutineScope(Dispatchers.IO).launch {
     callback()
 }
 
@@ -31,7 +33,7 @@ fun io(callback: () -> Unit): Job = CoroutineScope(Dispatchers.IO).launch {
  * @param callback 需要在后台线程执行的非挂起代码块。
  * @return 一个 [Job] 对象，用于管理协程的生命周期。
  */
-fun cpu(callback: () -> Unit): Job = CoroutineScope(Dispatchers.Default).launch {
+fun cpu(callback: suspend () -> Unit): Job = CoroutineScope(Dispatchers.Default).launch {
     callback()
 }
 
@@ -48,9 +50,13 @@ fun coroutine(callback: suspend () -> Unit): Job = CoroutineScope(Dispatchers.ve
  * @param callback 需要在后台线程执行的挂起代码块。
  * @return 一个 [Deferred] 对象，可以用于等待执行完成并获取结果。
  */
-fun <T> async(callback: suspend () -> T): Deferred<T> = CoroutineScope(Dispatchers.vertx()).async {
-    callback()
-}
+fun <T> async(
+    dispatcher: CoroutineDispatcher = Dispatchers.vertxWorker(),
+    callback: suspend () -> T
+): Deferred<T> =
+    CoroutineScope(dispatcher).async {
+        callback()
+    }
 
 
 /**
@@ -58,7 +64,7 @@ fun <T> async(callback: suspend () -> T): Deferred<T> = CoroutineScope(Dispatche
  */
 fun <T> task(callback: suspend (Promise<T>) -> T): Future<T> {
     val promise = promise<T>()
-    CoroutineScope(Dispatchers.vertx()).launch {
+    CoroutineScope(Dispatchers.vertxWorker()).launch {
         kotlin.runCatching {
             callback(promise)
         }.onFailure {
@@ -68,6 +74,13 @@ fun <T> task(callback: suspend (Promise<T>) -> T): Future<T> {
         }
     }
     return promise.future()
+}
+
+/**
+ * 创建一个线程，并执行一个代码块。
+ */
+fun thread(callback: () -> Unit): Thread {
+    return Thread { callback() }.apply { start() }
 }
 
 /**
@@ -96,4 +109,144 @@ fun Dispatchers.vertxWorker(vertx: Vertx = GLOBAL_VERTX_INSTANCE): CoroutineDisp
     }
     vertx.orCreateContext.put("worker_ExecutorCoroutineDispatcher", worker)
     return worker
+}
+
+class Async {
+    companion object {
+        @JvmStatic
+        val vertx = GLOBAL_VERTX_INSTANCE
+
+        /**
+         * 创建一个IO协程
+         */
+        @JvmStatic
+        fun createCoroutineIO(callback: Runnable) = io {
+            callback.run()
+        }
+
+        /**
+         * 创建一个CPU协程
+         */
+        @JvmStatic
+        fun createCoroutineCPU(callback: Runnable) = cpu {
+            callback.run()
+        }
+
+
+        /**
+         * 创建一个Vertx Worker协程
+         */
+        @JvmStatic
+        fun createCoroutine(callback: Runnable) = coroutine {
+            callback.run()
+        }
+
+        /**
+         * 创建一个异步任务，并返回一个Promise对象，用于获取执行结果。使用 await 可以挂起协程并等待结果
+         */
+        @JvmStatic
+        fun <T> createCoroutineTask(callback: Consumer<Promise<*>>) = task {
+            callback.accept(promise<T>())
+        }
+
+        /**
+         * 创建一个异步任务，并返回一个Deferred对象，用于获取执行结果。使用 await 可以挂起协程并等待结果
+         */
+        @JvmStatic
+        fun createCoroutineAsync(callback: Runnable) = async {
+            callback.run()
+        }
+
+        /**
+         * 创建一个Worker线程
+         */
+        @JvmStatic
+        fun createWorkerThread(callback: Runnable) {
+            vertx.orCreateContext.get<ExecutorCoroutineDispatcher>("worker_ExecutorCoroutineDispatcher").executor.execute {
+                callback.run()
+            }
+        }
+    }
+}
+
+fun workerThread(callback: () -> Unit){
+    Async.createWorkerThread{
+        callback()
+    }
+}
+
+/**
+ * 异步创建一个值，并在使用的时候等待其生产完成
+ * 注意，不能生产空值
+ * 例如：异步创建值，并在需要使用时等待其等待生产完成，如果已经生产完成就直接返回
+ *     val image: BufferedImage by AsyncValue {
+ *         ImageIO.read(File("E:\\仓库\\study\\散图\\F0FadEKaEAAm9_m.jpg")).apply {
+ *             delay(1100)
+ *             println("78")
+ *         }
+ *     }
+ */
+class AsyncValue<T>(
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val producer: suspend () -> T,
+) {
+    private var result: T? = null
+    private var finished: Boolean = false
+    private var exception: Throwable? = null
+    private var production: Deferred<T?> = async(dispatcher) {
+        try {
+            return@async producer().apply {
+                if (!finished) result = this
+                finished = true
+            }
+        } catch (e: Exception) {
+            exception = e
+            finished = true
+        }
+        null
+    }
+
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
+        if (exception != null) throw exception!!
+        return if (finished) result ?: throw NullPointerException("The value[$property] produced is null")
+        else runBlocking { blockThreadAwaitResult() }
+            ?: throw NullPointerException("The value[$property] produced is null")
+    }
+
+
+    /**
+     * 获取值，如果值还未生产完成，则挂起协程等待
+     */
+    suspend fun await(): T {
+        return if (finished) {
+            result!!
+        } else {
+            production.await()
+            if (exception != null) {
+                throw exception!!
+            } else {
+                result!!
+            }
+        }
+    }
+
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+        kotlin.runCatching { production.cancel() }
+        finished = true
+        result = value
+    }
+
+    private suspend fun blockThreadAwaitResult(): T? {
+        return if (finished) {
+            if (exception != null) throw exception!!
+            result
+        } else {
+            while (!finished) {
+//                Thread.sleep(100)
+                delay(100)
+            }
+            if (exception != null) throw exception!!
+            result
+        }
+    }
 }

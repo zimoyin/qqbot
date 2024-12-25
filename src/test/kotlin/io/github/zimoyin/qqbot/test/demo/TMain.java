@@ -64,7 +64,7 @@ public class TMain {
         bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG", false);
         bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT", false);
 
-        bot.onEvent(MessageEvent.class, event -> {
+        bot.onEvent(MessageEvent.class, true,event -> {
 //            MessageChain chain = new MessageChainBuilder().append(ImageMessage.create(url)).append("你好").build();
             MessageChain chain = new MessageChainBuilder().append(ImageMessage.create(new File("C:\\Users\\zimoa\\Pictures\\106067275_p0.jpg"))).append("你好").build();
 //            MessageChain chain = new MessageChainBuilder().append(VideoMessage.create(new File("C:\\Users\\zimoa\\Downloads\\Video\\21.mp4"))).append("你好").build();
