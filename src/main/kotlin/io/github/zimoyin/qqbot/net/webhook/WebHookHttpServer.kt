@@ -64,10 +64,10 @@ class WebHookHttpServer(
                 webHttpServer = this
             }.requestHandler(router)
                 .listen(webHookConfig.port, webHookConfig.host).onSuccess {
+                    if (promise.isInitialStage()) logger.info("WebHookHttpServer启动成功: ${webHookConfig.host}:${webHookConfig.port}")
                     promise.tryComplete(webHttpServer)
-                    logger.info("WebHookHttpServer启动成功: ${webHookConfig.host}:${webHookConfig.port}")
                 }.onFailure {
-                    if (!promise.isInitialStage()) logger.error("WebHookHttpServer启动失败", it)
+                    if (promise.isInitialStage()) logger.error("WebHookHttpServer启动失败", it)
                     promise.tryFail(it)
                 }
         }.onFailure {

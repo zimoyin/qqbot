@@ -84,20 +84,16 @@ class BotImp(
                 websocketClient = WebsocketClient(this, promise)
                 logger.info("Vertx 部署Verticle： WebSocketClient")
                 vertx.deployVerticle(websocketClient).onFailure {
-                    promise.isInitialStage().apply {
-                        promise.tryFail(it)
-                        if (this) logger.error("无法启动 ws 客户端", it)
-                    }
+                    if (promise.isInitialStage()) logger.error("无法启动 ws 客户端", it)
+                    promise.tryFail(it)
                 }
             }
 
             1 -> {
                 websocketClient = WebsocketClient(this, promise)
                 vertx.deployVerticle(websocketClient).onFailure {
-                    promise.isInitialStage().apply {
-                        promise.tryFail(it)
-                        if (this) logger.error("无法启动 ws 客户端", it)
-                    }
+                    promise.tryFail(it)
+                    if (promise.isInitialStage()) logger.error("无法启动 ws 客户端", it)
                 }
             }
 

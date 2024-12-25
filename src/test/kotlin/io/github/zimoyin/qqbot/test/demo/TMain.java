@@ -1,6 +1,7 @@
 package io.github.zimoyin.qqbot.test.demo;
 
 import io.github.zimoyin.qqbot.Config;
+import io.github.zimoyin.qqbot.LocalLogger;
 import io.github.zimoyin.qqbot.bot.Bot;
 import io.github.zimoyin.qqbot.bot.contact.Channel;
 import io.github.zimoyin.qqbot.bot.message.EmojiType;
@@ -18,8 +19,6 @@ import io.github.zimoyin.qqbot.net.http.DefaultHttpClient;
 import io.github.zimoyin.qqbot.net.http.api.API;
 import io.github.zimoyin.qqbot.net.http.api.TencentOpenApiHttpClient;
 import io.vertx.ext.web.Router;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
@@ -33,11 +32,11 @@ public class TMain {
         long start2 = start;
         String url = "http://ts1.cn.mm.bing.net/th/id/R-C.23034dbcaded6ab4169b9514f76f51b5?rik=mSGADwV9o/teUA&riu=http://pic.bizhi360.com/bbpic/40/9640_1.jpg&ehk=RYei4n5qyNCPVysJmE2a3WhxSOXqGQMGJcvWBmFyfdg=&risl=&pid=ImgRaw&r=0";
 
-        Logger logger = LoggerFactory.getLogger("Main");
+        LocalLogger logger = new LocalLogger("Main");
 
         //全局事件监听
         GlobalEventBus.INSTANCE.onEvent(Event.class, true, event -> {
-            logger.info("收到事件：{}", event);
+            logger.info("收到事件："+event.toString() );
         });
 
         System.out.println("Vertx 与组件初始化耗时: " + (System.currentTimeMillis() - start));
@@ -55,7 +54,7 @@ public class TMain {
         System.out.println("Bot 创建耗时: " + (System.currentTimeMillis() - start2));
         start2 = System.currentTimeMillis();
 
-//        bot.getConfig().setRetry(99);
+        bot.getConfig().setRetry(99);
 //        bot.getContext().set("SESSION_ID", "d5141070-a591-47fa-b334-8ed1eff92ec6");
         API.setDebug(true);
         bot.getContext().set("internal.isAbnormalCardiacArrest", true);
@@ -80,7 +79,7 @@ public class TMain {
                     throw new RuntimeException(e);
                 }
                 ((ChannelMessageEvent) event).getEmojiList(EmojiType.ZAN).onSuccess(emojiList -> {
-                    logger.info("点赞列表: {}", emojiList);
+                    logger.info("点赞列表: "+ emojiList);
                 });
             }
 

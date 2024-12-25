@@ -29,6 +29,7 @@ open class LocalLogger(name: String) {
         io.vertx.core.impl.logging.LoggerFactory.getLogger(name)
     }
 
+    @JvmOverloads
     fun error(message: String, throwable: Throwable? = null) {
         if (SystemLogger1 != null) {
             SystemLogger1!!.error(message, throwable)
@@ -37,6 +38,7 @@ open class LocalLogger(name: String) {
         }
     }
 
+    @JvmOverloads
     fun warn(message: String, throwable: Throwable? = null) {
         if (SystemLogger1 != null) {
             SystemLogger1!!.warn(message, throwable)
@@ -45,6 +47,7 @@ open class LocalLogger(name: String) {
         }
     }
 
+    @JvmOverloads
     fun info(message: String, throwable: Throwable? = null) {
         if (SystemLogger1 != null) {
             SystemLogger1!!.info(message, throwable)
@@ -53,6 +56,7 @@ open class LocalLogger(name: String) {
         }
     }
 
+    @JvmOverloads
     fun debug(message: String, throwable: Throwable? = null) {
         if (SystemLogger1 != null) {
             SystemLogger1!!.debug(message, throwable)

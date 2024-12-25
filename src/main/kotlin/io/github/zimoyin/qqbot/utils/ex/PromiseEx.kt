@@ -1,6 +1,7 @@
 package io.github.zimoyin.qqbot.utils.ex
 
 import io.vertx.core.Promise
+import io.vertx.core.impl.future.Listener
 
 /**
  *
@@ -14,7 +15,6 @@ fun <T> Promise<T>.isFailed(): Boolean = this.future().failed()
 
 /**
  * 是否有监听器存在。
- * 注意：如果 Promise 已经 complete，则返回 false
  */
 fun <T> Promise<T>.isNotListener(): Boolean {
     val clazz2 = this::class.java
@@ -22,7 +22,7 @@ fun <T> Promise<T>.isNotListener(): Boolean {
     val field1 = superclass.getDeclaredField("listener") // 监听器，如果未有监听或者监听已经触发完毕了
     field1.isAccessible = true
     val listener = field1.get(this)
-    return listener == null && !isCompleted()
+    return listener == null
 }
 
 
