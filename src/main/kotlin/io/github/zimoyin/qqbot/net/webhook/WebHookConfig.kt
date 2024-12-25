@@ -5,6 +5,7 @@ import io.vertx.core.net.JksOptions
 import io.vertx.core.net.KeyStoreOptions
 import io.vertx.core.net.PemKeyCertOptions
 import io.vertx.core.net.PfxOptions
+import jdk.internal.org.jline.utils.Colors.s
 import java.io.File
 import java.util.*
 
@@ -16,15 +17,20 @@ import java.util.*
 data class WebHookConfig(
     val sslPath: String = "./", // SSL 文件的目录
     val password: String = "",
-    val options: HttpServerOptions = HttpServerOptions().setSsl(true).apply {
-        // 自动加载证书
-        val certLoaded = loadCert(this, sslPath, password)
-        if (!certLoaded) {
-            throw IllegalArgumentException("Could not find a valid SSL certificate in the path $sslPath")
+    val options: HttpServerOptions = HttpServerOptions().apply {
+        isSsl = true
+        sslOptions.isUseAlpn = false
+        webSocketCompressionLevel = 6
+        webSocketSubProtocols = arrayListOf("wss", "ws")
+
+        require(loadCert(this, sslPath, password)) {
+            IllegalArgumentException("Could not find a valid SSL certificate in the path $sslPath")
         }
     },
     val port: Int = 443,
     val host: String = "0.0.0.0",
+    val enableWebSocketForwarding: Boolean = false,
+    val webSocketPath: String = "/ws"
 ) {
     companion object {
         @JvmStatic
@@ -71,6 +77,17 @@ data class WebHookConfig(
                     .setPassword(password) // 替换为 PFX 密码
                 if (password.isEmpty()) throw IllegalArgumentException("PFX password is empty.")
                 return true
+            }
+
+            // pem 文件
+            val pemFile = sslDir.listFiles { _, name -> name.endsWith(".pem") }
+            if (pemFile != null && pemFile.size >= 2) {
+                kotlin.runCatching {
+                    options.keyCertOptions = PemKeyCertOptions()
+                        .setKeyPath(pemFile.first { it.readText().contains("PRIVATE", true) }.absolutePath)
+                        .setCertPath(pemFile.first { it.readText().contains("PRIVATE", true).not() }.absolutePath)
+                    return true
+                }
             }
 
             return false

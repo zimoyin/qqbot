@@ -133,7 +133,7 @@ class PayloadCmdHandler(
         if (payload.opcode == 11) {
             if (debugMataData && debugHeartbeat) logger.debug(
                 "WebSocket[${ws.hashCode()}][MataData] ws receive(${payload.opcode}): ${payload}",
-                            )
+            )
         } else {
             if (debugMataData) logger.debug(
                 "WebSocket[${ws.hashCode()}][MataData] ws receive(${payload.opcode}): ${payload}",
@@ -246,7 +246,7 @@ class PayloadCmdHandler(
                     }
                 }
             } ?: logger.warn("未注册的事件类型: ${payload.eventType} -> ${payload.metadata}")
-        } ?: logger.debug("WebSocket[${ws.hashCode()}] 服务器推送的消息为空(ws send(0)): ${payload.metadata}", )
+        } ?: logger.debug("WebSocket[${ws.hashCode()}] 服务器推送的消息为空(ws send(0)): ${payload.metadata}")
     }
 
     /**
@@ -310,9 +310,12 @@ class PayloadCmdHandler(
                     close()
                     return@setPeriodic
                 }
-                if (bot.config.token.version > 1) HttpAPIClient.accessTokenUpdateAsync(bot.config.token).onFailure {
-                    logger.error("PayloadCmdHandler[${this.uid()}] 无法更新 Access Token", it)
-                }
+                if (bot.config.token.version > 1 && bot.config.webSocketForwardingAddress == null)
+                    HttpAPIClient.accessTokenUpdateAsync(
+                        bot.config.token
+                    ).onFailure {
+                        logger.error("PayloadCmdHandler[${this.uid()}] 无法更新 Access Token", it)
+                    }
                 heartbeat()
             }.apply {
                 logger.debug("WebSocket[${ws.hashCode()}] 心跳[$this]已启动")

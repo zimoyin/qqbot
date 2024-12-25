@@ -14,6 +14,8 @@ import io.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import io.github.zimoyin.qqbot.net.Intents
 import io.github.zimoyin.qqbot.net.http.api.TencentOpenApiHttpClient
 import io.github.zimoyin.qqbot.net.webhook.WebHookConfig
+import io.vertx.core.http.WebSocketClientOptions
+import kotlinx.coroutines.delay
 import openDebug
 import org.slf4j.LoggerFactory
 import token
@@ -33,12 +35,10 @@ suspend fun main() {
 
     TencentOpenApiHttpClient.isSandBox = true
     Bot.createBot(token).apply {
-        start(WebHookConfig.createBySslPath("./zimoyin.xyz")).onSuccess {
-            logger.info("WebServer 启动成功")
+        start(WebHookConfig("./127.0.0.1", enableWebSocketForwarding = true)).onSuccess {
+            logger.info("WebServer 启动成功 ${it.webHookConfig.port}")
         }.onFailure {
             logger.error("WebServer 启动失败", it)
         }
-
     }
-
 }

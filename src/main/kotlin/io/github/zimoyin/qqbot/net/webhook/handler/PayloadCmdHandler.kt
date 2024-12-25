@@ -54,23 +54,9 @@ class PayloadCmdHandler(
         eventBus = bot.config.botEventBus
     }
 
-    fun handle(headers: MultiMap, body: Buffer, response: HttpServerResponse) {
-
-        kotlin.runCatching {
-            val payload0 = body.mapTo(Payload::class.java)
-            payload0.metadata = body.writeToText().let {
-                return@let try {
-                    JSON.toJsonObject(it).encode()
-                } catch (e: Exception) {
-                    it
-                }
-            }
+    fun handle(headers: MultiMap, payload0: Payload, response: HttpServerResponse) {
             payload0.appID = bot.config.token.appID
-
             handle(payload0, headers, response)
-        }.onFailure {
-            logger.error("PayloadCmdHandler 无法解析的信息: ${body.writeToText()}", it)
-        }
     }
 
     private fun handle(payload: Payload, headers: MultiMap, response: HttpServerResponse) {

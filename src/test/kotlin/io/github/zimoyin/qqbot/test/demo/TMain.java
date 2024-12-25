@@ -50,6 +50,7 @@ public class TMain {
             config.setIntents(Intents.Presets.PRIVATE_GROUP_INTENTS);
         });
 
+
         System.out.println("Bot 创建耗时: " + (System.currentTimeMillis() - start));
         System.out.println("Bot 创建耗时: " + (System.currentTimeMillis() - start2));
         start2 = System.currentTimeMillis();
@@ -125,5 +126,6 @@ public class TMain {
             System.out.println("启动耗时: " + (System.currentTimeMillis() - start));
             System.out.println("启动耗时: " + (System.currentTimeMillis() - finalStart1));
         });
+
     }
 }

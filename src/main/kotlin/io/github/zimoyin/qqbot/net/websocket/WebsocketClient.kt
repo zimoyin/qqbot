@@ -21,7 +21,6 @@ import io.vertx.core.http.WebSocket
 import io.vertx.core.http.WebSocketClient
 import io.vertx.core.http.WebSocketClientOptions
 import io.vertx.kotlin.coroutines.CoroutineVerticle
-import org.slf4j.LoggerFactory
 import java.net.InetAddress
 import java.net.SocketException
 
@@ -70,7 +69,7 @@ class WebsocketClient(private val bot: Bot, private val promise0: Promise<WebSoc
         logger.info("WebSocketClient[${client.hashCode()}] 配置完成 -> 绑定 Bot AppID[${bot.config.token.appID}]")
         logger.debug("心跳周期为: ${headerCycle / 1000.0}s")
         //准备 服务器地址
-        val gatewayURLByContent = bot.context.getString("gatewayURL")
+        val gatewayURLByContent = bot.config.webSocketForwardingAddress ?: bot.context.getString("gatewayURL")
         if (gatewayURLByContent != null) {
             //为了方便，在没有分片的情况下使用默认的硬编码的URL。但是可能回出现BUG，因为这是一个不再维护的使用
             if (bot.config.shards != BotSection()) logger.warn("自定义WSS接入点的分片非默认值")
@@ -106,15 +105,18 @@ class WebsocketClient(private val bot: Bot, private val promise0: Promise<WebSoc
         bot.context["vertx"] = vertx
 
         logger.debug("WebSocketClient[${client.hashCode()}] 准备访问WebSocketSever接入点: $gatewayURL")
-        val url = gatewayURL!!.replace("wss://", "https://", true).toUrl()
+        val url = gatewayURL!!
+            .replace("ws://", "wss://")
+            .replace("wss://", "https://", true)
+            .toUrl()
 
         WS?.close()
         //开启 ws
         client.connect(443, url.host, url.path).onSuccess { ws ->
             bot.context["ws"] = ws
             WS = ws
-            this.payloadCmdHandler = io.github.zimoyin.qqbot.net.websocket.handler.PayloadCmdHandler(bot, promise, ws)
-            if (!bot.context.contains(handlerKey)) bot.context[handlerKey] =  this.payloadCmdHandler
+            this.payloadCmdHandler = PayloadCmdHandler(bot, promise, ws)
+            if (!bot.context.contains(handlerKey)) bot.context[handlerKey] = this.payloadCmdHandler
             logger.info("WebSocketClient[${client.hashCode()}] 完成创建 WebSocket[${ws.hashCode()}] : 链接服务器成功")
         }.onSuccess { ws ->
             val handler = this.payloadCmdHandler ?: bot.context.getValue<PayloadCmdHandler>(handlerKey)
@@ -123,7 +125,7 @@ class WebsocketClient(private val bot: Bot, private val promise0: Promise<WebSoc
             ws.handler { buffer ->
                 vertx.executeBlockingKt {
                     kotlin.runCatching {
-                        handler.handle(buffer,ws)
+                        handler.handle(buffer, ws)
                     }.onFailure {
                         when (it) {
                             // 接收到处理器发出的重连申请

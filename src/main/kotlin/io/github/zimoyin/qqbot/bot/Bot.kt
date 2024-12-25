@@ -14,6 +14,7 @@ import io.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import io.github.zimoyin.qqbot.net.http.api.channel.getGuildInfos
 import io.github.zimoyin.qqbot.net.http.api.channel.getGuilds
 import io.github.zimoyin.qqbot.net.webhook.WebHookConfig
+import io.github.zimoyin.qqbot.net.webhook.WebHookHttpServer
 import io.github.zimoyin.qqbot.utils.vertx
 import io.github.zimoyin.qqbot.utils.vertxWorker
 import io.vertx.core.Future
@@ -21,8 +22,6 @@ import io.vertx.core.Vertx
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.eventbus.Message
 import io.vertx.core.eventbus.MessageConsumer
-import io.vertx.core.http.HttpServer
-import io.vertx.core.http.HttpServerOptions
 import io.vertx.core.http.WebSocket
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -72,6 +71,7 @@ interface Bot : Serializable, Contact {
             return botImp
         }
 
+        @JvmStatic
         fun createBot(token: Token): Bot {
             val config = BotConfigBuilder().setToken(token).build()
             val botImp = BotImp(config.token, config = config)
@@ -79,6 +79,7 @@ interface Bot : Serializable, Contact {
             return botImp
         }
 
+        @JvmStatic
         fun createBot(appid: String, secret: String): Bot {
             val config = BotConfigBuilder().setToken(Token.createByAppSecret(appid, secret)).build()
             val botImp = BotImp(config.token, config = config)
@@ -148,14 +149,13 @@ interface Bot : Serializable, Contact {
      * 登录
      * 警告： 如果使用 await 后会严重阻塞协程
      */
-    @Deprecated("The official has abandoned the WebSocket method")
     fun login(): Future<WebSocket>
 
     /**
      * 启动机器人 webhook 服务器
      * 警告： 如果使用 await 后会严重阻塞协程
      */
-    fun start(config: WebHookConfig? = null): Future<HttpServer>
+    fun start(config: WebHookConfig? = null): Future<WebHookHttpServer>
 
     /**
      * 关闭机器人
@@ -265,13 +265,12 @@ data class BotConfig(
     val shards: BotSection,
     val consumers: HashSet<MessageConsumer<*>>,
     val token: Token,
-    @Deprecated("The official has abandoned the WebSocket method")
     var reconnect: Boolean = true,
     /**
      * Bot丢失链接后的重试次数
      */
-    @Deprecated("The official has abandoned the WebSocket method")
     var retry: Int = -1,
+    var webSocketForwardingAddress: String? = null,
 ) : Serializable {
 
     /**

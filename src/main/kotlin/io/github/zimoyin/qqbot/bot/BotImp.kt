@@ -74,13 +74,18 @@ class BotImp(
     override fun login(): Future<WebSocket> {
         val promise = Promise.promise<WebSocket>()
         logger.warn("QQ 官方机器人平台计划于 2024 年停止使用 WebSocket 协议，请使用 HTTP API 进行机器人操作。使用 start 进行启动")
+        logger.warn("如果需要使用复用WebSocket，推荐使用 WebHook 开启 WebSocket 转发，让该ws连接 WebHook 开启的 ws")
         if (websocketClient != null) {
             return Future.failedFuture(IllegalStateException("Web socket has already been started"))
         }
         this.context["internal.promise"] = promise
         when (token.version) {
             2 -> {
-                HttpAPIClient.accessTokenUpdateAsync(token).awaitToCompleteExceptionally()
+                if (this.config.webSocketForwardingAddress == null) {
+                    HttpAPIClient.accessTokenUpdateAsync(token).awaitToCompleteExceptionally()
+                }else{
+                    logger.warn("您正在使用 WebHook 转发 WebSocket，该模式将不会访问腾讯 WS 服务器")
+                }
                 websocketClient = WebsocketClient(this, promise)
                 logger.info("Vertx 部署Verticle： WebSocketClient")
                 vertx.deployVerticle(websocketClient).onFailure {
@@ -115,8 +120,8 @@ class BotImp(
         return promise.future()
     }
 
-    override fun start(config: WebHookConfig?): Future<HttpServer> {
-        val promise = promise<HttpServer>()
+    override fun start(config: WebHookConfig?): Future<WebHookHttpServer> {
+        val promise = promise<WebHookHttpServer>()
         webHookHttpServer = WebHookHttpServer(promise, this, config ?: WebHookConfig())
         vertx.deployVerticle(webHookHttpServer).onFailure {
             promise.tryFail(it)

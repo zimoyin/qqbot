@@ -30,7 +30,7 @@ open class LocalLogger(name: String) {
     }
 
     @JvmOverloads
-    fun error(message: String, throwable: Throwable? = null) {
+    fun error(message: String = "", throwable: Throwable? = null) {
         if (SystemLogger1 != null) {
             SystemLogger1!!.error(message, throwable)
         } else {
