@@ -110,7 +110,10 @@ class WebHookHttpServer(
     private fun HttpServer.addWebSocketForwarding(): HttpServer {
         if (!webHookConfig.enableWebSocketForwarding) return this
         return this.webSocketHandler { ws ->
-            if (ws.path() != webHookConfig.webSocketPath) ws.close(502)
+            if (ws.path() != webHookConfig.webSocketPath){
+                ws.reject()
+                return@webSocketHandler
+            }
             val id = UUID.randomUUID()
             logger.info("[WebSocketServer] 新连接: $id")
             var hid: Long = 1
