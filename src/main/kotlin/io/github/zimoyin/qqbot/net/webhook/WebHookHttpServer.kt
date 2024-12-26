@@ -67,6 +67,17 @@ class WebHookHttpServer(
             response.setChunked(true)
 
             request.bodyHandler { body ->
+                if (request.getHeader("Authorization") == null) {
+                    response.end(
+                        jsonObjectOf(
+                            "code" to 401,
+                            "method" to request.method().name(),
+                            "path" to request.path(),
+                            "message" to "Authorization is required"
+                        ).toString()
+                    )
+                    return@bodyHandler
+                }
                 TencentOpenApiHttpClient
                     .client
                     .request(request.method(), request.path())
