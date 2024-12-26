@@ -37,10 +37,11 @@ class WebHookHttpServer(
     lateinit var webHttpServer: HttpServer
         private set
     private val logger = LocalLogger(WebHookHttpServer::class.java)
-    private val payloadCmdHandler: PayloadCmdHandler = PayloadCmdHandler(bot)
+    private lateinit var payloadCmdHandler: PayloadCmdHandler
     private val wsList = mutableListOf<ServerWebSocket>()
 
     fun init() {
+        payloadCmdHandler = PayloadCmdHandler(bot,vertx)
         router = Router.router(vertx)
         router.route("/").handler {
             val request = it.request()
@@ -101,7 +102,8 @@ class WebHookHttpServer(
                 throwable = null
             )
         )
-        webHttpServer.close()
+        payloadCmdHandler.close()
+        webHttpServer.close().awaitToCompleteExceptionally()
     }
 
     /**

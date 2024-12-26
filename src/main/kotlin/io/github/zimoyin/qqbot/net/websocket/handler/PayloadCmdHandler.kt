@@ -78,6 +78,7 @@ class PayloadCmdHandler(
 
     private var reconnect = false
     private var newconnecting = false
+    private var timerId: Long = -1
 
     init {
         EventMapping
@@ -130,6 +131,7 @@ class PayloadCmdHandler(
     }
 
     private fun handle(payload: Payload) {
+        if (bot.config.token.version >= 2 && timerId > -1) updateToken()
         if (payload.opcode == 11) {
             if (debugMataData && debugHeartbeat) logger.debug(
                 "WebSocket[${ws.hashCode()}][MataData] ws receive(${payload.opcode}): ${payload}",
@@ -310,11 +312,6 @@ class PayloadCmdHandler(
                     close()
                     return@setPeriodic
                 }
-                if (bot.config.token.version > 1) HttpAPIClient.accessTokenUpdateAsync(
-                        bot.config.token
-                    ).onFailure {
-                        logger.error("PayloadCmdHandler[${this.uid()}] 无法更新 Access Token", it)
-                    }
                 heartbeat()
             }.apply {
                 logger.debug("WebSocket[${ws.hashCode()}] 心跳[$this]已启动")
@@ -333,10 +330,26 @@ class PayloadCmdHandler(
 
     fun close() {
         vertx.cancelTimer(heartbeatId)
+        vertx.cancelTimer(timerId)
+        timerId = -1
         heartbeatId = 0
         openHeartbeat = false
         logger.debug("WebSocket[${ws.hashCode()}] 心跳[${heartbeatId}]被关闭")
 //        logger.info("PayloadCmdHandler[${this.uid()}] 状态设置为关闭")
+    }
+
+    private fun updateToken() {
+        val token = bot.config.token
+        HttpAPIClient.accessTokenUpdateAsync(token).onSuccess {
+            timerId = vertx.setTimer(token.expiresIn.toLong() - 60 * 1000) {
+                updateToken()
+            }
+        }.onFailure {
+            logger.warn("更新token失败: ${it}")
+            timerId = vertx.setTimer(3 * 1000) {
+                updateToken()
+            }
+        }
     }
 
     private fun send(payload: Payload) {

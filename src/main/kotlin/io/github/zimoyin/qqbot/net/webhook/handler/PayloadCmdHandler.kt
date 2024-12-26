@@ -12,6 +12,7 @@ import io.github.zimoyin.qqbot.exception.WebSocketReconnectException
 import io.github.zimoyin.qqbot.net.bean.Payload
 import io.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import io.github.zimoyin.qqbot.net.http.api.accessTokenUpdateAsync
+import io.github.zimoyin.qqbot.utils.Async.Companion.vertx
 import io.github.zimoyin.qqbot.utils.JSON
 import io.github.zimoyin.qqbot.utils.ex.mapTo
 import io.github.zimoyin.qqbot.utils.ex.toJAny
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory
  */
 class PayloadCmdHandler(
     private val bot: Bot,
+    private val vertx: Vertx,
 ) {
 
     private var debugMataData = false
@@ -45,6 +47,7 @@ class PayloadCmdHandler(
 
     private val logger = LocalLogger(PayloadCmdHandler::class.java)
     private lateinit var eventBus: BotEventBus
+    private var timerId: Long = -1
 
     init {
         EventMapping
@@ -54,16 +57,31 @@ class PayloadCmdHandler(
         eventBus = bot.config.botEventBus
     }
 
+    private fun updateToken() {
+        val token = bot.config.token
+        HttpAPIClient.accessTokenUpdateAsync(token).onSuccess {
+            timerId = vertx.setTimer(token.expiresIn.toLong() - 60 * 1000) {
+                updateToken()
+            }
+        }.onFailure {
+            logger.warn("更新token失败: ${it}")
+            timerId = vertx.setTimer(3 * 1000) {
+                updateToken()
+            }
+        }
+    }
+
     fun handle(headers: MultiMap, payload0: Payload, response: HttpServerResponse) {
-            payload0.appID = bot.config.token.appID
-            handle(payload0, headers, response)
+        payload0.appID = bot.config.token.appID
+        handle(payload0, headers, response)
     }
 
     private fun handle(payload: Payload, headers: MultiMap, response: HttpServerResponse) {
+        if (bot.config.token.version >= 2 && timerId > -1) updateToken()
         when (payload.opcode) {
             0 -> opcode0(payload, response) //服务端进行消息推送
             13 -> opcode13(payload, headers, response) // 参数错误比如要求的权限不合适
-            else -> logger.error("WebHook receive(unknown) : ${payload}", )
+            else -> logger.error("WebHook receive(unknown) : ${payload}")
         }
     }
 
@@ -82,7 +100,7 @@ class PayloadCmdHandler(
                     }
                 }
             } ?: logger.warn("未注册的事件类型: ${payload.eventType} -> ${payload.metadata}")
-        } ?: logger.debug("服务器推送的消息为空(ws send(0)): ${payload.metadata}", )
+        } ?: logger.debug("服务器推送的消息为空(ws send(0)): ${payload.metadata}")
         response.write(Payload(opcode = 12).toJsonString())
     }
 
@@ -102,5 +120,10 @@ class PayloadCmdHandler(
             )
         )
         response.write(json.encode())
+    }
+
+    fun close() {
+        if (timerId >= 0) vertx.cancelTimer(timerId)
+        timerId = -1
     }
 }
