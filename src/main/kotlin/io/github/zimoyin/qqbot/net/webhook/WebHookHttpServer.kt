@@ -7,6 +7,7 @@ import io.github.zimoyin.qqbot.net.bean.Payload
 import io.github.zimoyin.qqbot.net.webhook.handler.PayloadCmdHandler
 import io.github.zimoyin.qqbot.utils.cpu
 import io.github.zimoyin.qqbot.utils.ex.*
+import io.vertx.core.Future
 import io.vertx.core.Handler
 import io.vertx.core.Promise
 import io.vertx.core.http.HttpServer
@@ -38,10 +39,10 @@ class WebHookHttpServer(
         private set
     private val logger = LocalLogger(WebHookHttpServer::class.java)
     private lateinit var payloadCmdHandler: PayloadCmdHandler
-    private val wsList = mutableListOf<ServerWebSocket>()
+    val wsList = mutableListOf<ServerWebSocket>()
 
     fun init() {
-        payloadCmdHandler = PayloadCmdHandler(bot,vertx)
+        payloadCmdHandler = PayloadCmdHandler(bot, vertx)
         router = Router.router(vertx)
         router.route("/").handler {
             val request = it.request()
@@ -95,7 +96,7 @@ class WebHookHttpServer(
         router.clear()
     }
 
-    fun close() {
+    fun close(): Future<Void> {
         bot.config.botEventBus.broadcastAuto(
             BotOfflineEvent(
                 botInfo = bot.botInfo,
@@ -103,89 +104,10 @@ class WebHookHttpServer(
             )
         )
         payloadCmdHandler.close()
-        webHttpServer.close().awaitToCompleteExceptionally()
+        return webHttpServer.close()
     }
 
-    /**
-     * 添加WebSocket转发, 让该程序作为WebSocket服务器，可以允许客户端进行连接
-     */
     private fun HttpServer.addWebSocketForwarding(): HttpServer {
-        if (!webHookConfig.enableWebSocketForwarding) return this
-        return this.webSocketHandler { ws ->
-            if (ws.path() != webHookConfig.webSocketPath){
-                ws.reject()
-                return@webSocketHandler
-            }
-            val id = UUID.randomUUID()
-            logger.info("[WebSocketServer] 新连接: $id")
-            var hid: Long = 1
-            wsList.add(ws)
-
-            opStart(ws)
-            ws.textMessageHandler {
-                val payload = it.toJsonObject().mapTo(Payload::class.java)
-                when (payload.opcode) {
-                    2 -> opcode2(ws, hid, id)
-                    1 -> opcode1(ws, hid)
-                    6 -> opcode6(ws, id)
-                    else -> {
-                        logger.warn("[WebSocketServer] 不支持的opcode: ${payload.opcode}")
-                    }
-                }
-                hid++
-            }
-
-            ws.closeHandler {
-                logger.info("[WebSocketServer] 断开连接: $id")
-                wsList.remove(ws)
-            }
-        }
-    }
-
-    private fun opStart(ws: ServerWebSocket) {
-        val start = Payload(
-            opcode = 10,
-            eventContent = jsonObjectOf("heartbeat_interval" to 45000).toJAny()
-        )
-        ws.writeTextMessage(start.toJsonString())
-    }
-
-    private fun opcode6(ws: ServerWebSocket, id: UUID) {
-        val o6 = Payload(
-            opcode = 0,
-            eventType = "RESUMED",
-            eventContent = "".toJAny()
-        )
-
-        ws.writeTextMessage(o6.toJsonString())
-    }
-
-    private fun opcode1(ws: ServerWebSocket, hid: Long) {
-        val o1 = Payload(
-            opcode = 11,
-            hid = hid,
-        )
-        ws.writeTextMessage(o1.toJsonString())
-    }
-
-    private fun opcode2(ws: ServerWebSocket, hid: Long, id: UUID) {
-        val o2 = Payload(
-            opcode = 0,
-            hid = hid,
-            eventType = "READY",
-            eventContent = """
-                 {
-                    "version": 1,
-                    "session_id": "$id",
-                    "user": {
-                      "id": "",
-                      "username": "",
-                      "bot": true
-                    },
-                    "shard": [0, 0]
-                  }
-            """.trimIndent().toJsonObject().toJAny()
-        )
-        ws.writeTextMessage(o2.toJsonString())
+       return WebSocketServerHandler(this@WebHookHttpServer).addWebSocketForwarding(this)
     }
 }

@@ -46,7 +46,7 @@ class PayloadCmdHandler(
     private var debugHeartbeat = false
 
     private val logger = LocalLogger(PayloadCmdHandler::class.java)
-    private lateinit var eventBus: BotEventBus
+    private var eventBus: BotEventBus
     private var timerId: Long = -1
 
     init {
@@ -55,14 +55,18 @@ class PayloadCmdHandler(
         debugMataData = bot.context.getBoolean("PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG") ?: debugMataData
         debugHeartbeat = bot.context.getBoolean("PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT") ?: debugHeartbeat
         eventBus = bot.config.botEventBus
+        if (debugLog) logger.debug("Token version: ${bot.config.token.version}")
+        if (bot.config.token.version >= 2) updateToken()
     }
 
     private fun updateToken() {
         val token = bot.config.token
+        if (debugLog) logger.debug("更新token中...")
         HttpAPIClient.accessTokenUpdateAsync(token).onSuccess {
-            timerId = vertx.setTimer(token.expiresIn.toLong() - 60 * 1000) {
+            timerId = vertx.setTimer((token.expiresIn.toLong() - 60) * 1000) {
                 updateToken()
             }
+            if (debugLog) logger.debug("更新token成功: ${token.expiresIn} s")
         }.onFailure {
             logger.warn("更新token失败: ${it}")
             timerId = vertx.setTimer(3 * 1000) {
@@ -78,6 +82,7 @@ class PayloadCmdHandler(
 
     private fun handle(payload: Payload, headers: MultiMap, response: HttpServerResponse) {
         if (bot.config.token.version >= 2 && timerId > -1) updateToken()
+        if (debugMataData) logger.debug("payload: ${payload.toJsonString()}")
         when (payload.opcode) {
             0 -> opcode0(payload, response) //服务端进行消息推送
             13 -> opcode13(payload, headers, response) // 参数错误比如要求的权限不合适
@@ -106,6 +111,7 @@ class PayloadCmdHandler(
 
     private fun opcode13(payload: Payload, headers: MultiMap, response: HttpServerResponse) {
         val d = payload.eventContent?.toJsonObject() ?: throw RuntimeException("WebHook receive(13) : event is null")
+        if (debugLog) logger.debug("服务器访问 op: ${payload.opcode}")
         response.putHeader("X-Bot-Appid", bot.config.token.appID)
         val json = d.apply {
             put(

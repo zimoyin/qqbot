@@ -1,21 +1,13 @@
 package io.github.zimoyin.qqbot.test.demo
 
 
-import io.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
 import io.github.zimoyin.qqbot.annotation.UntestedApi
 import io.github.zimoyin.qqbot.bot.Bot
-import io.github.zimoyin.qqbot.bot.message.MessageChainBuilder
-import io.github.zimoyin.qqbot.bot.message.type.ImageMessage
-import io.github.zimoyin.qqbot.bot.message.type.PlainTextMessage
-import io.github.zimoyin.qqbot.bot.onEvent
 import io.github.zimoyin.qqbot.event.events.Event
-import io.github.zimoyin.qqbot.event.events.message.MessageEvent
 import io.github.zimoyin.qqbot.event.supporter.GlobalEventBus
-import io.github.zimoyin.qqbot.net.Intents
+import io.github.zimoyin.qqbot.net.http.api.API.isDebug
 import io.github.zimoyin.qqbot.net.http.api.TencentOpenApiHttpClient
 import io.github.zimoyin.qqbot.net.webhook.WebHookConfig
-import io.vertx.core.http.WebSocketClientOptions
-import kotlinx.coroutines.delay
 import openDebug
 import org.slf4j.LoggerFactory
 import token
@@ -25,7 +17,7 @@ suspend fun main() {
     openDebug()
     val logger = LoggerFactory.getLogger("Main")
 
-    token.version = 1
+//    token.version = 1
 //    token.version = 2
 
     //全局事件监听
@@ -35,6 +27,13 @@ suspend fun main() {
 
     TencentOpenApiHttpClient.isSandBox = true
     Bot.createBot(token).apply {
+        isDebug = true
+        context.set("internal.isAbnormalCardiacArrest", true)
+        context.set("internal.headerCycle", 5 * 1000)
+        context.set("PAYLOAD_CMD_HANDLER_DEBUG_LOG", true)
+        context.set("PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG", false)
+        context.set("PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT", false)
+
         start(WebHookConfig("./127.0.0.1", enableWebSocketForwarding = true)).onSuccess {
             logger.info("WebServer 启动成功 ${it.webHookConfig.port}")
         }.onFailure {
