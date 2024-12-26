@@ -31,7 +31,9 @@ bot.start(WebHookConfig("./127.0.0.1", enableWebSocketForwarding = true)) // 用
 ```
 > 客户端端连接服务器时 WebHook 开启的服务器； 使用该方法可以让 WebHook 将事件转发到 WebSocket 客户端。免于重启服务器
 ```kotlin
-config.webSocketForwardingAddress = "wss://127.0.0.1/ws"
+TencentOpenApiHttpClient.host = "127.0.0.1:8080"
+//    TencentOpenApiHttpClient.host = "127.0.0.1" //默认 443
+//    TencentOpenApiHttpClient.webSocketForwardingAddress = "wss://127.0.0.1/websocket"
 bot.login();
 ```
 
