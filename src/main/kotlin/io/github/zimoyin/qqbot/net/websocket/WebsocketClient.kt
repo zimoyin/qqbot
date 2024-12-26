@@ -117,11 +117,11 @@ class WebsocketClient(
             "ws", "http" -> 80
             else -> uri.port
         }.let {
-            if (it > 0) uri.port else it
+            if (uri.port > 0) uri.port else it
         }
 
         WS?.close()
-        logger.debug("ws服务器 host ${uri.host} port $port path ${uri.path}")
+        logger.debug("ws服务器 host:${uri.host} port:$port path:${uri.path}")
         //开启 ws
         client.connect(port, uri.host, uri.path).onSuccess { ws ->
             bot.context["ws"] = ws
