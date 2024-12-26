@@ -46,7 +46,10 @@ class WebHookHttpServer(
             response.setChunked(true)
             request.bodyHandler { body ->
                 kotlin.runCatching {
-                    val payload = body.mapTo(Payload::class.java)
+                    val payload = kotlin
+                        .runCatching { body.mapTo(Payload::class.java) }
+                        .onFailure { logger.error("WebHook 处理事件发生异常 [path: /] 无法将 Json 解析为 Payload: ${body.writeToText()}") }
+                        .getOrNull() ?: return@runCatching
                     payload.metadata = body.writeToText()
                     if (webHookConfig.enableWebSocketForwarding) {
                         if (payload.opcode != 13) wsList.forEach {
@@ -55,7 +58,7 @@ class WebHookHttpServer(
                     }
                     payloadCmdHandler.handle(request.headers(), payload, response)
                 }.onFailure {
-                    logger.error("WebHook 处理事件发生异常: ${body.writeToText()}", it)
+                    logger.error("WebHook 处理事件发生异常 [path: /]: ${body.writeToText()}",it)
                 }
                 response.end()
             }
@@ -93,7 +96,7 @@ class WebHookHttpServer(
                     }.onFailure {
                         response.statusCode = 502
                         response.end(jsonObjectOf("code" to 502, "message" to "转发服务器出现异常").toString())
-                        logger.warn(
+                        logger.error(
                             "转发服务器出现异常: [${request.method()}] ${request.path()} \n headers: ${request.headers()} \n body: ${body.writeToText()}",
                             it
                         )
