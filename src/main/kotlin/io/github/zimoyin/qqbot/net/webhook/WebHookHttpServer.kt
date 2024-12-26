@@ -35,7 +35,7 @@ class WebHookHttpServer(
     private val logger = LocalLogger(WebHookHttpServer::class.java)
     private lateinit var payloadCmdHandler: PayloadCmdHandler
     val wsList = mutableListOf<ServerWebSocket>()
-
+    val debugLog = bot.context.getBoolean("PAYLOAD_CMD_HANDLER_DEBUG_LOG") ?: false
     fun init() {
         payloadCmdHandler = PayloadCmdHandler(bot, vertx)
         router = Router.router(vertx)
@@ -58,7 +58,7 @@ class WebHookHttpServer(
                     }
                     payloadCmdHandler.handle(request.headers(), payload, response)
                 }.onFailure {
-                    logger.error("WebHook 处理事件发生异常 [path: /]: ${body.writeToText()}",it)
+                    logger.error("WebHook 处理事件发生异常 [path: /]: ${body.writeToText()}", it)
                 }
                 response.end()
             }
@@ -92,7 +92,18 @@ class WebHookHttpServer(
                         }
                         response.statusCode = res.statusCode()
                         response.statusMessage = res.statusMessage()
-                        response.end(res.body())
+                        response.end(res.body()).onSuccess {
+                            if (debugLog) logger.debug(
+                                "转发服务器openapi完成: [${request.path()}] [${res.statusCode()}:${res.statusMessage()}] : ${
+                                    res.body().writeToText()
+                                }"
+                            )
+                        }.onFailure {
+                            logger.error(
+                                "转发信息回客户端出现异常: [${request.method()}] ${request.path()} \n headers: ${request.headers()} \n body: ${body.writeToText()}",
+                                it
+                            )
+                        }
                     }.onFailure {
                         response.statusCode = 502
                         response.end(jsonObjectOf("code" to 502, "message" to "转发服务器出现异常").toString())
