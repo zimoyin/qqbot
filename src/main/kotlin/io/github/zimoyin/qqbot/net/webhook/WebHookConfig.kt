@@ -24,17 +24,21 @@ data class WebHookConfig(
      */
     val password: String = "",
     /**
+     * 是否启用 SSL
+     */
+    val isSSL: Boolean = true,
+    /**
      * HttpServerOptions 实例
      */
     val options: HttpServerOptions = HttpServerOptions().apply {
-        isSsl = true
+        isSsl = isSSL
         sslHandshakeTimeout = 30L
         webSocketClosingTimeout = 30
         sslOptions.isUseAlpn = false
         webSocketCompressionLevel = 6
         webSocketSubProtocols = arrayListOf("wss", "ws")
 
-        require(loadCert(this, sslPath, password)) {
+        if (isSsl) require(loadCert(this, sslPath, password)) {
             IllegalArgumentException("Could not find a valid SSL certificate in the path $sslPath")
         }
     },

@@ -45,6 +45,10 @@ class WebHookHttpServer(
 
             response.setChunked(true)
             request.bodyHandler { body ->
+                if (body.writeToText().isEmpty()) {
+                    response.end(jsonObjectOf("code" to 400, "message" to "请求体为空").toString())
+                    return@bodyHandler
+                }
                 kotlin.runCatching {
                     val payload = kotlin
                         .runCatching { body.mapTo(Payload::class.java) }
