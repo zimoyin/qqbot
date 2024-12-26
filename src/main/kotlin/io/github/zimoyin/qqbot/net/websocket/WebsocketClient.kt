@@ -23,6 +23,7 @@ import io.vertx.core.http.WebSocketClientOptions
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 import java.net.InetAddress
 import java.net.SocketException
+import java.net.URI
 
 /**
  *
@@ -31,7 +32,11 @@ import java.net.SocketException
  * @date : 2023/12/06/18:30
  * @description ：
  */
-class WebsocketClient(private val bot: Bot, private val promise0: Promise<WebSocket>? = null) : CoroutineVerticle() {
+class WebsocketClient(
+    private val bot: Bot,
+    private val isVerifyHost: Boolean = true,
+    private val promise0: Promise<WebSocket>? = null
+) : CoroutineVerticle() {
     private val logger = LocalLogger(WebsocketClient::class.java)
     private val promise: Promise<WebSocket> = promise0 ?: bot.context.getValue<Promise<WebSocket>>("internal.promise")
     private var reconnectTime: Long = 1 * 1000
@@ -57,7 +62,7 @@ class WebsocketClient(private val bot: Bot, private val promise0: Promise<WebSoc
             .setConnectTimeout(6000)
             .setSsl(true)
             .setTrustAll(true)
-            .setVerifyHost(false)
+            .setVerifyHost(isVerifyHost)
             .apply {
                 //如果心跳在 心跳周期 + 30s 内没有发送出去就抛出异常
                 val value: Boolean = bot.context[isAbnormalCardiacArrestKey] ?: return@apply
@@ -105,14 +110,18 @@ class WebsocketClient(private val bot: Bot, private val promise0: Promise<WebSoc
         bot.context["vertx"] = vertx
 
         logger.debug("WebSocketClient[${client.hashCode()}] 准备访问WebSocketSever接入点: $gatewayURL")
-        val url = gatewayURL!!
-            .replace("ws://", "wss://")
-            .replace("wss://", "https://", true)
-            .toUrl()
 
+        val uri = URI(gatewayURL!!)
+        val port = when (uri.scheme) {
+            "wss" -> 443
+            "ws" -> 80
+            "https" -> 443
+            "http" -> 80
+            else -> uri.port
+        }
         WS?.close()
         //开启 ws
-        client.connect(443, url.host, url.path).onSuccess { ws ->
+        client.connect(port, uri.host, uri.path).onSuccess { ws ->
             bot.context["ws"] = ws
             WS = ws
             this.payloadCmdHandler = PayloadCmdHandler(bot, promise, ws)

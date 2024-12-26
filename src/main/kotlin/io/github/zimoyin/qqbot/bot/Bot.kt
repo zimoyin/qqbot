@@ -156,7 +156,9 @@ interface Bot : Serializable, Contact {
     /**
      * 登录
      * 警告： 如果使用 await 后会严重阻塞协程
+     * @param isVerifyHost 是否验证主机,如果 SSL 证书无法解析的话，请设置为 false
      */
+    fun login(isVerifyHost: Boolean): Future<WebSocket>
     fun login(): Future<WebSocket>
 
     /**

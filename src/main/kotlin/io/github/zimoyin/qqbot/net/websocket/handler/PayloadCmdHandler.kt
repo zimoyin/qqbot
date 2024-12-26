@@ -29,7 +29,6 @@ import io.vertx.core.json.JsonObject
  * @author : zimo
  * @date : 2023/12/07
  */
-@Deprecated("The official has abandoned the WebSocket method")
 class PayloadCmdHandler(
     private val bot: Bot,
     private var promise: Promise<WebSocket>? = null,

@@ -71,8 +71,11 @@ class BotImp(
         }
     }
 
-
     override fun login(): Future<WebSocket> {
+        return login(true)
+    }
+
+    override fun login(isVerifyHost: Boolean): Future<WebSocket> {
         val promise = Promise.promise<WebSocket>()
 
         val isForwarding = TencentOpenApiHttpClient.webSocketForwardingAddress == null
@@ -86,7 +89,7 @@ class BotImp(
         when (token.version) {
             2 -> {
                 HttpAPIClient.accessToken(token).awaitToCompleteExceptionally()
-                websocketClient = WebsocketClient(this, promise)
+                websocketClient = WebsocketClient(this, isVerifyHost, promise)
                 logger.info("Vertx 部署Verticle： WebSocketClient")
                 vertx.deployVerticle(websocketClient).onFailure {
                     if (promise.isInitialStage()) logger.error("无法启动 ws 客户端", it)
@@ -95,7 +98,7 @@ class BotImp(
             }
 
             1 -> {
-                websocketClient = WebsocketClient(this, promise)
+                websocketClient = WebsocketClient(this, isVerifyHost, promise)
                 vertx.deployVerticle(websocketClient).onFailure {
                     promise.tryFail(it)
                     if (promise.isInitialStage()) logger.error("无法启动 ws 客户端", it)
