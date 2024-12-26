@@ -50,22 +50,25 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
             val id = UUID.randomUUID()
             logger.info("[WebSocketServer] 新连接: $id")
             var hid: Long = 1
-            var hid2: Long = hid
+            var time = System.currentTimeMillis()
+            server.vertx.setPeriodic(1000) {
+                val now = System.currentTimeMillis()
+                val diff = now - time
+                if (diff > 90 * 1000) {
+                    logger.warn("[WebSocketServer] 心跳超时: $diff")
+                    ws.close()
+                    server.vertx.cancelTimer(it)
+                }
+            }
             wsList.add(ws)
 
-            val timerId = server.vertx.setPeriodic(90 * 1000){
-                if (hid2 == hid) {
-                    ws.close()
-                }
-                hid2 = hid
-            }
             opStart(ws)
             ws.textMessageHandler { text ->
                 runCatching {
                     val payload = text.toJsonObject().mapTo(Payload::class.java)
                     when (payload.opcode) {
                         2 -> opcode2(payload, ws, hid, id)
-                        1 -> opcode1(ws, hid)
+                        1 -> time =  opcode1(ws, hid)
                         6 -> opcode6(ws)
                         else -> {
                             if (isMataDebug) logger.warn("WebSocketServer 收到消息: $text")
@@ -98,7 +101,6 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
             ws.closeHandler {
                 logger.info("[WebSocketServer] 断开连接: $id")
                 wsList.remove(ws)
-                server.vertx.cancelTimer(timerId)
             }
 
             ws.exceptionHandler {
@@ -126,12 +128,13 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
         ws.writeTextMessage(o6.toJsonString())
     }
 
-    private fun opcode1(ws: ServerWebSocket, hid: Long) {
+    private fun opcode1(ws: ServerWebSocket, hid: Long): Long {
         val o1 = Payload(
             opcode = 11,
             hid = hid,
         )
         ws.writeTextMessage(o1.toJsonString())
+        return System.currentTimeMillis()
     }
 
     private fun opcode2(payload: Payload, ws: ServerWebSocket, hid: Long, id: UUID) = io {
