@@ -19,6 +19,8 @@ data class WebHookConfig(
     val password: String = "",
     val options: HttpServerOptions = HttpServerOptions().apply {
         isSsl = true
+        sslHandshakeTimeout = 30L
+        webSocketClosingTimeout = 30
         sslOptions.isUseAlpn = false
         webSocketCompressionLevel = 6
         webSocketSubProtocols = arrayListOf("wss", "ws")
@@ -52,11 +54,12 @@ data class WebHookConfig(
 
             // 检查是否存在 PEM 文件（key 和 cert）
             val keyFile = sslDir.listFiles { _, name -> name.endsWith(".key") }?.firstOrNull()
-            val crtFile = sslDir.listFiles { _, name -> name.endsWith(".crt") || name.endsWith(".pem") }?.firstOrNull()
-            if (keyFile != null && crtFile != null) {
+            val crtFile = sslDir.listFiles { _, name -> name.endsWith(".crt") }?.firstOrNull()
+            val pemFile = sslDir.listFiles { _, name -> name.endsWith(".pem") } ?: emptyArray()
+            if (keyFile != null && (crtFile != null || pemFile.isEmpty())) {
                 options.keyCertOptions = PemKeyCertOptions()
                     .setKeyPath(keyFile.absolutePath)
-                    .setCertPath(crtFile.absolutePath)
+                    .setCertPath(pemFile.firstOrNull()?.absolutePath ?: crtFile?.absolutePath)
                 return true
             }
 
@@ -81,8 +84,7 @@ data class WebHookConfig(
             }
 
             // pem 文件
-            val pemFile = sslDir.listFiles { _, name -> name.endsWith(".pem") }
-            if (pemFile != null && pemFile.size >= 2) {
+            if (pemFile.size >= 2) {
                 kotlin.runCatching {
                     options.keyCertOptions = PemKeyCertOptions()
                         .setKeyPath(pemFile.first { it.readText().contains("PRIVATE", true) }.absolutePath)
