@@ -11,17 +11,26 @@ import io.vertx.core.http.ServerWebSocketHandshake
 import io.vertx.core.json.DecodeException
 import io.vertx.kotlin.core.json.jsonObjectOf
 import java.util.*
+import kotlin.math.log
 
 /**
  *
  * @author : zimo
  * @date : 2024/12/26
  */
-class WebSocketServerHandler(val server: WebHookHttpServer) {
+class WebSocketServerHandler(private val server: WebHookHttpServer) {
 
     private val logger = LocalLogger(this::class.java)
-    val webHookConfig = server.webHookConfig
-    val wsList = server.wsList
+    private val webHookConfig = server.webHookConfig
+    private val wsList = server.wsList
+    private var isDebug = false
+    private var isMataDebug = false
+
+    init {
+        val bot = server.bot
+        isDebug = bot.context["PAYLOAD_CMD_HANDLER_DEBUG_LOG"] ?: false
+        isMataDebug = bot.context["PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG"] ?: false
+    }
 
     /**
      * 添加WebSocket转发, 让该程序作为WebSocket服务器，可以允许客户端进行连接
@@ -39,8 +48,9 @@ class WebSocketServerHandler(val server: WebHookHttpServer) {
             wsList.add(ws)
 
             opStart(ws)
-            ws.textMessageHandler {text->
+            ws.textMessageHandler { text ->
                 runCatching {
+                    if (isMataDebug) logger.debug("WebSocketServer 收到消息: $text")
                     val payload = text.toJsonObject().mapTo(Payload::class.java)
                     when (payload.opcode) {
                         2 -> opcode2(ws, hid, id)
@@ -59,17 +69,17 @@ class WebSocketServerHandler(val server: WebHookHttpServer) {
                         eventID = id.toString(),
                         eventContent = jsonObjectOf("code" to 502, "message" to "接受到错误信息: ${text}").toJAny()
                     )
-                   if (it is JsonParseException){
-                       logger.warn("WebSocketServer] 接受到错误信息: ${text}")
-                       ws.writeTextMessage(op502.toJsonString())
-                       return@onFailure
-                   }
-                   if (it is DecodeException){
-                       logger.warn("WebSocketServer] 接受到错误信息: ${text}")
-                       ws.writeTextMessage(op502.toJsonString())
-                       return@onFailure
-                   }
-                   logger.warn("WebSocketServer] text: ${text}",it)
+                    if (it is JsonParseException) {
+                        logger.warn("WebSocketServer] 接受到错误信息: ${text}")
+                        ws.writeTextMessage(op502.toJsonString())
+                        return@onFailure
+                    }
+                    if (it is DecodeException) {
+                        logger.warn("WebSocketServer] 接受到错误信息: ${text}")
+                        ws.writeTextMessage(op502.toJsonString())
+                        return@onFailure
+                    }
+                    logger.warn("WebSocketServer] text: ${text}", it)
                 }
             }
 
@@ -79,7 +89,7 @@ class WebSocketServerHandler(val server: WebHookHttpServer) {
             }
 
             ws.exceptionHandler {
-                logger.warn("[WebSocketServer] 错误: ${it.message}",it)
+                logger.warn("[WebSocketServer] 错误: ${it.message}", it)
             }
         }
     }

@@ -31,7 +31,7 @@ suspend fun main() {
         context.set("internal.isAbnormalCardiacArrest", true)
         context.set("internal.headerCycle", 5 * 1000)
         context.set("PAYLOAD_CMD_HANDLER_DEBUG_LOG", true)
-        context.set("PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG", false)
+        context.set("PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG", true)
         context.set("PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT", false)
 
         start(WebHookConfig("./127.0.0.1", enableWebSocketForwarding = true)).onSuccess {
