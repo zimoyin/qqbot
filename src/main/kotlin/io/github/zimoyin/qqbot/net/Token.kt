@@ -62,7 +62,7 @@ data class Token(
      */
     @JsonIgnore
     private fun getHeadersV1(): HeadersMultiMap = hashMapOf(
-        "Authorization" to getAuthorization(),
+        "Authorization" to getAuthorization(1),
     ).toHeaders()
 
     /**
@@ -70,7 +70,7 @@ data class Token(
      */
     @JsonIgnore
     private fun getHeadersV2(): HeadersMultiMap = hashMapOf(
-        "Authorization" to getAuthorization(),
+        "Authorization" to getAuthorization(2),
         "X-Union-Appid" to "QQBot $appID"
     ).toHeaders()
 
@@ -84,8 +84,8 @@ data class Token(
 
     fun getAuthorization(version0: Int = version):String{
         return when (version0) {
-            1 -> "Bot ${getTokenVerify()}"
-            2 -> "QQBot ${getTokenVerify()}"
+            1 -> "Bot ${getTokenVerify(1)}"
+            2 -> "QQBot ${getTokenVerify(2)}"
             else -> throw IllegalArgumentException("Unsupported version: $version")
         }
     }

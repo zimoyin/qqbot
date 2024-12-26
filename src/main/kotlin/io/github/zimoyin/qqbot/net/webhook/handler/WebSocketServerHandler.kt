@@ -15,6 +15,7 @@ import io.vertx.core.http.ServerWebSocket
 import io.vertx.core.json.DecodeException
 import io.vertx.kotlin.core.json.jsonObjectOf
 import java.util.*
+import kotlin.math.log
 
 /**
  *
@@ -49,8 +50,15 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
             val id = UUID.randomUUID()
             logger.info("[WebSocketServer] 新连接: $id")
             var hid: Long = 1
+            var hid2: Long = hid
             wsList.add(ws)
 
+            val timerId = server.vertx.setPeriodic(90 * 1000){
+                if (hid2 == hid) {
+                    ws.close()
+                }
+                hid2 = hid
+            }
             opStart(ws)
             ws.textMessageHandler { text ->
                 runCatching {
@@ -90,6 +98,7 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
             ws.closeHandler {
                 logger.info("[WebSocketServer] 断开连接: $id")
                 wsList.remove(ws)
+                server.vertx.cancelTimer(timerId)
             }
 
             ws.exceptionHandler {
@@ -162,6 +171,9 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
                         .let { "QQBot $it" }
                 }
             }
+
+
+
             val clientToken = payload.eventContent?.toJsonObject()?.getString("token") ?: ""
 
             if (clientToken != verify && clientToken != verify2) {
@@ -172,10 +184,12 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
 
                 o2 = Payload(
                     opcode = 9,
-                    eventContent = "".toJAny()
+                    eventContent = message.toJAny()
                 )
             }
-
+//            if (isDebug) logger.debug("服务器Toekn1: $verify")
+//            if (isDebug) logger.debug("服务器Toekn2: $verify2")
+            if (isDebug) logger.debug("客户端请求Token: $clientToken")
         }
         if (isDebug) logger.debug("[$id] 服务器鉴权结果: ${o2.toJsonString()}")
         ws.writeTextMessage(o2.toJsonString())

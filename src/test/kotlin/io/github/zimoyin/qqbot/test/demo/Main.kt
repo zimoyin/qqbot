@@ -35,7 +35,7 @@ suspend fun main() {
         context.set("PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG", true)
         context.set("PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT", false)
 
-        start(WebHookConfig("zimoyin.xyz", enableWebSocketForwarding = true)).onSuccess {
+        start(WebHookConfig("127.0.0.1", enableWebSocketForwarding = true)).onSuccess {
             logger.info("WebServer 启动成功 ${it.webHookConfig.port}")
         }.onFailure {
             logger.error("WebServer 启动失败", it)
