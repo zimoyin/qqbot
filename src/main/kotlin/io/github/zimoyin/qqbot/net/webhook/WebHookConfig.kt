@@ -2,12 +2,9 @@ package io.github.zimoyin.qqbot.net.webhook
 
 import io.vertx.core.http.HttpServerOptions
 import io.vertx.core.net.JksOptions
-import io.vertx.core.net.KeyStoreOptions
 import io.vertx.core.net.PemKeyCertOptions
 import io.vertx.core.net.PfxOptions
-import jdk.internal.org.jline.utils.Colors.s
 import java.io.File
-import java.util.*
 
 /**
  *

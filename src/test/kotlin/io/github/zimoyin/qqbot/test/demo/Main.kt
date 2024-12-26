@@ -5,8 +5,8 @@ import io.github.zimoyin.qqbot.annotation.UntestedApi
 import io.github.zimoyin.qqbot.bot.Bot
 import io.github.zimoyin.qqbot.event.events.Event
 import io.github.zimoyin.qqbot.event.supporter.GlobalEventBus
-import io.github.zimoyin.qqbot.net.http.api.API.isDebug
 import io.github.zimoyin.qqbot.net.http.TencentOpenApiHttpClient
+import io.github.zimoyin.qqbot.net.http.api.API.isDebug
 import io.github.zimoyin.qqbot.net.webhook.WebHookConfig
 import openDebug
 import org.slf4j.LoggerFactory

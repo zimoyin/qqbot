@@ -3,12 +3,7 @@ package io.github.zimoyin.qqbot
 import io.github.zimoyin.qqbot.utils.io
 import io.vertx.core.Vertx
 import io.vertx.core.VertxOptions
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import java.io.IOException
-import java.net.URL
 import java.time.LocalDateTime
-import java.util.*
 
 /**
  * 全局 vertx 实例配置

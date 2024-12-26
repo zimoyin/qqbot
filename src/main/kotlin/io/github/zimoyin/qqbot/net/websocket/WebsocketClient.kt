@@ -7,13 +7,12 @@ import io.github.zimoyin.qqbot.event.events.platform.bot.BotOfflineEvent
 import io.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import io.github.zimoyin.qqbot.exception.WebSocketReconnectException
 import io.github.zimoyin.qqbot.net.Intents
-import io.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import io.github.zimoyin.qqbot.net.http.TencentOpenApiHttpClient
+import io.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import io.github.zimoyin.qqbot.net.http.api.gatewayV2Async
 import io.github.zimoyin.qqbot.net.websocket.handler.PayloadCmdHandler
 import io.github.zimoyin.qqbot.utils.ex.await
 import io.github.zimoyin.qqbot.utils.ex.executeBlockingKt
-import io.github.zimoyin.qqbot.utils.ex.toUrl
 import io.vertx.core.Handler
 import io.vertx.core.Promise
 import io.vertx.core.http.HttpClosedException

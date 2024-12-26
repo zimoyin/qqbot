@@ -3,20 +3,15 @@ package io.github.zimoyin.qqbot.net.http.api.channel
 import io.github.zimoyin.qqbot.annotation.UntestedApi
 import io.github.zimoyin.qqbot.bot.contact.Channel
 import io.github.zimoyin.qqbot.bot.message.EmojiType
-import io.github.zimoyin.qqbot.exception.HttpHandlerException
-import io.github.zimoyin.qqbot.net.bean.MemberBean
 import io.github.zimoyin.qqbot.net.bean.User
 import io.github.zimoyin.qqbot.net.http.addRestfulParam
 import io.github.zimoyin.qqbot.net.http.api.API
 import io.github.zimoyin.qqbot.net.http.api.HttpAPIClient
-import io.github.zimoyin.qqbot.utils.ex.await
 import io.github.zimoyin.qqbot.utils.ex.awaitToCompleteExceptionally
 import io.github.zimoyin.qqbot.utils.ex.promise
 import io.github.zimoyin.qqbot.utils.io
 import io.github.zimoyin.qqbot.utils.mapTo
 import io.vertx.core.Future
-import io.vertx.core.json.JsonObject
-import io.vertx.kotlin.core.json.get
 
 
 /**

@@ -3,9 +3,7 @@ package io.github.zimoyin.qqbot.event.events.group.operation
 import io.github.zimoyin.qqbot.annotation.EventAnnotation
 import io.github.zimoyin.qqbot.bot.BotInfo
 import io.github.zimoyin.qqbot.bot.contact.Contact
-import io.github.zimoyin.qqbot.bot.message.MessageChain
 import io.github.zimoyin.qqbot.bot.message.MessageChainBuilder
-import io.github.zimoyin.qqbot.event.handler.group.OpenGroupBotHandler
 import io.github.zimoyin.qqbot.net.bean.SendMessageResultBean
 import io.vertx.core.Future
 import java.util.*

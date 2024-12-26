@@ -17,8 +17,6 @@ import io.vertx.core.eventbus.MessageConsumer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.util.function.Consumer
 
 /**

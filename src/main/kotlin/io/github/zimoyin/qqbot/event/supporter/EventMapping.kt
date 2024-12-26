@@ -60,8 +60,6 @@ import io.github.zimoyin.qqbot.event.events.revoke.ChannelPrivateMessageRevokeEv
 import io.github.zimoyin.qqbot.event.events.revoke.MessageRevokeEvent
 import io.github.zimoyin.qqbot.event.handler.NoneEventHandler
 import io.github.zimoyin.qqbot.net.bean.Payload
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 /**
  *

@@ -1,10 +1,8 @@
 package io.github.zimoyin.qqbot.net.webhook.handler
 
 import io.github.zimoyin.qqbot.bot.Bot
-import io.vertx.core.MultiMap
 import io.vertx.core.buffer.Buffer
 import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters
-import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters
 import org.bouncycastle.crypto.signers.Ed25519Signer
 import org.bouncycastle.util.encoders.Hex
 

@@ -1,7 +1,6 @@
 package io.github.zimoyin.qqbot.test
 
 import java.net.URI
-import java.net.URL
 
 /**
  *

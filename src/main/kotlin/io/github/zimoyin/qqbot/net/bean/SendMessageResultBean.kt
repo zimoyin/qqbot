@@ -1,7 +1,6 @@
 package io.github.zimoyin.qqbot.net.bean
 
 import io.github.zimoyin.qqbot.bot.contact.Contact
-import io.github.zimoyin.qqbot.bot.contact.Friend
 import io.vertx.core.Future
 import java.io.Serializable
 

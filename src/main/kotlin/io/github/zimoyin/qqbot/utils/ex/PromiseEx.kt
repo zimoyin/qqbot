@@ -1,7 +1,6 @@
 package io.github.zimoyin.qqbot.utils.ex
 
 import io.vertx.core.Promise
-import io.vertx.core.impl.future.Listener
 
 /**
  *

@@ -5,14 +5,11 @@ import io.github.zimoyin.qqbot.exception.HttpClientException
 import io.github.zimoyin.qqbot.exception.HttpHandlerException
 import io.github.zimoyin.qqbot.exception.HttpStateCodeException
 import io.github.zimoyin.qqbot.utils.ex.isInitialStage
-import io.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.client.HttpResponse
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 /**
  * API 访问入口

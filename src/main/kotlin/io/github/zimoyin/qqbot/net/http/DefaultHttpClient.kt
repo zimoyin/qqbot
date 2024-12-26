@@ -13,8 +13,6 @@ import io.vertx.ext.web.client.HttpRequest
 import io.vertx.ext.web.client.HttpResponse
 import io.vertx.ext.web.client.WebClient
 import io.vertx.ext.web.client.WebClientOptions
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.net.URI
 import java.net.URL
 

@@ -15,7 +15,6 @@ import io.vertx.core.http.ServerWebSocket
 import io.vertx.core.json.DecodeException
 import io.vertx.kotlin.core.json.jsonObjectOf
 import java.util.*
-import kotlin.math.log
 
 /**
  *

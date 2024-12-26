@@ -13,8 +13,8 @@ import io.github.zimoyin.qqbot.event.events.message.MessageEvent;
 import io.github.zimoyin.qqbot.event.supporter.GlobalEventBus;
 import io.github.zimoyin.qqbot.net.Intents;
 import io.github.zimoyin.qqbot.net.Token;
-import io.github.zimoyin.qqbot.net.http.api.API;
 import io.github.zimoyin.qqbot.net.http.TencentOpenApiHttpClient;
+import io.github.zimoyin.qqbot.net.http.api.API;
 
 import java.io.File;
 
