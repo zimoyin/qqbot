@@ -13,3 +13,6 @@
 * [引入依赖](docs%2Fdependent.md)
 * [使用文档](docs%2Flogin.md)
 * [事件列表](docs%2Fevents.md)
+
+# 启动转发程序
+请从 release 页面下载 Jar 并启动他，之后该程序将会生成配置文件。配置好后再次启动，他将 WebHook 转为 WebSocket。之后就可以通过原本的 WebSocket Client 程序连接到该服务器
