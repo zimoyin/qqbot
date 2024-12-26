@@ -17,7 +17,7 @@ suspend fun main() {
     openDebug()
     val logger = LoggerFactory.getLogger("Main")
 
-//    token.version = 1
+    token.version = 1
 //    token.version = 2
 
     //全局事件监听

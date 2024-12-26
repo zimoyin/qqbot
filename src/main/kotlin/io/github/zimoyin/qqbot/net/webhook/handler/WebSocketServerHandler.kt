@@ -1,17 +1,22 @@
-package io.github.zimoyin.qqbot.net.webhook
+package io.github.zimoyin.qqbot.net.webhook.handler
 
 import com.fasterxml.jackson.core.JsonParseException
 import io.github.zimoyin.qqbot.LocalLogger
 import io.github.zimoyin.qqbot.net.bean.Payload
+import io.github.zimoyin.qqbot.net.http.api.HttpAPIClient
+import io.github.zimoyin.qqbot.net.http.api.accessToken
+import io.github.zimoyin.qqbot.net.webhook.WebHookHttpServer
+import io.github.zimoyin.qqbot.utils.ex.await
+import io.github.zimoyin.qqbot.utils.ex.awaitToCompleteExceptionally
 import io.github.zimoyin.qqbot.utils.ex.toJAny
 import io.github.zimoyin.qqbot.utils.ex.toJsonObject
+import io.github.zimoyin.qqbot.utils.io
 import io.vertx.core.http.HttpServer
 import io.vertx.core.http.ServerWebSocket
-import io.vertx.core.http.ServerWebSocketHandshake
 import io.vertx.core.json.DecodeException
 import io.vertx.kotlin.core.json.jsonObjectOf
+import java.awt.SystemColor.text
 import java.util.*
-import kotlin.math.log
 
 /**
  *
@@ -50,13 +55,13 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
             opStart(ws)
             ws.textMessageHandler { text ->
                 runCatching {
-                    if (isMataDebug) logger.debug("WebSocketServer 收到消息: $text")
                     val payload = text.toJsonObject().mapTo(Payload::class.java)
                     when (payload.opcode) {
-                        2 -> opcode2(ws, hid, id)
+                        2 -> opcode2(payload, ws, hid, id)
                         1 -> opcode1(ws, hid)
-                        6 -> opcode6(ws, id)
+                        6 -> opcode6(ws)
                         else -> {
+                            if (isMataDebug) logger.debug("WebSocketServer 收到消息: $text")
                             logger.warn("[WebSocketServer] 不支持的opcode: ${payload.opcode}")
                         }
                     }
@@ -102,7 +107,8 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
         ws.writeTextMessage(start.toJsonString())
     }
 
-    private fun opcode6(ws: ServerWebSocket, id: UUID) {
+    private fun opcode6(ws: ServerWebSocket) {
+        if (isMataDebug) logger.debug("WebSocketServer 收到消息: $text")
         val o6 = Payload(
             opcode = 0,
             eventType = "RESUMED",
@@ -120,8 +126,10 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
         ws.writeTextMessage(o1.toJsonString())
     }
 
-    private fun opcode2(ws: ServerWebSocket, hid: Long, id: UUID) {
-        val o2 = Payload(
+    private fun opcode2(payload: Payload, ws: ServerWebSocket, hid: Long, id: UUID) = io {
+        if (isMataDebug) logger.debug("WebSocketServer 收到消息: $text")
+        val bot = server.bot
+        var o2 = Payload(
             opcode = 0,
             hid = hid,
             eventType = "READY",
@@ -130,14 +138,56 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
                     "version": 1,
                     "session_id": "$id",
                     "user": {
-                      "id": "",
-                      "username": "",
+                      "id": "${bot.id}",
+                      "username": "${bot.nick}",
                       "bot": true
                     },
                     "shard": [0, 0]
                   }
             """.trimIndent().toJsonObject().toJAny()
         )
+
+        if (webHookConfig.enableWebSocketForwardingLoginVerify) {
+            val token = bot.config.token
+            val verify = token.getAuthorization(1)
+            val verify2 = if (token.version == 2) {
+                token.getAuthorization(2)
+            } else {
+                if (token.clientSecret.isEmpty()) {
+                    token.clientSecret
+                } else {
+                    HttpAPIClient.accessToken(token, false)
+                        .await()
+                        .toJsonObject()
+                        .getString("access_token")
+                        .let { "QQBot $it" }
+                }
+            }
+            val clientToken = payload.eventContent?.toJsonObject()?.getString("token") ?: ""
+
+            if (clientToken != verify && clientToken != verify2) {
+                o2 = Payload(
+                    opcode = 9,
+                    eventContent = false.toJAny()
+                )
+
+                if (token.token.isEmpty()) {
+                    o2 = Payload(
+                        opcode = 9,
+                        eventContent = "服务器仅支持使用 access_token 进行鉴权".toJAny()
+                    )
+                }
+
+                if (token.clientSecret.isEmpty()) {
+                    o2 = Payload(
+                        opcode = 9,
+                        eventContent = "服务器仅支持使用 appID.token 进行鉴权".toJAny()
+                    )
+                }
+            }
+
+        }
+        if (isDebug) logger.debug("[$id] 服务器鉴权结果: ${o2.toJsonString()}")
         ws.writeTextMessage(o2.toJsonString())
     }
 }

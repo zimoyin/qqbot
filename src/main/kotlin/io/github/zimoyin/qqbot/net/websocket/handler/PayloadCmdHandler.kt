@@ -11,7 +11,7 @@ import io.github.zimoyin.qqbot.event.supporter.EventMapping
 import io.github.zimoyin.qqbot.exception.WebSocketReconnectException
 import io.github.zimoyin.qqbot.net.bean.Payload
 import io.github.zimoyin.qqbot.net.http.api.HttpAPIClient
-import io.github.zimoyin.qqbot.net.http.api.accessTokenUpdateAsync
+import io.github.zimoyin.qqbot.net.http.api.accessToken
 import io.github.zimoyin.qqbot.utils.JSON
 import io.github.zimoyin.qqbot.utils.ex.mapTo
 import io.github.zimoyin.qqbot.utils.ex.toJAny
@@ -22,8 +22,6 @@ import io.vertx.core.buffer.Buffer
 import io.vertx.core.http.WebSocket
 import io.vertx.core.json.JsonArray
 import io.vertx.core.json.JsonObject
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 
 /**
@@ -340,7 +338,7 @@ class PayloadCmdHandler(
 
     private fun updateToken() {
         val token = bot.config.token
-        HttpAPIClient.accessTokenUpdateAsync(token).onSuccess {
+        HttpAPIClient.accessToken(token).onSuccess {
             timerId = vertx.setTimer((token.expiresIn.toLong() - 60) * 1000) {
                 updateToken()
             }

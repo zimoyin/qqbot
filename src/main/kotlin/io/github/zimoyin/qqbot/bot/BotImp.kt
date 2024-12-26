@@ -6,22 +6,17 @@ import io.github.zimoyin.qqbot.exception.HttpClientException
 import io.github.zimoyin.qqbot.net.Token
 import io.github.zimoyin.qqbot.net.bean.SendMessageResultBean
 import io.github.zimoyin.qqbot.net.http.api.HttpAPIClient
-import io.github.zimoyin.qqbot.net.http.api.accessTokenUpdateAsync
+import io.github.zimoyin.qqbot.net.http.api.accessToken
 import io.github.zimoyin.qqbot.net.http.api.botInfo
 import io.github.zimoyin.qqbot.net.webhook.WebHookConfig
 import io.github.zimoyin.qqbot.net.webhook.WebHookHttpServer
 import io.github.zimoyin.qqbot.net.websocket.WebsocketClient
-import io.github.zimoyin.qqbot.utils.ex.await
 import io.github.zimoyin.qqbot.utils.ex.awaitToCompleteExceptionally
 import io.github.zimoyin.qqbot.utils.ex.isInitialStage
 import io.github.zimoyin.qqbot.utils.ex.promise
-import io.github.zimoyin.qqbot.utils.io
 import io.vertx.core.Future
 import io.vertx.core.Promise
-import io.vertx.core.http.HttpServer
-import io.vertx.core.http.HttpServerOptions
 import io.vertx.core.http.WebSocket
-import org.slf4j.LoggerFactory
 
 /**
  *
@@ -81,7 +76,7 @@ class BotImp(
         this.context["internal.promise"] = promise
         when (token.version) {
             2 -> {
-                HttpAPIClient.accessTokenUpdateAsync(token).awaitToCompleteExceptionally()
+                HttpAPIClient.accessToken(token).awaitToCompleteExceptionally()
                 websocketClient = WebsocketClient(this, promise)
                 logger.info("Vertx 部署Verticle： WebSocketClient")
                 vertx.deployVerticle(websocketClient).onFailure {

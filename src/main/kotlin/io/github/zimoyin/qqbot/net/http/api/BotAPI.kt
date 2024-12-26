@@ -16,20 +16,20 @@ import io.vertx.core.json.JsonObject
  * @date : 2023/12/21
  * 更新动态令牌，异步
  */
-fun HttpAPIClient.accessTokenUpdateAsync(token: Token): Future<String> {
+@JvmOverloads
+fun HttpAPIClient.accessToken(token: Token, isUpdate: Boolean = true): Future<String> {
     val promise = promise<String>()
     API.AccessToken.sendJsonObject(JSON.toJsonObject(token)).onSuccess {
         runCatching {
             val json = kotlin.runCatching { it.bodyAsJsonObject() }.getOrNull()
-            if (json == null){
+            if (json == null) {
                 throw HttpClientException("[AccessToken] Token 更新失败: 响应不是JSON对象: ${it.bodyAsString()}")
             }
             if (json.getInteger("code") != null) {
                 throw HttpClientException("[AccessToken] Token 更新失败: ${json.getString("message")}")
             }
-            token.accessToken = json.getString("access_token")
-            token.expiresIn = json.getString("expires_in").toInt()
-//            logDebug("AccessToken", "Token 更新成功")
+           if (isUpdate) token.accessToken = json.getString("access_token")
+           if (isUpdate) token.expiresIn = json.getString("expires_in").toInt()
             json.encode()
         }.onFailure {
             promise.tryFail(it)

@@ -5,23 +5,16 @@ import io.github.zimoyin.qqbot.bot.Bot
 import io.github.zimoyin.qqbot.event.events.platform.bot.BotOfflineEvent
 import io.github.zimoyin.qqbot.net.bean.Payload
 import io.github.zimoyin.qqbot.net.webhook.handler.PayloadCmdHandler
-import io.github.zimoyin.qqbot.utils.cpu
+import io.github.zimoyin.qqbot.net.webhook.handler.WebSocketServerHandler
 import io.github.zimoyin.qqbot.utils.ex.*
 import io.vertx.core.Future
 import io.vertx.core.Handler
 import io.vertx.core.Promise
 import io.vertx.core.http.HttpServer
 import io.vertx.core.http.ServerWebSocket
-import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
-import io.vertx.ext.web.codec.BodyCodec.jsonObject
-import io.vertx.ext.web.handler.sockjs.SockJSHandler
-import io.vertx.ext.web.handler.sockjs.SockJSSocket
-import io.vertx.kotlin.core.json.jsonObjectOf
 import io.vertx.kotlin.coroutines.CoroutineVerticle
-import org.intellij.lang.annotations.Language
-import java.util.*
 
 /**
  *

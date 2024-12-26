@@ -2,33 +2,16 @@ package io.github.zimoyin.qqbot.net.webhook.handler
 
 import io.github.zimoyin.qqbot.LocalLogger
 import io.github.zimoyin.qqbot.bot.Bot
-import io.github.zimoyin.qqbot.bot.BotInfo
-import io.github.zimoyin.qqbot.event.events.platform.bot.BotHelloEvent
 import io.github.zimoyin.qqbot.event.events.platform.bot.BotOnlineEvent
-import io.github.zimoyin.qqbot.event.events.platform.bot.BotReconnectNotificationEvent
 import io.github.zimoyin.qqbot.event.supporter.BotEventBus
 import io.github.zimoyin.qqbot.event.supporter.EventMapping
-import io.github.zimoyin.qqbot.exception.WebSocketReconnectException
 import io.github.zimoyin.qqbot.net.bean.Payload
 import io.github.zimoyin.qqbot.net.http.api.HttpAPIClient
-import io.github.zimoyin.qqbot.net.http.api.accessTokenUpdateAsync
-import io.github.zimoyin.qqbot.utils.Async.Companion.vertx
-import io.github.zimoyin.qqbot.utils.JSON
-import io.github.zimoyin.qqbot.utils.ex.mapTo
-import io.github.zimoyin.qqbot.utils.ex.toJAny
+import io.github.zimoyin.qqbot.net.http.api.accessToken
 import io.github.zimoyin.qqbot.utils.ex.toJsonObject
-import io.github.zimoyin.qqbot.utils.ex.writeToText
 import io.vertx.core.MultiMap
-import io.vertx.core.Promise
 import io.vertx.core.Vertx
-import io.vertx.core.buffer.Buffer
 import io.vertx.core.http.HttpServerResponse
-import io.vertx.core.http.WebSocket
-import io.vertx.core.json.JsonArray
-import io.vertx.core.json.JsonObject
-import io.vertx.ext.auth.impl.jose.JWS.verifySignature
-import io.vertx.ext.web.RoutingContext
-import org.slf4j.LoggerFactory
 
 
 /**
@@ -62,7 +45,7 @@ class PayloadCmdHandler(
     private fun updateToken() {
         val token = bot.config.token
         if (debugLog) logger.debug("更新token中...")
-        HttpAPIClient.accessTokenUpdateAsync(token).onSuccess {
+        HttpAPIClient.accessToken(token).onSuccess {
             timerId = vertx.setTimer((token.expiresIn.toLong() - 60) * 1000) {
                 updateToken()
             }
