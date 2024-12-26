@@ -16,7 +16,7 @@ Bot bot = Bot.INSTANCE.createBot(config -> {
     config.setIntents(Intents.Presets.PRIVATE_INTENTS);
     config.setToken(appid, token, appsecret); // token 与 appsecret 允许各选其一
 });
-bot.login();
+bot.login(true | false); // 参数用于启用或禁用主机验证，如果服务器SSL 与 IP 无法对应的话请设置 false
 ```
 
 2. 使用 WebHook
