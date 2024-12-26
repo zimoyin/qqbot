@@ -113,13 +113,15 @@ class WebsocketClient(
 
         val uri = URI(gatewayURL!!)
         val port = when (uri.scheme) {
-            "wss" -> 443
-            "ws" -> 80
-            "https" -> 443
-            "http" -> 80
+            "wss", "https" -> 443
+            "ws", "http" -> 80
             else -> uri.port
+        }.let {
+            if (it > 0) uri.port else it
         }
+
         WS?.close()
+        logger.debug("ws服务器 host ${uri.host} port $port path ${uri.path}")
         //开启 ws
         client.connect(port, uri.host, uri.path).onSuccess { ws ->
             bot.context["ws"] = ws
