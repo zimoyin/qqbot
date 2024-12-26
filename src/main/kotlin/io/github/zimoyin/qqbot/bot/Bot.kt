@@ -87,6 +87,14 @@ interface Bot : Serializable, Contact {
             return botImp
         }
 
+        @JvmStatic
+        fun createBot(appid: String, token: String, secret: String): Bot {
+            val config = BotConfigBuilder().setToken(Token.create(appid, token, secret)).build()
+            val botImp = BotImp(config.token, config = config)
+            map[config.token.appID] = botImp
+            return botImp
+        }
+
         @Deprecated("The official has abandoned the WebSocket method")
         @JvmName("kotlinCreateBot")
         fun createBot(token: Token, callback: BotConfigBuilder.() -> Unit): Bot {
@@ -270,7 +278,6 @@ data class BotConfig(
      * Bot丢失链接后的重试次数
      */
     var retry: Int = -1,
-    var webSocketForwardingAddress: String? = null,
 ) : Serializable {
 
     /**
@@ -383,7 +390,7 @@ class BotConfigBuilder(token0: Token? = null) {
     }
 
     @JvmOverloads
-    fun setToken(appid: String, token: String="", appSecret: String = ""): BotConfigBuilder {
+    fun setToken(appid: String, token: String = "", appSecret: String = ""): BotConfigBuilder {
         this.token = Token(appid, token, appSecret)
         return this
     }

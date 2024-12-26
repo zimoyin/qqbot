@@ -7,7 +7,6 @@ import io.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import io.github.zimoyin.qqbot.net.http.api.accessToken
 import io.github.zimoyin.qqbot.net.webhook.WebHookHttpServer
 import io.github.zimoyin.qqbot.utils.ex.await
-import io.github.zimoyin.qqbot.utils.ex.awaitToCompleteExceptionally
 import io.github.zimoyin.qqbot.utils.ex.toJAny
 import io.github.zimoyin.qqbot.utils.ex.toJsonObject
 import io.github.zimoyin.qqbot.utils.io
@@ -15,7 +14,6 @@ import io.vertx.core.http.HttpServer
 import io.vertx.core.http.ServerWebSocket
 import io.vertx.core.json.DecodeException
 import io.vertx.kotlin.core.json.jsonObjectOf
-import java.awt.SystemColor.text
 import java.util.*
 
 /**
@@ -42,6 +40,7 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
      */
     fun addWebSocketForwarding(httpServer: HttpServer): HttpServer {
         if (!webHookConfig.enableWebSocketForwarding) return httpServer
+        if (isDebug) logger.info("WebSocketServer 启动 path: ${webHookConfig.webSocketPath}")
         return httpServer.webSocketHandler { ws ->
             if (ws.path() != webHookConfig.webSocketPath) {
                 ws.reject()
@@ -61,7 +60,7 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
                         1 -> opcode1(ws, hid)
                         6 -> opcode6(ws)
                         else -> {
-                            if (isMataDebug) logger.debug("WebSocketServer 收到消息: $text")
+                            if (isMataDebug) logger.warn("WebSocketServer 收到消息: $text")
                             logger.warn("[WebSocketServer] 不支持的opcode: ${payload.opcode}")
                         }
                     }
@@ -108,7 +107,7 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
     }
 
     private fun opcode6(ws: ServerWebSocket) {
-        if (isMataDebug) logger.debug("WebSocketServer 收到消息: $text")
+        if (isMataDebug) logger.debug("WebSocketServer 收到消息: opcode6")
         val o6 = Payload(
             opcode = 0,
             eventType = "RESUMED",
@@ -127,7 +126,7 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
     }
 
     private fun opcode2(payload: Payload, ws: ServerWebSocket, hid: Long, id: UUID) = io {
-        if (isMataDebug) logger.debug("WebSocketServer 收到消息: $text")
+        if (isMataDebug) logger.debug("WebSocketServer 收到消息: ${payload.toJsonString()}")
         val bot = server.bot
         var o2 = Payload(
             opcode = 0,

@@ -1,7 +1,7 @@
-package io.github.zimoyin.qqbot.net.http.api
+package io.github.zimoyin.qqbot.net.http
 
 import io.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
-import io.vertx.core.http.WebSocketClientOptions
+import io.github.zimoyin.qqbot.LocalLogger
 import io.vertx.core.http.impl.headers.HeadersMultiMap
 import io.vertx.ext.web.client.WebClient
 import io.vertx.ext.web.client.WebClientOptions
@@ -12,19 +12,45 @@ import io.vertx.ext.web.client.WebClientOptions
  * @date : 2024/05/12
  */
 object TencentOpenApiHttpClient {
+    private var isOptionsInitialized = false
+    private val logger = LocalLogger(TencentOpenApiHttpClient::class.java)
+
     @JvmStatic
     val DefaultHeaders by lazy {
         HeadersMultiMap().apply {
             //通用头
         }
     }
+
     @JvmStatic
     var isSandBox = false
         set(value) {
             if (isOptionsInitialized) throw IllegalStateException("Options has been initialized. Please set up the sandbox environment before creating the bot")
             field = value
         }
-    private var isOptionsInitialized = false
+
+    @JvmStatic
+    var host = if (isSandBox) "sandbox.api.sgroup.qq.com" else "api.sgroup.qq.com"
+        set(value) {
+            if (isOptionsInitialized) throw IllegalStateException("Options has been initialized. Please set up the sandbox environment before creating the bot")
+            field = value
+            isCustomHost = true
+            if (webSocketForwardingAddress == null) {
+                webSocketForwardingAddress = "wss://${TencentOpenApiHttpClient.host}/websocket"
+                logger.info("已自动设置 WebSocket 转发地址为：${webSocketForwardingAddress}")
+            }
+        }
+
+    var webSocketForwardingAddress: String? = null
+        set(value) {
+            if (isOptionsInitialized) throw IllegalStateException("Options has been initialized. Please set up the sandbox environment before creating the bot")
+            field = value
+        }
+
+    @JvmStatic
+    var isCustomHost = false
+        private set
+
     private val options: WebClientOptions by lazy {
         isOptionsInitialized = true
         WebClientOptions()

@@ -8,7 +8,7 @@ import io.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import io.github.zimoyin.qqbot.exception.WebSocketReconnectException
 import io.github.zimoyin.qqbot.net.Intents
 import io.github.zimoyin.qqbot.net.http.api.HttpAPIClient
-import io.github.zimoyin.qqbot.net.http.api.TencentOpenApiHttpClient
+import io.github.zimoyin.qqbot.net.http.TencentOpenApiHttpClient
 import io.github.zimoyin.qqbot.net.http.api.gatewayV2Async
 import io.github.zimoyin.qqbot.net.websocket.handler.PayloadCmdHandler
 import io.github.zimoyin.qqbot.utils.ex.await
@@ -31,8 +31,6 @@ import java.net.SocketException
  * @date : 2023/12/06/18:30
  * @description ：
  */
-@Deprecated("The official has abandoned the WebSocket method")
-//class WebsocketClient(private val bot: Bot) : AbstractVerticle() {
 class WebsocketClient(private val bot: Bot, private val promise0: Promise<WebSocket>? = null) : CoroutineVerticle() {
     private val logger = LocalLogger(WebsocketClient::class.java)
     private val promise: Promise<WebSocket> = promise0 ?: bot.context.getValue<Promise<WebSocket>>("internal.promise")
@@ -59,6 +57,7 @@ class WebsocketClient(private val bot: Bot, private val promise0: Promise<WebSoc
             .setConnectTimeout(6000)
             .setSsl(true)
             .setTrustAll(true)
+            .setVerifyHost(false)
             .apply {
                 //如果心跳在 心跳周期 + 30s 内没有发送出去就抛出异常
                 val value: Boolean = bot.context[isAbnormalCardiacArrestKey] ?: return@apply
@@ -69,12 +68,13 @@ class WebsocketClient(private val bot: Bot, private val promise0: Promise<WebSoc
         logger.info("WebSocketClient[${client.hashCode()}] 配置完成 -> 绑定 Bot AppID[${bot.config.token.appID}]")
         logger.debug("心跳周期为: ${headerCycle / 1000.0}s")
         //准备 服务器地址
-        val gatewayURLByContent = bot.config.webSocketForwardingAddress ?: bot.context.getString("gatewayURL")
+        val gatewayURLByContent =
+            TencentOpenApiHttpClient.webSocketForwardingAddress ?: bot.context.getString("gatewayURL")
         if (gatewayURLByContent != null) {
             //为了方便，在没有分片的情况下使用默认的硬编码的URL。但是可能回出现BUG，因为这是一个不再维护的使用
             if (bot.config.shards != BotSection()) logger.warn("自定义WSS接入点的分片非默认值")
             if (!TencentOpenApiHttpClient.isSandBox) logger.warn("当前环境不是沙盒环境，请将环境设置为沙盒环境 > DefaultHttpClient.isSandBox = true")
-            logger.warn("你正在使用自定义WSS接入点请在正式环境中停止使用，否则可能会导致不可预测的BUG: $gatewayURLByContent")
+            if (TencentOpenApiHttpClient.webSocketForwardingAddress == null) logger.warn("你正在使用自定义WSS接入点请在正式环境中停止使用，否则可能会导致不可预测的BUG: $gatewayURLByContent")
             bot.context["shards"] = 1
             gatewayURL = gatewayURLByContent
         } else {

@@ -2,9 +2,9 @@ package io.github.zimoyin.qqbot.net.http.api
 
 
 import io.github.zimoyin.qqbot.LocalLogger
+import io.github.zimoyin.qqbot.net.http.TencentOpenApiHttpClient
 import io.vertx.core.buffer.Buffer
 import io.vertx.ext.web.client.HttpRequest
-import org.slf4j.LoggerFactory
 import kotlin.reflect.KProperty
 
 /**

@@ -30,7 +30,7 @@ data class WebHookConfig(
     val port: Int = 443,
     val host: String = "0.0.0.0",
     val enableWebSocketForwarding: Boolean = false,
-    val webSocketPath: String = "/ws",
+    val webSocketPath: String = "/websocket",
     val enableWebSocketForwardingLoginVerify: Boolean = true,
 ) {
     companion object {

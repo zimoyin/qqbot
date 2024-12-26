@@ -183,7 +183,7 @@ data class MemberWithGuildID(
 ) : Serializable
 
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+//@JsonIgnoreProperties(ignoreUnknown = true)
 data class BotUser(
     val id: String = "",
     val username: String = "",
@@ -194,6 +194,10 @@ data class BotUser(
     val unionOpenID: String? = null,
     @field:JsonProperty("union_user_account")
     val unionUserAccount: String? = null,
+    @field:JsonProperty("share_url")
+    val shareUrl: String? = null,
+    @field:JsonProperty("welcome_msg")
+    val welcomeMsg: String? = null,
 ) : Serializable
 
 

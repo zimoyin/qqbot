@@ -28,16 +28,20 @@ fun HttpAPIClient.accessToken(token: Token, isUpdate: Boolean = true): Future<St
             if (json.getInteger("code") != null) {
                 throw HttpClientException("[AccessToken] Token 更新失败: ${json.getString("message")}")
             }
-           if (isUpdate) token.accessToken = json.getString("access_token")
-           if (isUpdate) token.expiresIn = json.getString("expires_in").toInt()
+            if (isUpdate) token.accessToken = json.getString("access_token")
+            if (isUpdate) token.expiresIn = json.getString("expires_in").toInt()
             json.encode()
-        }.onFailure {
-            promise.tryFail(it)
+        }.onFailure { e ->
+            logPreError(promise, "accessToken", "获取 Token 失败: ${e.message}", e).let {
+                promise.tryFail(HttpClientException("Get Token failed", e))
+            }
         }.onSuccess {
             promise.tryComplete(it)
         }
-    }.onFailure {
-        promise.tryFail(it)
+    }.onFailure { e ->
+        logPreError(promise, "accessToken", "获取 Token 失败: ${e.message}", e).let {
+            promise.tryFail(HttpClientException("Get Token failed", e))
+        }
     }
     return promise.future()
 }
@@ -49,12 +53,17 @@ fun HttpAPIClient.botInfo(token: Token): Future<BotUser> {
     val promise = promise<BotUser>()
     API.BotInfo.putHeaders(token.getHeaders()).send().onSuccess {
         runCatching {
-            promise.tryComplete(it.body().mapTo(BotUser::class.java))
-        }.onFailure {
-            promise.tryFail(it)
+            val user = it.body().mapTo(BotUser::class.java)
+            promise.tryComplete(user)
+        }.onFailure { e ->
+            logPreError(promise, "botInfo", "获取机器人信息失败: ${it.bodyAsString()}").let {b->
+                promise.tryFail(HttpClientException("Get BotInfo failed: ${it.bodyAsString()}", e))
+            }
         }
-    }.onFailure {
-        promise.tryFail(it)
+    }.onFailure { e ->
+        logPreError(promise, "botInfo", "获取机器人信息失败: ${e.message}", e).let {
+            promise.tryFail(HttpClientException("Get BotInfo failed", e))
+        }
     }
     return promise.future()
 }
@@ -85,11 +94,14 @@ fun HttpAPIClient.gatewayV2Async(token: Token): Future<JsonObject> {
         try {
             promise.tryComplete(resp.bodyAsJsonObject())
         } catch (e: Exception) {
-            logError("gateway", "解析 WSS 接入点失败: ${resp.bodyAsString()}", e)
-            promise.tryFail(e)
+            logPreError(promise, "gateway", "解析 WSS 接入点失败: ${resp.bodyAsString()}", e).let {
+                promise.tryFail(HttpClientException("Get Gateway failed", e))
+            }
         }
-    }.onFailure {
-        logError("gateway", "无法获取到 WSS 接入点", it)
+    }.onFailure { e ->
+        logPreError(promise, "gateway", "解析 WSS 接入点失败", e).let {
+            promise.tryFail(HttpClientException("Get Gateway failed", e))
+        }
     }
     return promise.future()
 }

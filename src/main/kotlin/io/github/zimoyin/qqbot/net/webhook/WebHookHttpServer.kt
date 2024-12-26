@@ -4,6 +4,7 @@ import io.github.zimoyin.qqbot.LocalLogger
 import io.github.zimoyin.qqbot.bot.Bot
 import io.github.zimoyin.qqbot.event.events.platform.bot.BotOfflineEvent
 import io.github.zimoyin.qqbot.net.bean.Payload
+import io.github.zimoyin.qqbot.net.http.TencentOpenApiHttpClient
 import io.github.zimoyin.qqbot.net.webhook.handler.PayloadCmdHandler
 import io.github.zimoyin.qqbot.net.webhook.handler.WebSocketServerHandler
 import io.github.zimoyin.qqbot.utils.ex.*
@@ -14,6 +15,7 @@ import io.vertx.core.http.HttpServer
 import io.vertx.core.http.ServerWebSocket
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
+import io.vertx.kotlin.core.json.jsonObjectOf
 import io.vertx.kotlin.coroutines.CoroutineVerticle
 
 /**
@@ -56,6 +58,35 @@ class WebHookHttpServer(
                     logger.error("WebHook 处理事件发生异常: ${body.writeToText()}", it)
                 }
                 response.end()
+            }
+        }
+
+        if (webHookConfig.enableWebSocketForwarding) router.route("/*").handler {
+            val request = it.request()
+            val response = it.response()
+            response.setChunked(true)
+
+            request.bodyHandler { body ->
+                TencentOpenApiHttpClient
+                    .client
+                    .request(request.method(), request.path())
+                    .putHeaders(request.headers())
+                    .sendBuffer(body)
+                    .onSuccess { res ->
+                        for (header in res.headers()) {
+                            response.putHeader(header.key, header.value)
+                        }
+                        response.statusCode = res.statusCode()
+                        response.statusMessage = res.statusMessage()
+                        response.end(res.body())
+                    }.onFailure {
+                        response.statusCode = 502
+                        response.end(jsonObjectOf("code" to 502, "message" to "转发服务器出现异常").toString())
+                        logger.warn(
+                            "转发服务器出现异常: [${request.method()}] ${request.path()} \n headers: ${request.headers()} \n body: ${body.writeToText()}",
+                            it
+                        )
+                    }
             }
         }
     }
@@ -101,6 +132,6 @@ class WebHookHttpServer(
     }
 
     private fun HttpServer.addWebSocketForwarding(): HttpServer {
-       return WebSocketServerHandler(this@WebHookHttpServer).addWebSocketForwarding(this)
+        return WebSocketServerHandler(this@WebHookHttpServer).addWebSocketForwarding(this)
     }
 }
