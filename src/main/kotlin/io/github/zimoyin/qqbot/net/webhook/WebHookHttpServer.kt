@@ -110,7 +110,7 @@ class WebHookHttpServer(
                 .requestHandler(router)
                 .listen(webHookConfig.port, webHookConfig.host)
                 .onSuccess {
-                    if (promise.isInitialStage()) logger.info("WebHookHttpServer启动成功: ${webHookConfig.host}:${webHookConfig.port}")
+                    if (promise.isInitialStage()) logger.info("WebHookHttpServer启动成功: ${webHookConfig.host}:${it.actualPort()}")
                     promise.tryComplete(this)
                     webHttpServer = it
                 }.onFailure {

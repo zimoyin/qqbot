@@ -165,24 +165,15 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
             val clientToken = payload.eventContent?.toJsonObject()?.getString("token") ?: ""
 
             if (clientToken != verify && clientToken != verify2) {
+                var message = "鉴权失败，你需要使用与服务器一致的机器人AppID进行鉴权"
+
+                if (token.token.isEmpty()) message += ": (其他提示) 服务器仅支持使用 access_token 进行鉴权"
+                if (token.clientSecret.isEmpty()) message += ": (其他提示) 服务器仅支持使用 appID.token 进行鉴权"
+
                 o2 = Payload(
                     opcode = 9,
-                    eventContent = false.toJAny()
+                    eventContent = "".toJAny()
                 )
-
-                if (token.token.isEmpty()) {
-                    o2 = Payload(
-                        opcode = 9,
-                        eventContent = "服务器仅支持使用 access_token 进行鉴权".toJAny()
-                    )
-                }
-
-                if (token.clientSecret.isEmpty()) {
-                    o2 = Payload(
-                        opcode = 9,
-                        eventContent = "服务器仅支持使用 appID.token 进行鉴权".toJAny()
-                    )
-                }
             }
 
         }

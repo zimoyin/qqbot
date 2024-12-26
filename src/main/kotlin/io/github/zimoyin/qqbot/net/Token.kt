@@ -38,7 +38,7 @@ data class Token(
         if (version == -1) {
             version = if (clientSecret.isNotEmpty()) 2
             else if (token.isNotEmpty()) 1
-            else throw IllegalArgumentException("Token authentication method not specified")
+            else throw IllegalArgumentException("Token authentication method not specified. Please set the appid, token or clientSecret")
         }
     }
 

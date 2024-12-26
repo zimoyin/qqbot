@@ -111,6 +111,9 @@ class PayloadCmdHandler(
                 botInfo = bot.botInfo
             )
         )
+
+        if (debugLog) logger.debug("WebHook send(13) : ${json.encode()}")
+        if (debugLog) logger.debug("WebHook receive(13) : ${payload.toJsonString()}")
         response.write(json.encode())
     }
 

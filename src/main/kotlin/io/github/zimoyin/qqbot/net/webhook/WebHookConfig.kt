@@ -15,8 +15,17 @@ import java.util.*
  * @date : 2024/12/21
  */
 data class WebHookConfig(
-    val sslPath: String = "./", // SSL 文件的目录
+    /**
+     * SSL 文件路径
+     */
+    val sslPath: String = "./",
+    /**
+     * SSL 密码，如果没有则留空
+     */
     val password: String = "",
+    /**
+     * HttpServerOptions 实例
+     */
     val options: HttpServerOptions = HttpServerOptions().apply {
         isSsl = true
         sslHandshakeTimeout = 30L
@@ -29,10 +38,26 @@ data class WebHookConfig(
             IllegalArgumentException("Could not find a valid SSL certificate in the path $sslPath")
         }
     },
+    /**
+     * WebHook Server 端口，如果为 0 则是随机端口
+     */
     val port: Int = 443,
+    /**
+     * WebHook Server 监听地址
+     */
     val host: String = "0.0.0.0",
+    /**
+     * 是否启用 WebSocket 转发
+     */
     val enableWebSocketForwarding: Boolean = false,
+    /**
+     * WebSocket 暴露转发路径
+     */
     val webSocketPath: String = "/websocket",
+    /**
+     * 是否启用 WebSocket 转发登录验证
+     * 客户端与腾讯服务器鉴权流程一直，不同的是 WebHook 转发的 WebSocket 有两种鉴权方式，将根据 Token 完整度自动使用
+     */
     val enableWebSocketForwardingLoginVerify: Boolean = true,
 ) {
     companion object {
