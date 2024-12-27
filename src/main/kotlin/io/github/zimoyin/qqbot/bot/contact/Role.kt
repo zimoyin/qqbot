@@ -49,7 +49,7 @@ class Role(
     /**
      * 获取频道身份组成员列表
      */
-    fun getGuildRoleMembers(): Future<List<ChannelUser>> {
+    fun getGuildRoleMembers(): Future<List<ChannelPrivateUser>> {
         return HttpAPIClient.getGuildRoleMembers(channel, id)
     }
 

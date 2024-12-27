@@ -1,7 +1,7 @@
 package io.github.zimoyin.qqbot.event.handler.message
 
 import io.github.zimoyin.qqbot.bot.BotInfo
-import io.github.zimoyin.qqbot.bot.contact.ChannelUser
+import io.github.zimoyin.qqbot.bot.contact.ChannelPrivateUser
 import io.github.zimoyin.qqbot.bot.contact.channel.ChannelImpl
 import io.github.zimoyin.qqbot.event.events.revoke.ChannelMessageRevokeEvent
 import io.github.zimoyin.qqbot.event.supporter.AbsEventHandler
@@ -22,7 +22,7 @@ class ChannelMessageRevokeHandler : AbsEventHandler<ChannelMessageRevokeEvent>()
         val msgID = message.msgID!!
         val botInfo = BotInfo.create(payload.appID!!)
 //        val sender = Sender.convert(botInfo, message)
-        val sender = ChannelUser.convert(botInfo, message)
+        val sender = ChannelPrivateUser.convert(botInfo, message)
         val channel = ChannelImpl.convert(botInfo, message)
 
         return ChannelMessageRevokeEvent(

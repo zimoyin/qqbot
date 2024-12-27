@@ -1,7 +1,7 @@
 package io.github.zimoyin.qqbot.event.handler.message
 
 import io.github.zimoyin.qqbot.bot.BotInfo
-import io.github.zimoyin.qqbot.bot.contact.ChannelUser
+import io.github.zimoyin.qqbot.bot.contact.ChannelPrivateUser
 import io.github.zimoyin.qqbot.bot.contact.channel.ChannelImpl
 import io.github.zimoyin.qqbot.bot.message.MessageChain
 import io.github.zimoyin.qqbot.event.events.message.direct.ChannelPrivateMessageEvent
@@ -24,7 +24,7 @@ class ChannelPrivateMessageHandler : AbsEventHandler<ChannelPrivateMessageEvent>
     val botInfo = BotInfo.create(payload.appID!!)
     val channel = ChannelImpl.convert(botInfo, message)
 //      val sender = Sender.convert(botInfo,message)
-    val sender = ChannelUser.convert(botInfo, message)
+    val sender = ChannelPrivateUser.convert(botInfo, message)
 
     return ChannelPrivateMessageEvent(
       metadata = payload.metadata,

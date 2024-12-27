@@ -1,9 +1,11 @@
 package io.github.zimoyin.qqbot.event.handler.friend
 
 import io.github.zimoyin.qqbot.bot.BotInfo
+import io.github.zimoyin.qqbot.bot.contact.PrivateFriend
 import io.github.zimoyin.qqbot.event.events.friend.OpenFriendBotEvent
 import io.github.zimoyin.qqbot.event.supporter.AbsEventHandler
 import io.github.zimoyin.qqbot.net.bean.Payload
+import io.github.zimoyin.qqbot.net.bean.message.Message
 import io.github.zimoyin.qqbot.utils.JSON
 import java.util.*
 
@@ -15,12 +17,23 @@ import java.util.*
 class OpenFriendBotHandler : AbsEventHandler<OpenFriendBotEvent>() {
     override fun handle(payload: Payload): OpenFriendBotEvent {
         val json = JSON.toJsonObject(payload.eventContent.toString())
+        val bot = BotInfo.create(payload.appID!!)
+        val id = json.getString("openid")
+        val user = PrivateFriend.convert(
+            bot,
+            Message(
+                author = io.github.zimoyin.qqbot.net.bean.User(
+                    inOpenUserID = id,
+                )
+            )
+        )
         return OpenFriendBotEvent(
             metadata = payload.metadata,
-            botInfo = BotInfo.create(payload.appID!!),
+            botInfo = bot,
             timestamp = Date(json.getLong("timestamp") * 1000),
-            friendID = json.getString("openid"),
-            eventID = payload.eventID ?: ""
+            friendID = id,
+            eventID = payload.eventID ?: "",
+            windows = user
         )
     }
 }

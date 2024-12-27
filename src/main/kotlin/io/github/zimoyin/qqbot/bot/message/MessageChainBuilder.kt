@@ -44,6 +44,11 @@ class MessageChainBuilder(private var id: String? = null) {
         return this
     }
 
+    fun appendItems(vararg item: MessageItem): MessageChainBuilder {
+        internalItems.addAll(item)
+        return this
+    }
+
     fun append(text: String): MessageChainBuilder {
         internalItems.add(PlainTextMessage(text))
         return this

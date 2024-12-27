@@ -3,7 +3,7 @@ package io.github.zimoyin.qqbot.net.bean
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.github.zimoyin.qqbot.bot.contact.Channel
-import io.github.zimoyin.qqbot.bot.contact.ChannelUser
+import io.github.zimoyin.qqbot.bot.contact.ChannelPrivateUser
 import java.io.Serializable
 import java.util.*
 
@@ -120,8 +120,8 @@ data class MemberBean(
      * 将成员对象转换为频道用户对象
      */
     @JsonIgnore
-    fun mapToChannelUser(channel: Channel): ChannelUser {
-        return ChannelUser(
+    fun mapToChannelUser(channel: Channel): ChannelPrivateUser {
+        return ChannelPrivateUser(
             id = user!!.uid,
             nick = nick ?: "",
             isBot = user.isBot ?: false,

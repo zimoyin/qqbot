@@ -2,7 +2,7 @@ package io.github.zimoyin.qqbot.bot.contact.channel
 
 import io.github.zimoyin.qqbot.annotation.UntestedApi
 import io.github.zimoyin.qqbot.bot.contact.Channel
-import io.github.zimoyin.qqbot.bot.contact.ChannelUser
+import io.github.zimoyin.qqbot.bot.contact.ChannelPrivateUser
 import io.github.zimoyin.qqbot.bot.contact.Role
 import io.github.zimoyin.qqbot.bot.contact.User
 import io.github.zimoyin.qqbot.net.bean.GuildRolesBean
@@ -26,7 +26,7 @@ class GuildRoles(val channel: Channel) {
     /**
      * 获取频道身份组成员列表
      */
-    fun getGuildRoleMembers(roleID: String): Future<List<ChannelUser>> {
+    fun getGuildRoleMembers(roleID: String): Future<List<ChannelPrivateUser>> {
         return HttpAPIClient.getGuildRoleMembers(channel, roleID)
     }
 

@@ -107,6 +107,9 @@ open class Sender(
     }
 }
 
+/**
+ * 私聊用户
+ */
 data class PrivateFriend(
     override val id: String,
     override val nick: String,
@@ -140,8 +143,10 @@ data class PrivateFriend(
 }
 
 
-
-data class ChannelUser(
+/**
+ * 频道私聊用户
+ */
+data class ChannelPrivateUser(
     override val id: String,
     override val nick: String,
     override val isBot: Boolean,
@@ -156,8 +161,8 @@ data class ChannelUser(
     companion object {
         fun convert(
             botInfo: BotInfo, message: Message,
-        ): ChannelUser {
-            return ChannelUser(
+        ): ChannelPrivateUser {
+            return ChannelPrivateUser(
                 id = message.author!!.uid,
                 nick = message.author.username!!,
                 isBot = message.author.isBot ?: false,

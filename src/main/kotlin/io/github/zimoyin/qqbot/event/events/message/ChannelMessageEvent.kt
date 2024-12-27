@@ -3,7 +3,7 @@ package io.github.zimoyin.qqbot.event.events.message
 import io.github.zimoyin.qqbot.annotation.EventAnnotation
 import io.github.zimoyin.qqbot.annotation.UntestedApi
 import io.github.zimoyin.qqbot.bot.contact.Channel
-import io.github.zimoyin.qqbot.bot.contact.ChannelUser
+import io.github.zimoyin.qqbot.bot.contact.ChannelPrivateUser
 import io.github.zimoyin.qqbot.bot.message.EmojiType
 import io.github.zimoyin.qqbot.event.events.channel.ChannelEvent
 import io.github.zimoyin.qqbot.event.handler.message.MessageHandler
@@ -24,7 +24,7 @@ import io.vertx.core.Future
 @EventAnnotation.EventHandler(MessageHandler::class, true)
 interface ChannelMessageEvent : MessageEvent, ChannelEvent {
     override val windows: Channel
-    override val sender: ChannelUser
+    override val sender: ChannelPrivateUser
 
     /**
      * 张贴表情

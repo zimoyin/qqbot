@@ -2,7 +2,7 @@ package io.github.zimoyin.qqbot.net.http.api.channel
 
 import io.github.zimoyin.qqbot.bot.BotInfo
 import io.github.zimoyin.qqbot.bot.contact.Channel
-import io.github.zimoyin.qqbot.bot.contact.ChannelUser
+import io.github.zimoyin.qqbot.bot.contact.ChannelPrivateUser
 import io.github.zimoyin.qqbot.bot.contact.channel.ChannelImpl
 import io.github.zimoyin.qqbot.exception.HttpClientException
 import io.github.zimoyin.qqbot.net.bean.ChannelBean
@@ -239,11 +239,11 @@ fun HttpAPIClient.getGuildMembers(
     channel: Channel,
     after: String = "0",
     limit: Int = -1,
-    callback: ((List<ChannelUser>) -> Unit)? = null,
-): Future<List<ChannelUser>> {
+    callback: ((List<ChannelPrivateUser>) -> Unit)? = null,
+): Future<List<ChannelPrivateUser>> {
     val list = HashSet<MemberBean>()
     var margin = limit
-    val promise = promise<List<ChannelUser>>()
+    val promise = promise<List<ChannelPrivateUser>>()
     var id = after
     task {
         kotlin.runCatching {
@@ -420,11 +420,11 @@ fun HttpAPIClient.getGuildRoleMembers(
     roleID: String,
     after: String = "0",
     limit: Int = -1,
-    callback: ((List<ChannelUser>) -> Unit)? = null,
-): Future<List<ChannelUser>> {
+    callback: ((List<ChannelPrivateUser>) -> Unit)? = null,
+): Future<List<ChannelPrivateUser>> {
     val list = HashSet<MemberBean>()
     var margin = limit
-    val promise = promise<List<ChannelUser>>()
+    val promise = promise<List<ChannelPrivateUser>>()
     var next = after
     task {
         kotlin.runCatching {

@@ -3,7 +3,7 @@ package io.github.zimoyin.qqbot.event.events.message
 import io.github.zimoyin.qqbot.annotation.EventAnnotation
 import io.github.zimoyin.qqbot.bot.BotInfo
 import io.github.zimoyin.qqbot.bot.contact.Channel
-import io.github.zimoyin.qqbot.bot.contact.ChannelUser
+import io.github.zimoyin.qqbot.bot.contact.ChannelPrivateUser
 import io.github.zimoyin.qqbot.bot.message.MessageChain
 import io.github.zimoyin.qqbot.event.handler.message.PrivateChannelMessageHandler
 
@@ -18,13 +18,13 @@ import io.github.zimoyin.qqbot.event.handler.message.PrivateChannelMessageHandle
 @EventAnnotation.EventMetaType("MESSAGE_CREATE")
 @EventAnnotation.EventHandler(PrivateChannelMessageHandler::class)
 class PrivateChannelMessageEvent(
-  override val metadataType: String = "MESSAGE_CREATE",
-  override val metadata: String,
-  override val msgID: String,
-  override val windows: Channel,
-  override val messageChain: MessageChain,
-  override val sender: ChannelUser,
-  override val botInfo: BotInfo,
-  override val channel: Channel = windows,
-  override val eventID: String ="",
+    override val metadataType: String = "MESSAGE_CREATE",
+    override val metadata: String,
+    override val msgID: String,
+    override val windows: Channel,
+    override val messageChain: MessageChain,
+    override val sender: ChannelPrivateUser,
+    override val botInfo: BotInfo,
+    override val channel: Channel = windows,
+    override val eventID: String ="",
 ) : ChannelMessageEvent, MessageEvent

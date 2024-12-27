@@ -123,7 +123,7 @@ interface Channel : Contact {
      * 获取频道成员列表
      *
      */
-    fun getGuildMembers(): Future<List<ChannelUser>> {
+    fun getGuildMembers(): Future<List<ChannelPrivateUser>> {
         return HttpAPIClient.getGuildMembers(this)
     }
 

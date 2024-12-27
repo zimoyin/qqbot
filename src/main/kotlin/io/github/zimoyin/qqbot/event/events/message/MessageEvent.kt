@@ -5,6 +5,7 @@ import io.github.zimoyin.qqbot.bot.contact.Contact
 import io.github.zimoyin.qqbot.bot.contact.User
 import io.github.zimoyin.qqbot.bot.message.MessageChain
 import io.github.zimoyin.qqbot.bot.message.MessageChainBuilder
+import io.github.zimoyin.qqbot.bot.message.type.MessageItem
 import io.github.zimoyin.qqbot.bot.message.type.ReferenceMessage
 import io.github.zimoyin.qqbot.event.events.Event
 import io.github.zimoyin.qqbot.event.handler.message.MessageHandler
@@ -49,11 +50,14 @@ interface MessageEvent : Event {
     }
 
     /**
-     * 被动引用回复信息
+     * 被动回复信息
      * 注意无法通过事件发送主动信息，请查询 Content.send 方法
+     * 注: 对于非文本等形式的消息，可能会受限于主动信息推送
      */
-    fun quote(message: String): Future<SendMessageResultBean> {
-        return windows.send(MessageChainBuilder(msgID).append(ReferenceMessage(msgID)).append(message).build())
+    fun reply(vararg message: MessageItem): Future<SendMessageResultBean> {
+        return reply(
+            MessageChainBuilder(msgID).appendItems(*message).build()
+        )
     }
 
     /**
@@ -65,6 +69,15 @@ interface MessageEvent : Event {
         return windows.send(
             MessageChainBuilder(message.id ?: msgID).appendEventId(message.replyEventID).append(message).build()
         )
+    }
+
+
+    /**
+     * 被动引用回复信息
+     * 注意无法通过事件发送主动信息，请查询 Content.send 方法
+     */
+    fun quote(message: String): Future<SendMessageResultBean> {
+        return windows.send(MessageChainBuilder(msgID).append(ReferenceMessage(msgID)).append(message).build())
     }
 
     /**
@@ -82,5 +95,10 @@ interface MessageEvent : Event {
                 MessageChainBuilder(message.id ?: msgID).appendEventId(message.replyEventID).append(message).build()
             )
         }
+    }
+
+
+    fun qute(vararg message: MessageItem): Future<SendMessageResultBean> {
+        return reply(MessageChainBuilder(msgID).appendItems(*message).build())
     }
 }

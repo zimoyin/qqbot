@@ -1,7 +1,7 @@
 package io.github.zimoyin.qqbot.event.handler.message
 
 import io.github.zimoyin.qqbot.bot.BotInfo
-import io.github.zimoyin.qqbot.bot.contact.ChannelUser
+import io.github.zimoyin.qqbot.bot.contact.ChannelPrivateUser
 import io.github.zimoyin.qqbot.bot.contact.channel.ChannelImpl
 import io.github.zimoyin.qqbot.bot.message.MessageChain
 import io.github.zimoyin.qqbot.event.events.message.at.ChannelAtMessageEvent
@@ -26,7 +26,7 @@ class ChannelAtMessageHandler : AbsEventHandler<ChannelAtMessageEvent>() {
       msgID = message.msgID!!,
       windows = ChannelImpl.convert(info, message),
       messageChain = MessageChain.convert(message),
-      sender = ChannelUser.convert(info, message),
+      sender = ChannelPrivateUser.convert(info, message),
       metadata = payload.metadata,
       metadataType = payload.eventType!!,
       botInfo = info,

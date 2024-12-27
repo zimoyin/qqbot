@@ -4,7 +4,7 @@ import io.github.zimoyin.qqbot.annotation.EventAnnotation
 import io.github.zimoyin.qqbot.annotation.UntestedApi
 import io.github.zimoyin.qqbot.bot.BotInfo
 import io.github.zimoyin.qqbot.bot.contact.Channel
-import io.github.zimoyin.qqbot.bot.contact.ChannelUser
+import io.github.zimoyin.qqbot.bot.contact.ChannelPrivateUser
 import io.github.zimoyin.qqbot.bot.message.MessageChain
 import io.github.zimoyin.qqbot.event.events.message.ChannelMessageEvent
 import io.github.zimoyin.qqbot.event.handler.message.ChannelPrivateMessageHandler
@@ -26,7 +26,7 @@ class ChannelPrivateMessageEvent(
     override val msgID: String,
     override val windows: Channel,
     override val messageChain: MessageChain,
-    override val sender: ChannelUser,
+    override val sender: ChannelPrivateUser,
     override val botInfo: BotInfo,
     override val channel: Channel = windows,
     override val eventID: String ="",
