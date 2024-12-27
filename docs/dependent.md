@@ -3,7 +3,7 @@
 <dependency>
     <groupId>io.github.zimoyin</groupId>
     <artifactId>qqbot</artifactId>
-    <version>1.1.22</version>
+    <version>1.2.0-alpha</version>
 </dependency>
 ```
 
@@ -36,7 +36,7 @@
   <dependency>
     <groupId>io.github.zimoyin</groupId>
     <artifactId>qqbot</artifactId>
-    <version>1.1.22</version>
+    <version>1.2.0-alpha</version>
   </dependency>
 </dependencies>
 ```
@@ -60,7 +60,7 @@ repositories {
   maven { url 'https://jitpack.io' }
 }
 // 引入依赖
-implementation 'io.github.zimoyin:qqbot:1.1.22'
+implementation 'io.github.zimoyin:qqbot:1.2.0-alpha'
 ```
 
 ---
@@ -73,6 +73,6 @@ repositories {
   maven("https://jitpack.io")
 }
 // 引入依赖
-implementation("io.github.zimoyin:qqbot:1.1.22")
+implementation("io.github.zimoyin:qqbot:1.2.0-alpha")
 ```
 ---
