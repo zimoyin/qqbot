@@ -361,6 +361,7 @@ open class BotEventBus(val bus: EventBus) {
     }
 
 
+
     fun clear() {
         consumers.forEach { it.unregister() }
         consumers.clear()

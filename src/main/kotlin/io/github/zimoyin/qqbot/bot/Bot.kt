@@ -6,6 +6,7 @@ import io.github.zimoyin.qqbot.bot.contact.Channel
 import io.github.zimoyin.qqbot.bot.contact.Contact
 import io.github.zimoyin.qqbot.event.events.Event
 import io.github.zimoyin.qqbot.event.supporter.BotEventBus
+import io.github.zimoyin.qqbot.event.supporter.EventMapping
 import io.github.zimoyin.qqbot.exception.EventBusException
 import io.github.zimoyin.qqbot.net.Intents
 import io.github.zimoyin.qqbot.net.Token
@@ -215,6 +216,7 @@ interface Bot : Serializable, Contact {
      */
     fun <T : Event> onVertxEvent(cls: Class<out T>, isUseWorkerThread: Boolean = false, callback: Consumer<T>) {
         config.apply {
+            EventMapping.add(cls)
             val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
             val consumer = getVertxEventBus().localConsumer<T>(cls.name) { msg ->
                 val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
@@ -242,6 +244,7 @@ interface Bot : Serializable, Contact {
      */
     fun <T : Event> onEvent(cls: Class<out T>, isUseWorkerThread: Boolean = false, callback: Consumer<T>) {
         config.apply {
+            EventMapping.add(cls)
             val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
             val consumer = getVertxEventBus().localConsumer<T>(cls.name) { msg ->
                 if (msg.body().botInfo.token.appID == this.token.appID) {
@@ -446,6 +449,7 @@ inline fun <reified T : Event> Bot.onVertxEvent(
     crossinline callback: suspend Message<T>.(message: T) -> Unit
 ) {
     this.config.apply {
+        EventMapping.add(T::class.java)
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
         val consumer = getVertxEventBus().localConsumer<T>(T::class.java.name) { msg ->
             val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
@@ -471,6 +475,7 @@ inline fun <reified T : Event> Bot.onEvent(
     crossinline callback: suspend Message<T>.(message: T) -> Unit
 ) {
     this.config.apply {
+        EventMapping.add(T::class.java)
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
         val consumer = getVertxEventBus().localConsumer<T>(T::class.java.name) { msg ->
             if (msg.body().botInfo.token.appID == this.token.appID) {

@@ -8,6 +8,8 @@ import io.github.zimoyin.qqbot.bot.message.MessageChain;
 import io.github.zimoyin.qqbot.bot.message.MessageChainBuilder;
 import io.github.zimoyin.qqbot.bot.message.type.ImageMessage;
 import io.github.zimoyin.qqbot.event.events.Event;
+import io.github.zimoyin.qqbot.event.events.group.GroupEvent;
+import io.github.zimoyin.qqbot.event.events.group.operation.OpenGroupBotEvent;
 import io.github.zimoyin.qqbot.event.events.message.ChannelMessageEvent;
 import io.github.zimoyin.qqbot.event.events.message.MessageEvent;
 import io.github.zimoyin.qqbot.event.supporter.GlobalEventBus;
@@ -47,6 +49,8 @@ public class TMain {
         });
 
 
+
+
         System.out.println("Bot 创建耗时: " + (System.currentTimeMillis() - start));
         System.out.println("Bot 创建耗时: " + (System.currentTimeMillis() - start2));
         start2 = System.currentTimeMillis();
@@ -60,51 +64,8 @@ public class TMain {
         bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG", false);
         bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT", false);
 
-        bot.onEvent(MessageEvent.class, true,event -> {
-//            MessageChain chain = new MessageChainBuilder().append(ImageMessage.create(url)).append("你好").build();
-            MessageChain chain = new MessageChainBuilder().append(ImageMessage.create(new File("C:\\Users\\zimoa\\Pictures\\106067275_p0.jpg"))).append("你好").build();
-//            MessageChain chain = new MessageChainBuilder().append(VideoMessage.create(new File("C:\\Users\\zimoa\\Downloads\\Video\\21.mp4"))).append("你好").build();
-            event.reply(chain).onFailure(e -> {
-                logger.error("发送失败", e);
-            });
-
-            if (event instanceof ChannelMessageEvent){
-                ((ChannelMessageEvent) event).addEmoji(EmojiType.ZAN);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                ((ChannelMessageEvent) event).getEmojiList(EmojiType.ZAN).onSuccess(emojiList -> {
-                    logger.info("点赞列表: "+ emojiList);
-                });
-            }
-
-
-//
-//            MessageChain messageChain = MessageMarkdown.create("102077167_1706091638")
-//                .appendParam("date", "123")
-//                .appendParam("rw", event.getMessageChain().content())
-//                .build()
-//                .toMessageChain();
-
-
-//            MarkdownMessage mb = MessageMarkdown.create("102077167_1706091638")
-//                .appendParam("date", "123")
-//                .appendParam("rw", event.getMessageChain().content())
-//                .build();
-//            KeyboardMessage keyboardMessage = KeyboardMessage.createByID("102077167_1733995104");
-//            MessageChain messageChain = new MessageChainBuilder()
-//                .append(mb)
-////                .append(keyboardMessage)
-//                .build();
-//
-//            System.out.println(event.getMessageChain().content());
-//            event.reply(messageChain).onFailure(e -> {
-//                logger.error("发送失败", e);
-//            }).onSuccess(r -> {
-//                logger.info("发送成功: {}", r);
-//            });
+        bot.onEvent(OpenGroupBotEvent.class, true, event -> {
+            event.reply("你好");
         });
 
 

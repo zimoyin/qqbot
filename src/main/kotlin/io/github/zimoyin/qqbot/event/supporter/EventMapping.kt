@@ -206,6 +206,7 @@ object EventMapping {
             logger.debug("EventMapping add mapping: $initAdd ", )
         }.onFailure {
             logger.error("EventMapping add error: class $cls", it)
+            throw it
         }
     }
 

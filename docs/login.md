@@ -19,10 +19,18 @@ Bot bot = Bot.INSTANCE.createBot(config -> {
 bot.login(true | false); // 参数用于启用或禁用主机验证，如果服务器SSL 与 IP 无法对应的话请设置 false
 ```
 
+权限相加
+```Java
+Intents.GUILDS.plus(Intents.GUILD_MEMBERS);
+Intents.GUILDS.and(Intents.GUILD_MEMBERS);
+// Kotlin 提供了相加重载
+Intents.GUILDS + Intents.GUILD_MEMBERS
+```
+
 2. 使用 WebHook
 
 ```kotlin
-bot.start(WebHookConfig("./127.0.0.1")) // 用于开启 WebHook
+bot.start(WebHookConfig("./127.0.0.1")) // 用于开启 WebHook, 参数为 SSL 证书位置。WebHookConfig 可配置项很多，可以查看源码
 ```
 
 3. 开启 WebHook 到 WebSocket 转发
@@ -44,6 +52,7 @@ TencentOpenApiHttpClient.isSandBox = true
 #### 1.1 退出登录
 1. 退出登录
    通关 `login()` 获取到的 `WebSocketClient` 实例，调用 `close()` 方法关闭连接
+   通关 `start()` 获取到的 实例，调用 `close()` 方法关闭连接
 2. 退出程序
    如果没有自己创建 Vertx 的话，使用 `GLOBAL_VERTX_INSTANCE.close()` 即可关闭
    Java:
@@ -69,7 +78,7 @@ Bot.createBot(token) {
     setIntents(0)
 }
 ```
-
+JAVA:
 ```java
 Bot bot = Bot.INSTANCE.createBot(config -> {
     config.setIntents(Intents.Presets.PRIVATE_INTENTS);
@@ -157,7 +166,7 @@ bot.login()
 ```
 
 ### 6. bot 上下文
-对于Session的复用是通过对bot 上下文进行设置后进行的，那么上面是bot上下文？
+对于Session的复用是通过对bot 上下文进行设置后进行的，那么什么是bot上下文？
 Bot上下文是Bot的全局变量每个Bot都有自己的上下文，你可以在任何地方使用，他可以存储信息等，方便你跨事件数据传输或者报错。
 Bot提供了 set/get 方法来报错每一个信息。
 Bot 还提供的`设置栈`方法，提供该方法，你可以查找到是哪个位置设置的该上下文.
