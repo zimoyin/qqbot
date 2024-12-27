@@ -47,7 +47,7 @@ class PayloadCmdHandler(
         if (debugLog) logger.debug("更新token中...")
         HttpAPIClient.accessToken(token).onSuccess {
             val ein = ((token.expiresIn.toLong() - 60) * 1000).let {
-                if (it <= -1) 5 else it
+                if (it <= 1) 5 else it
             }
             timerId = vertx.setTimer(ein) {
                 updateToken()
