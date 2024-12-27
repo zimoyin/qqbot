@@ -1,5 +1,6 @@
 package io.github.zimoyin.qqbot.event.handler.message
 
+import io.github.zimoyin.qqbot.LocalLogger
 import io.github.zimoyin.qqbot.bot.BotInfo
 import io.github.zimoyin.qqbot.bot.contact.Contact
 import io.github.zimoyin.qqbot.bot.contact.GroupImpl
@@ -18,13 +19,20 @@ import io.github.zimoyin.qqbot.utils.JSON
  * @author : zimo
  * @date : 2023/12/11
  *
- * 通用的消息处理器
+ * 通用的消息处理器, 该处理器默认情况下是没有程序调用的
  */
 class MessageHandler : AbsEventHandler<MessageEvent>() {
+    private val logger = LocalLogger(MessageHandler::class.java)
     override fun handle(payload: Payload): MessageEvent {
         val message = JSON.toObject<Message>(payload.eventContent.toString())
         val info = BotInfo.create(payload.appID!!)
 
+        logger.error(
+            "MessageHandler 处理器意外的被调用了，该处理器仅用于对接口类的事件进行占位，被调用属于意外事故",
+            Exception(
+                "MessageHandler handler was unexpectedly called, the handler is only used to connect to the event of the interface class, and the call is an accidental incident"
+            )
+        )
         return object : MessageEvent {
             override val msgID: String = message.msgID!!
             override val windows: Contact = getWindows(info, message)
@@ -33,7 +41,7 @@ class MessageHandler : AbsEventHandler<MessageEvent>() {
             override val sender: User = Sender.convert(botInfo, message)
             override val metadata: String = payload.metadata
             override val metadataType: String = payload.eventType!!
-            override val eventID: String = payload.eventID?:""
+            override val eventID: String = payload.eventID ?: ""
         }
     }
 
