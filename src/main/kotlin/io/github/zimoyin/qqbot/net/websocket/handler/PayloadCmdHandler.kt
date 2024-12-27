@@ -94,6 +94,7 @@ class PayloadCmdHandler(
         debugMataData = bot.context.getBoolean("PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG") ?: debugMataData
         debugHeartbeat = bot.context.getBoolean("PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT") ?: debugHeartbeat
 //        logger.info("PayloadCmdHandler[临时追踪ID(${this.uid()})] 处理器创建完成，绑定Bot AppID: ${bot.config.token.appID}")
+        if (debugLog) logger.debug("token version: ${bot.config.token.version}")
     }
 
 
@@ -128,7 +129,7 @@ class PayloadCmdHandler(
     }
 
     private fun handle(payload: Payload) {
-        if (bot.config.token.version >= 2 && timerId > -1) updateToken()
+        if (bot.config.token.version >= 2 && timerId < 0) updateToken()
         if (payload.opcode == 11) {
             if (debugMataData && debugHeartbeat) logger.debug(
                 "WebSocket[${ws.hashCode()}][MataData] ws receive(${payload.opcode}): ${payload}",
@@ -290,6 +291,9 @@ class PayloadCmdHandler(
             put("properties", "")//官方无规定，这里留空
         }
 
+        val t = message.getString("token")
+        if (debugLog) logger.debug("鉴权Token: ${t.substring(0, t.length / 2)}...")
+
         if (debugLog) logger.debug("WebSocket[${ws.hashCode()}] send(2): 鉴权信息")
         send(Payload(2, message.toJAny()))
     }
@@ -337,6 +341,7 @@ class PayloadCmdHandler(
 
     private fun updateToken() {
         val token = bot.config.token
+        if (debugLog) logger.debug("更新token中...")
         HttpAPIClient.accessToken(token).onSuccess {
             val ein = ((token.expiresIn.toLong() - 60) * 1000).let {
                 if (it <= 1) 5 else it
