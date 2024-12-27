@@ -476,6 +476,10 @@ object API {
         TencentOpenApiHttpClient.client.delete("/v2/users/{openid}/messages/{message_id}")
     }
 
+    val ReplyInteractions: HttpRequest<Buffer> by LazyInit {
+        TencentOpenApiHttpClient.client.put("/interactions/{interaction_id}")
+    }
+
     private val logger = LocalLogger(API::class.java)
 
     /**

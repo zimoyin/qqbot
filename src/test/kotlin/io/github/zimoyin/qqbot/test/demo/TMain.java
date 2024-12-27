@@ -69,6 +69,11 @@ public class TMain {
         });
 
 
+        bot.onEvent(MessageEvent.class, true, event -> {
+            event.reply("你好");
+        });
+
+
         long finalStart = start2;
         long finalStart1 = start2;
         bot.login().onSuccess(ws -> {

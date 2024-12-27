@@ -19,14 +19,7 @@ class AddFriendHandler : AbsEventHandler<AddFriendEvent>() {
         val json = JSON.toJsonObject(payload.eventContent.toString())
         val bot = BotInfo.create(payload.appID!!)
         val id = json.getString("openid")
-        val user = PrivateFriend.convert(
-            bot,
-            Message(
-                author = io.github.zimoyin.qqbot.net.bean.User(
-                    inOpenUserID = id,
-                )
-            )
-        )
+        val user = PrivateFriend.convert(bot,id)
         return AddFriendEvent(
             metadata = payload.metadata,
             botInfo = BotInfo.create(payload.appID!!),

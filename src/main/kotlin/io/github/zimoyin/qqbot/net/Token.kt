@@ -43,11 +43,11 @@ data class Token(
     }
 
     @JsonIgnore
-    fun getHeaders(): HeadersMultiMap {
-        return when (version) {
+    fun getHeaders(version0: Int = version): HeadersMultiMap {
+        return when (version0) {
             1 -> getHeadersV1()
             2 -> getHeadersV2()
-            else -> throw IllegalArgumentException("Unsupported version: $version")
+            else -> throw IllegalArgumentException("Unsupported version: $version0")
         }
     }
 
@@ -82,7 +82,7 @@ data class Token(
         }
     }
 
-    fun getAuthorization(version0: Int = version):String{
+    fun getAuthorization(version0: Int = version): String {
         return when (version0) {
             1 -> "Bot ${getTokenVerify(1)}"
             2 -> "QQBot ${getTokenVerify(2)}"

@@ -135,6 +135,28 @@ data class PrivateFriend(
             unionUserAccount = message.author.unionUserAccount,
             botInfo = botInfo,
         )
+
+        fun convert(
+            botInfo: BotInfo,
+            id:String,
+            nick: String =  "none",
+            avatar: String =  "none",
+            isBot: Boolean = false,
+            roles: List<String> = emptyList(),
+            joinedAt: Date = Date(),
+            unionOpenID: String? = null,
+            unionUserAccount: String? = null,
+        ): PrivateFriend = PrivateFriend(
+            id = id,
+            nick = nick,
+            isBot = isBot,
+            avatar = avatar,
+            roles = roles,
+            joinedAt = joinedAt,
+            unionOpenID = unionOpenID,
+            botInfo = botInfo,
+            unionUserAccount = unionUserAccount,
+        )
     }
 
     override fun send(message: MessageChain): Future<SendMessageResultBean> {
