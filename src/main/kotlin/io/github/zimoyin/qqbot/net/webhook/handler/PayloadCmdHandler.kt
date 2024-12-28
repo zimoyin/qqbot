@@ -112,6 +112,7 @@ class PayloadCmdHandler(
             )
         )
 
+        if (debugLog) logger.info("腾讯服务器对此服务器鉴权")
         if (debugLog) logger.debug("WebHook send(13) : ${json.encode()}")
         if (debugLog) logger.debug("WebHook receive(13) : ${payload.toJsonString()}")
         response.write(json.encode())

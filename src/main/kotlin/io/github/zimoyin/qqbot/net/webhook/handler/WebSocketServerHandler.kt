@@ -55,7 +55,7 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
                 val now = System.currentTimeMillis()
                 val diff = now - time
                 if (diff > 90 * 1000) {
-                    logger.warn("[WebSocketServer] 心跳超时: $diff")
+                    logger.warn("[WebSocketServer][$id] 心跳超时: $diff")
                     ws.close()
                     server.vertx.cancelTimer(it)
                 }
@@ -71,8 +71,8 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
                         1 -> time = opcode1(ws, hid)
                         6 -> opcode6(ws)
                         else -> {
-                            if (isMataDebug) logger.warn("WebSocketServer 收到消息: $text")
-                            logger.warn("[WebSocketServer] 不支持的opcode: ${payload.opcode}")
+                            if (isMataDebug) logger.warn("[WebSocketServer][$id] 收到消息: $text")
+                            logger.warn("[WebSocketServer][$id] 不支持的opcode: ${payload.opcode}")
                         }
                     }
                     hid++
@@ -85,27 +85,27 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
                         eventContent = jsonObjectOf("code" to 502, "message" to "接受到错误信息: ${text}").toJAny()
                     )
                     if (it is JsonParseException) {
-                        logger.warn("WebSocketServer] 接受到错误信息: ${text}")
+                        logger.warn("WebSocketServer][$id] 接受到错误信息: $text")
                         ws.writeTextMessage(op502.toJsonString())
                         return@onFailure
                     }
                     if (it is DecodeException) {
-                        logger.warn("WebSocketServer] 接受到错误信息: ${text}")
+                        logger.warn("WebSocketServer][$id] 接受到错误信息: $text")
                         ws.writeTextMessage(op502.toJsonString())
                         return@onFailure
                     }
-                    logger.warn("WebSocketServer] text: ${text}", it)
+                    logger.warn("WebSocketServer][$id] text: $text", it)
                 }
             }
 
             ws.closeHandler {
-                logger.info("[WebSocketServer] 断开连接: $id")
+                logger.info("[WebSocketServer][$id] 断开连接")
                 wsList.remove(ws)
                 server.vertx.cancelTimer(timerID)
             }
 
             ws.exceptionHandler {
-                logger.warn("[WebSocketServer] 错误: ${it.message}", it)
+                logger.warn("[WebSocketServer][$id] 错误: ${it.message}", it)
             }
         }
     }
@@ -119,7 +119,7 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
     }
 
     private fun opcode6(ws: ServerWebSocket) {
-        if (isMataDebug) logger.debug("WebSocketServer 收到消息: opcode6")
+        if (isMataDebug) logger.debug("[WebSocketServer] 收到消息: opcode6")
         val o6 = Payload(
             opcode = 0,
             eventType = "RESUMED",
@@ -139,7 +139,7 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
     }
 
     private fun opcode2(payload: Payload, ws: ServerWebSocket, hid: Long, id: UUID) = io {
-        if (isMataDebug) logger.debug("WebSocketServer 收到消息: ${payload.toJsonString()}")
+        if (isMataDebug) logger.debug("[WebSocketServer][$id] 收到消息: ${payload.toJsonString()}")
         val bot = server.bot
         var o2 = Payload(
             opcode = 0,
@@ -192,7 +192,7 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
             }
 //            if (isDebug) logger.debug("服务器Toekn1: $verify")
 //            if (isDebug) logger.debug("服务器Toekn2: $verify2")
-            if (isDebug) logger.debug("客户端请求Token: $clientToken")
+            if (isDebug) logger.debug("[$id]客户端请求Token: $clientToken")
         }
         if (isDebug) logger.debug("[$id] 服务器鉴权结果: ${o2.toJsonString()}")
         ws.writeTextMessage(o2.toJsonString())
