@@ -65,7 +65,7 @@ data class BotInfo(
 
         @JvmStatic
         fun emptyBotInfo(): BotInfo = BotInfo(
-            token = Token("emptyBotInfo"),
+            token = Token("emptyBotInfo", "emptyBotInfo"),
             id = "emptyBotInfo",
             nick = "emptyBotInfo",
             avatar = "emptyBotInfo",

@@ -11,7 +11,7 @@ import io.github.zimoyin.qqbot.event.handler.NoneEventHandler
  * @author : zimo
  * @date : 2023/12/20
  *
- * 机器人上线事件
+ * 机器人上线事件 / WebHook 验证服务器事件
  */
 @EventAnnotation.EventMetaType("Platform_BotOnlineEvent")
 @EventAnnotation.EventHandler(NoneEventHandler::class, true)
