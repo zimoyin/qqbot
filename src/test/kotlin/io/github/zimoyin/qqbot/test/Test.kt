@@ -14,13 +14,6 @@ import java.net.URI
  * @date : 2024/12/26
  */
 fun main() {
-    GlobalEventBus.onEvent<Event> {
-        println(it)
-    }
-    GlobalEventBus.broadcastAuto(
-        BotOnlineEvent(
-            metadata = "payload.metadata",
-            botInfo = BotInfo.emptyBotInfo()
-        )
-    )
+    GLOBAL_VERTX_INSTANCE.cancelTimer(-1)
+    GLOBAL_VERTX_INSTANCE.cancelTimer(-1)
 }

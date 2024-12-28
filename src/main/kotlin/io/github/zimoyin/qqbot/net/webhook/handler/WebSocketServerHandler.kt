@@ -50,7 +50,8 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
             logger.info("[WebSocketServer] 新连接: $id")
             var hid: Long = 1
             var time = System.currentTimeMillis()
-            server.vertx.setPeriodic(1000) {
+            var timerID: Long = 0
+            timerID = server.vertx.setPeriodic(1000) {
                 val now = System.currentTimeMillis()
                 val diff = now - time
                 if (diff > 90 * 1000) {
@@ -67,7 +68,7 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
                     val payload = text.toJsonObject().mapTo(Payload::class.java)
                     when (payload.opcode) {
                         2 -> opcode2(payload, ws, hid, id)
-                        1 -> time =  opcode1(ws, hid)
+                        1 -> time = opcode1(ws, hid)
                         6 -> opcode6(ws)
                         else -> {
                             if (isMataDebug) logger.warn("WebSocketServer 收到消息: $text")
@@ -100,6 +101,7 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
             ws.closeHandler {
                 logger.info("[WebSocketServer] 断开连接: $id")
                 wsList.remove(ws)
+                server.vertx.cancelTimer(timerID)
             }
 
             ws.exceptionHandler {
@@ -173,7 +175,6 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
                         .let { "QQBot $it" }
                 }
             }
-
 
 
             val clientToken = payload.eventContent?.toJsonObject()?.getString("token") ?: ""
