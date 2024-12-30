@@ -133,11 +133,27 @@ class BotImp(
     }
 
     @Deprecated("The official has abandoned the WebSocket method")
-    override fun close() {
-        if (websocketClient != null) websocketClient!!.close()
-        if (webHookHttpServer != null) webHookHttpServer!!.close()
+    override fun close(): Future<Void> {
+        val promise = promise<Void>()
+        if (websocketClient != null) websocketClient?.close()?.onFailure {
+            if (promise.isInitialStage()) {
+                logger.error("Bot Close 失败", it)
+            }
+            promise.tryFail(it)
+        }?.onSuccess {
+            promise.tryComplete()
+        }
+        if (webHookHttpServer != null) webHookHttpServer?.close()?.onFailure {
+            if (promise.isInitialStage()) {
+                logger.error("Bot Close 失败", it)
+            }
+            promise.tryFail(it)
+        }?.onSuccess {
+            promise.tryComplete()
+        }
         this.context.clear()
         logger.info("the bot[${this.config.token.appID}] 上下文被清空")
+        return promise.future()
     }
 
     override fun send(message: MessageChain): Future<SendMessageResultBean> {

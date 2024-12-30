@@ -13,6 +13,7 @@ import io.github.zimoyin.qqbot.net.http.api.gatewayV2Async
 import io.github.zimoyin.qqbot.net.websocket.handler.PayloadCmdHandler
 import io.github.zimoyin.qqbot.utils.ex.await
 import io.github.zimoyin.qqbot.utils.ex.executeBlockingKt
+import io.vertx.core.Future
 import io.vertx.core.Handler
 import io.vertx.core.Promise
 import io.vertx.core.http.HttpClosedException
@@ -230,8 +231,8 @@ class WebsocketClient(
     /**
      * 关闭 WebSocketClient
      */
-    fun close() {
+    fun close(): Future<Void>? {
         bot.context.get<WebSocket>("ws")?.close()
-        client?.close()
+        return client?.close()
     }
 }

@@ -19,6 +19,7 @@ import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import io.vertx.kotlin.core.json.jsonObjectOf
 import io.vertx.kotlin.coroutines.CoroutineVerticle
+import kotlinx.coroutines.runBlocking
 
 /**
  *
@@ -175,7 +176,13 @@ class WebHookHttpServer(
                 throwable = null
             )
         )
-        payloadCmdHandler.close()
+        runCatching {
+            webSocketServerTcpSocketList.forEach {
+                runCatching { it.reject() }
+            }
+        }
+        kotlin.runCatching { webSocketServerTcpSocketList.clear() }
+        kotlin.runCatching { payloadCmdHandler.close() }
         return webHttpServer.close()
     }
 

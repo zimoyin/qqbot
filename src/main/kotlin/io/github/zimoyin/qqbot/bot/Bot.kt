@@ -171,7 +171,7 @@ interface Bot : Serializable, Contact {
     /**
      * 关闭机器人
      */
-    fun close()
+    fun close(): Future<Void>
 
     /**
      * 机器人头像地址
