@@ -13,6 +13,7 @@ import io.github.zimoyin.qqbot.net.http.api.gatewayV2Async
 import io.github.zimoyin.qqbot.net.websocket.handler.PayloadCmdHandler
 import io.github.zimoyin.qqbot.utils.ex.await
 import io.github.zimoyin.qqbot.utils.ex.executeBlockingKt
+import io.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Future
 import io.vertx.core.Handler
 import io.vertx.core.Promise
@@ -231,8 +232,9 @@ class WebsocketClient(
     /**
      * 关闭 WebSocketClient
      */
-    fun close(): Future<Void>? {
-        bot.context.get<WebSocket>("ws")?.close()
-        return client?.close()
+    fun close(): Future<Void> {
+        val voidPromise = promise<Void>()
+        voidPromise.tryComplete()
+        return client?.close() ?: bot.context.get<WebSocket>("ws")?.close() ?: voidPromise.future()
     }
 }
