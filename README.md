@@ -14,7 +14,9 @@ QQ Bot 是一个使用Kotlin 语言编写的，运行在JVM 平台上的官方�
 QQBot 以及实现了 WebHook 与 WebSocket 两种方式的连接
 
 > 对于腾讯QQ官方将要在 2024 年年底逐步停用WebSocket 的应对方案，本项目也提供了，WebHook 到 WebSocket 的代理。
+>
 > 使用 bot.start() 启动 WebSocket 时，传入 [WebHookConfig.kt](src/main/kotlin/io/github/zimoyin/qqbot/net/webhook/WebHookConfig.kt) 时，配置 WebHookConfig 启动WebSocket 即可
+>
 > 本项目 release 下的jar 就是对本功能的调用实现，第一次启动时将会生成配置文件，第二次会读取配置文件并启动
 > > 启动需要配置SSL
 >
