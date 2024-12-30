@@ -6,7 +6,7 @@
 
     <groupId>io.github.zimoyin</groupId>
     <artifactId>qqbot</artifactId>
-    <version>1.2.0-alpha</version>
+    <version>1.2.1</version>
     <description>QQBOT SDK</description>
     <url>https://github.com/zimoyin/qqbot</url>
 

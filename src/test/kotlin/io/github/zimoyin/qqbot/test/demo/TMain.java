@@ -68,7 +68,6 @@ public class TMain {
             event.reply("你好");
         });
 
-
         bot.onEvent(MessageEvent.class, true, event -> {
             event.reply("你好");
         });
