@@ -3,7 +3,7 @@
 <dependency>
     <groupId>io.github.zimoyin</groupId>
     <artifactId>qqbot</artifactId>
-    <version>1.2.0-alpha</version>
+    <version>1.2.1</version>
 </dependency>
 ```
 
