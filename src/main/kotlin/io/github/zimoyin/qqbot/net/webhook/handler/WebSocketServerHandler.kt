@@ -25,7 +25,7 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
 
     private val logger = LocalLogger(this::class.java)
     private val webHookConfig = server.webHookConfig
-    private val wsList = server.wsList
+    private val wsList = server.webSocketServerTcpSocketList
     private var isDebug = false
     private var isMataDebug = false
 

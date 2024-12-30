@@ -28,17 +28,27 @@ import io.vertx.kotlin.coroutines.CoroutineVerticle
 class WebHookHttpServer(
     private val promise: Promise<WebHookHttpServer>,
     val bot: Bot,
+    @get:JvmName("getConfig")
     val webHookConfig: WebHookConfig,
 ) : CoroutineVerticle() {
-    lateinit var router: Router
-        private set
-    lateinit var webHttpServer: HttpServer
-        private set
+    private val debugLog = bot.context.getBoolean("PAYLOAD_CMD_HANDLER_DEBUG_LOG") ?: false
     private val logger = LocalLogger(WebHookHttpServer::class.java)
     private lateinit var payloadCmdHandler: PayloadCmdHandler
-    val wsList = mutableListOf<ServerWebSocket>()
-    val debugLog = bot.context.getBoolean("PAYLOAD_CMD_HANDLER_DEBUG_LOG") ?: false
-    fun init() {
+
+    lateinit var router: Router
+        private set
+
+    @get:JvmName("getServer")
+    lateinit var webHttpServer: HttpServer
+        private set
+
+    @get:JvmName("getServerWebSockets")
+    val webSocketServerTcpSocketList = mutableListOf<ServerWebSocket>()
+
+    var isStarted = false
+        private set
+
+    private fun init() {
         payloadCmdHandler = PayloadCmdHandler(bot, vertx)
         router = Router.router(vertx)
         router.route("/").handler {
@@ -58,7 +68,7 @@ class WebHookHttpServer(
                         .getOrNull() ?: return@runCatching
                     payload.metadata = body.writeToText()
                     if (webHookConfig.enableWebSocketForwarding) {
-                        if (payload.opcode != 13) wsList.forEach {
+                        if (payload.opcode != 13) webSocketServerTcpSocketList.forEach {
                             it.writeTextMessage(payload.toJsonString())
                         }
                     }
@@ -123,23 +133,26 @@ class WebHookHttpServer(
     }
 
     override suspend fun start() {
+        if (isStarted) throw IllegalStateException("already started")
         kotlin.runCatching {
             init()
-            vertx.createHttpServer(webHookConfig.options)
-                .addWebSocketForwarding()
+            webHttpServer = vertx.createHttpServer(webHookConfig.options)
+            webHttpServer.addWebSocketForwarding()
                 .requestHandler(router)
                 .listen(webHookConfig.port, webHookConfig.host)
                 .onSuccess {
                     if (promise.isInitialStage()) logger.info("WebHookHttpServer启动成功: ${webHookConfig.host}:${it.actualPort()}")
                     promise.tryComplete(this)
-                    webHttpServer = it
+                    isStarted = true
                 }.onFailure {
                     if (promise.isInitialStage()) logger.error("WebHookHttpServer启动失败", it)
                     promise.tryFail(it)
+                    close()
                 }
         }.onFailure {
             if (promise.isInitialStage()) logger.error("WebHookHttpServer启动失败", it)
             promise.tryFail(it)
+            close()
         }
     }
 
@@ -151,7 +164,11 @@ class WebHookHttpServer(
         router.clear()
     }
 
+    val port by lazy { webHttpServer.actualPort() }
+    val host by lazy { webHookConfig.host }
+
     fun close(): Future<Void> {
+        isStarted = false
         bot.config.botEventBus.broadcastAuto(
             BotOfflineEvent(
                 botInfo = bot.botInfo,

@@ -27,18 +27,7 @@ data class WebHookConfig(
     /**
      * HttpServerOptions 实例
      */
-    val options: HttpServerOptions = HttpServerOptions().apply {
-        isSsl = isSSL
-        sslHandshakeTimeout = 30L
-        webSocketClosingTimeout = 30
-        sslOptions.isUseAlpn = false
-        webSocketCompressionLevel = 6
-        webSocketSubProtocols = arrayListOf("wss", "ws")
-
-        if (isSsl) require(loadCert(this, sslPath, password)) {
-            IllegalArgumentException("Could not find a valid SSL certificate in the path $sslPath")
-        }
-    },
+    val options: HttpServerOptions = createHttpServerOptions(),
     /**
      * WebHook Server 端口，如果为 0 则是随机端口
      */
@@ -63,9 +52,33 @@ data class WebHookConfig(
 ) {
     companion object {
         @JvmStatic
+        fun builder(): WebHookConfigBuilder = WebHookConfigBuilder()
+
+        @JvmStatic
         @JvmOverloads
         fun createBySslPath(sslPath: String, password: String = ""): WebHookConfig {
             return WebHookConfig(sslPath, password)
+        }
+
+        @JvmStatic
+        @JvmOverloads
+        fun createHttpServerOptions(
+            sslPath: String = "",
+            isSSL: Boolean = sslPath.isNotEmpty(),
+            password: String = ""
+        ): HttpServerOptions {
+            return HttpServerOptions().apply {
+                isSsl = isSSL
+                sslHandshakeTimeout = 30L
+                webSocketClosingTimeout = 30
+                sslOptions.isUseAlpn = false
+                webSocketCompressionLevel = 6
+                webSocketSubProtocols = arrayListOf("wss", "ws")
+
+                if (isSsl) require(loadCert(this, sslPath, password)) {
+                    IllegalArgumentException("Could not find a valid SSL certificate in the path $sslPath")
+                }
+            }
         }
 
         /**
@@ -121,5 +134,111 @@ data class WebHookConfig(
 
             return false
         }
+    }
+
+    class WebHookConfigBuilder {
+        private var _sslPath: String = "./"
+        private var _password: String = ""
+        private var _isSSL: Boolean = true
+        private var _options: HttpServerOptions? = null
+        private var _port: Int = 443
+        private var _host: String = "0.0.0.0"
+        private var _enableWebSocketForwarding: Boolean = false
+        private var _webSocketPath: String = "/websocket"
+        private var _enableWebSocketForwardingLoginVerify: Boolean = true
+
+        /**
+         * SSL 文件路径
+         */
+        fun sslPath(value: String): WebHookConfigBuilder {
+            val file = File(value)
+            if (!file.exists() || !file.isDirectory) {
+                throw IllegalArgumentException("SSL directory not found or is not a directory")
+            }
+            _sslPath = value
+            return this
+        }
+
+        /**
+         * SSL 密码，如果没有则留空
+         */
+        fun password(value: String): WebHookConfigBuilder {
+            _password = value
+            return this
+        }
+
+        /**
+         * 是否启用 SSL
+         */
+        fun isSSL(value: Boolean): WebHookConfigBuilder {
+            _isSSL = value
+            return this
+        }
+
+        /**
+         * HttpServerOptions 实例。
+         * 如果无法加载证书，请自行加载，设置 HttpServerOptions.keyCertOptions
+         */
+        fun options(value: HttpServerOptions): WebHookConfigBuilder {
+            _options = value
+            return this
+        }
+
+        /**
+         * WebHook Server 端口，如果为 0 则是随机端口
+         */
+        fun port(value: Int): WebHookConfigBuilder {
+            if (value < 0) throw IllegalArgumentException("Port must be greater than 0")
+            if (value > 65535) throw IllegalArgumentException("Port must be less than 65535")
+            _port = value
+            return this
+        }
+
+        /**
+         * WebHook Server 监听地址
+         */
+        fun host(value: String): WebHookConfigBuilder {
+            _host = value
+            return this
+        }
+
+        /**
+         * 是否启用 WebSocket 转发
+         */
+        fun enableWebSocketForwarding(value: Boolean): WebHookConfigBuilder {
+            _enableWebSocketForwarding = value
+            return this
+        }
+
+        /**
+         * WebSocket 暴露转发路径
+         */
+        fun webSocketPath(value: String): WebHookConfigBuilder {
+            _webSocketPath = value
+            return this
+        }
+
+        /**
+         * 是否启用 WebSocket 转发登录验证
+         */
+        fun enableWebSocketForwardingLoginVerify(value: Boolean): WebHookConfigBuilder {
+            _enableWebSocketForwardingLoginVerify = value
+            return this
+        }
+
+        /**
+         * 构建并返回 WebHookConfig 实例
+         */
+        fun build(): WebHookConfig = WebHookConfig(
+            sslPath = _sslPath,
+            password = _password,
+            isSSL = _sslPath.isNotEmpty(),
+            options = createHttpServerOptions(_sslPath, _isSSL, _password),
+            port = _port,
+            host = _host,
+            enableWebSocketForwarding = _enableWebSocketForwarding,
+            webSocketPath = _webSocketPath,
+            enableWebSocketForwardingLoginVerify = _enableWebSocketForwardingLoginVerify
+        )
     }
 }
