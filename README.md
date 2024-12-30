@@ -63,6 +63,15 @@ bot.start(webHookConfig).onSuccess(ws -> {
 //# 快速搭建(WebHook)代码复用    #
 //-----------------------------
 
+Bot bot = Bot.createBot(config -> {
+    config.setToken(token);
+    config.setIntents(Intents.Presets.PRIVATE_GROUP_INTENTS);
+});
+
+//-----------------------------
+//# 快速搭建(WebHook)代码复用    #
+//-----------------------------
+
 bot.login().onSuccess(ws -> {
     logger.info("登录成功");
     System.out.println("OK");
