@@ -1,5 +1,15 @@
 # QQ_Bot_Framework
 
+<p align="center">
+  镇楼图
+</p>
+<p align="center">
+  <img src="logo.png" alt="logo" width="50%" height="50%" />
+</p>
+
+----
+
+
 QQ Bot 是一个使用Kotlin 语言编写的，运行在JVM 平台上的官方适配QQ机器人框架。该框架依据于腾讯QQ官方开发API文档进行打造的
 QQBot 以及实现了 WebHook 与 WebSocket 两种方式的连接
 
