@@ -12,9 +12,65 @@ QQBot 以及实现了 WebHook 与 WebSocket 两种方式的连接
 
 * 项目使用 SL4j 2.0.9 注意版本兼容
 
-# 快速搭建
+# 快速搭建(WebHook)
 ```java
+LocalLogger logger = new LocalLogger("Main");
+String url = "http://ts1.cn.mm.bing.net/th/id/R-C.23034dbcaded6ab4169b9514f76f51b5?rik=mSGADwV9o/teUA&riu=http://pic.bizhi360.com/bbpic/40/9640_1.jpg&ehk=RYei4n5qyNCPVysJmE2a3WhxSOXqGQMGJcvWBmFyfdg=&risl=&pid=ImgRaw&r=0";
 
+//全局事件监听
+GlobalEventBus.INSTANCE.onEvent(Event.class, true, event -> {
+    logger.info("收到事件：" + event.toString());
+});
+
+TencentOpenApiHttpClient.setSandBox(true);
+
+Bot bot = Bot.createBot(token);
+// 监听事件
+bot.onEvent(OpenGroupBotEvent.class, true, event -> {
+    event.reply("你好");
+});
+
+bot.onEvent(MessageEvent.class, true, event -> {
+    if (event instanceof ChannelMessageEvent) System.out.println("ChannelMessageEvent 事件");
+    else event.reply("你好");
+});
+
+bot.onEvent(ChannelMessageEvent.class, true, event -> {
+    event.reply(ImageMessage.create(url));
+});
+
+WebHookConfig webHookConfig = WebHookConfig
+    .builder()
+    .sslPath("./127.0.0.1")
+    .isSSL(true)
+    .enableWebSocketForwarding(true)
+    .enableWebSocketForwardingLoginVerify(true)
+    .build();
+
+bot.start(webHookConfig).onSuccess(ws -> {
+    logger.info("服务器启动成功,端口: " + ws.getServer().actualPort());
+    System.out.println("OK");
+}).onFailure(e -> {
+    logger.error("登录失败", e);
+    bot.close();
+    Config.getGLOBAL_VERTX_INSTANCE().close();
+});
+```
+
+# 快速搭建(WebSocket)
+```java
+//-----------------------------
+//# 快速搭建(WebHook)代码复用    #
+//-----------------------------
+
+bot.login().onSuccess(ws -> {
+    logger.info("登录成功");
+    System.out.println("OK");
+}).onFailure(e -> {
+logger.error("登录失败", e);
+    bot.close();
+    Config.getGLOBAL_VERTX_INSTANCE().close();
+});
 ```
 
 # 使用文档
@@ -34,4 +90,4 @@ QQBot 以及实现了 WebHook 与 WebSocket 两种方式的连接
 ## 体验项目
 * 成熟项目体验： 宝可梦
 宝可梦文字游戏，内含16个城镇，468个宝可梦，mega形态，20多个神兽。获得8大道馆徽章，解决丰缘危机，登上冠军之路，成为联盟冠军吧
-![img.png](img.png)
+<img src="img.png" alt="描述图片的文字" height="300">
