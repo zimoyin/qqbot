@@ -15,9 +15,12 @@ QQBot 实现了 WebHook 与 WebSocket 两种方式的连接，并提供了 WebHo
 
 > 对于腾讯QQ官方将要在 2024 年年底逐步停用WebSocket 的应对方案，本项目也提供了，WebHook 到 WebSocket 的代理。
 >
-> 使用 bot.start() 启动 WebSocket 时，传入 [WebHookConfig.kt](src/main/kotlin/io/github/zimoyin/qqbot/net/webhook/WebHookConfig.kt) 时，配置 WebHookConfig 启动WebSocket 即可
+> 使用 bot.start() 启动 WebSocket，
+> start 方法参数传入 [WebHookConfig.kt](src/main/kotlin/io/github/zimoyin/qqbot/net/webhook/WebHookConfig.kt) 时，配置 WebHookConfig 中的 websocket 相关配置即可启动 WebSocket
 >
 > **本项目 release 下的 jar 就是对本功能的调用实现**，第一次启动时将会生成配置文件，第二次会读取配置文件并启动
+> 默认 websocket 访问路径为 ip:port/websocket
+>
 > > 启动需要配置SSL
 >
 
@@ -53,10 +56,10 @@ bot.onEvent(ChannelMessageEvent.class, true, event -> {
 
 WebHookConfig webHookConfig = WebHookConfig
     .builder()
-    .sslPath("./127.0.0.1")
-    .isSSL(true)
-    .enableWebSocketForwarding(true)
-    .enableWebSocketForwardingLoginVerify(true)
+    .sslPath("./127.0.0.1") // SSL 证书保存地址
+    .isSSL(true) // 腾讯服务器 WebHook 要求SSL
+    .enableWebSocketForwarding(true) // 启用 websocket 转发，客户端访问改 httpserver 服务器的 /websocket 地址即可
+    .enableWebSocketForwardingLoginVerify(true)// 启用身份验证，验证客户端身份，验证方式为 webserver 与 websocket 客户端使用同样的机器人的 token 等并使用同样的鉴权方式即可。推荐服务器传入 token 和  clientSecret ，这样客户端两种鉴权方式都支持
     .build();
 
 bot.start(webHookConfig).onSuccess(ws -> {
@@ -84,6 +87,7 @@ Bot bot = Bot.createBot(config -> {
 //# 快速搭建(WebHook)代码复用    #
 //-----------------------------
 
+// login 参数为 false 时，忽略服务器证书不匹配问题
 bot.login().onSuccess(ws -> {
     logger.info("登录成功");
     System.out.println("OK");
