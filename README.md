@@ -26,7 +26,7 @@ QQBot 实现了 WebHook 与 WebSocket 两种方式的连接，并提供了 WebHo
 > 转发注意
 * 默认 websocket 访问路径为 ip:port/websocket
   * 例如 wss://ip:port/websocket
-* 其他API访问路径为 ip:port/*
+* 其他API访问路径为 ip:port/* （该功能不影响使用，SDK默认实现为不访问该地址）
   * 例如访问： /v2/users/{openid}/messages 就是访问 https://ip:port/v2/users/{openid}/messages
 
 

@@ -51,11 +51,18 @@ object TencentOpenApiHttpClient {
     var isCustomHost = false
         private set
 
+    @JvmStatic
+    var isUseCustomHost = false
+
+    private fun getTencentHost(): String {
+       return if (isSandBox) "sandbox.api.sgroup.qq.com" else "api.sgroup.qq.com"
+    }
+
     private val options: WebClientOptions by lazy {
         isOptionsInitialized = true
         WebClientOptions()
-            .setUserAgent("java_qqbot_gf:0.0.1")
-            .setDefaultHost(if (isSandBox) "sandbox.api.sgroup.qq.com" else "api.sgroup.qq.com")
+            .setUserAgent("java_qqbot_gf:1.2.6")
+            .setDefaultHost(if (isUseCustomHost) host else getTencentHost())
             .setConnectTimeout(5000)
             .setKeepAlive(true)
             .setSsl(true)
