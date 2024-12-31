@@ -37,7 +37,7 @@ class InteractionEvent(
 
     init {
         io {
-            delay(2500)
+            delay(1500)
             if (!isCallOk) {
                 LocalLogger(InteractionEvent::class.java).error("InteractionEvent 未调用 ok() 方法，已自动调用")
                 ok()
