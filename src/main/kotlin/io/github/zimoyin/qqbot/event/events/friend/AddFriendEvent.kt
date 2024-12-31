@@ -31,11 +31,14 @@ data class AddFriendEvent(
     override val eventID: String = "",
     val windows: PrivateFriend,
 ) : FriendUpdateEvent {
+    var msgSeq: Int = 1
     fun reply(msg: String): Future<SendMessageResultBean> {
-        return reply(MessageChainBuilder().append(msg).build())
+        msgSeq++
+        return reply(MessageChainBuilder().appendMeqSeq(msgSeq).append(msg).build())
     }
 
     fun reply(message: MessageChain): Future<SendMessageResultBean> {
+        msgSeq++
         val eventID = if (message.replyEventID.isNullOrEmpty()) {
             eventID
         } else {
@@ -45,11 +48,12 @@ data class AddFriendEvent(
             tryFail("eventID is null")
         }.future()
         return windows.send(
-            MessageChainBuilder().appendEventId(eventID).append(message).build()
+            MessageChainBuilder().appendMeqSeq(msgSeq).appendEventId(eventID).append(message).build()
         )
     }
 
     fun reply(vararg items: MessageItem): Future<SendMessageResultBean> {
-        return reply(MessageChainBuilder().appendEventId(eventID).appendItems(*items).build())
+        msgSeq++
+        return reply(MessageChainBuilder().appendMeqSeq(msgSeq).appendEventId(eventID).appendItems(*items).build())
     }
 }

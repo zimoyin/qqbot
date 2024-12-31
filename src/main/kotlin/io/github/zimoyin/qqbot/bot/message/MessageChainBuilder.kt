@@ -14,6 +14,8 @@ import io.github.zimoyin.qqbot.event.events.Event
  */
 class MessageChainBuilder(private var id: String? = null) {
     private var eventId: String? = null
+    private var msgSeq = 1
+
     constructor(chain: MessageChain) : this(chain.id) {
         append(chain)
     }
@@ -80,6 +82,18 @@ class MessageChainBuilder(private var id: String? = null) {
     }
 
     fun build(): MessageChain {
-        return MessageChain(id = id, metaTextContent = buildMetaTextContent(), internalItems = internalItems, replyEventID = eventId)
+        return MessageChain(
+            id = id,
+            metaTextContent = buildMetaTextContent(),
+            internalItems = internalItems,
+            replyEventID = eventId,
+            msgSeq = msgSeq
+        )
+    }
+
+    fun appendMeqSeq(msgSeq0: Int): MessageChainBuilder {
+        msgSeq = msgSeq0
+        return this
+
     }
 }

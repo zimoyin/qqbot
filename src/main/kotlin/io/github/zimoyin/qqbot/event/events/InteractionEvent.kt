@@ -26,7 +26,7 @@ import kotlinx.coroutines.delay
 @EventAnnotation.EventMetaType("INTERACTION_CREATE")
 @EventAnnotation.EventHandler(InteractionEventHandler::class)
 class InteractionEvent(
-    override val metadataType: String = "MESSAGE_CREATE",
+    override val metadataType: String = "INTERACTION_CREATE",
     override val metadata: String,
     override val botInfo: BotInfo,
     override val eventID: String,
@@ -37,7 +37,7 @@ class InteractionEvent(
 
     init {
         io {
-            delay(1500)
+            delay(2500)
             if (!isCallOk) {
                 LocalLogger(InteractionEvent::class.java).error("InteractionEvent 未调用 ok() 方法，已自动调用")
                 ok()
@@ -54,16 +54,18 @@ class InteractionEvent(
      * 4 没有权限
      * 5 仅管理员操作
      */
-    fun ok(code:Int = 0): Future<Void> {
+    fun ok(code: Int = 0): Future<Void> {
         isCallOk = true
-        return HttpAPIClient.replyInteractions(botInfo.token, data.id,code)
+        return HttpAPIClient.replyInteractions(botInfo.token, data.id, code)
     }
-
+    var msgSeq: Int = 1
     fun reply(msg: String): Future<SendMessageResultBean> {
-        return reply(MessageChainBuilder().append(msg).build())
+        msgSeq++
+        return reply(MessageChainBuilder().appendMeqSeq(msgSeq).append(msg).build())
     }
 
     fun reply(message: MessageChain): Future<SendMessageResultBean> {
+        msgSeq++
         val eventID = if (message.replyEventID.isNullOrEmpty()) {
             eventID
         } else {
@@ -73,11 +75,12 @@ class InteractionEvent(
             tryFail("eventID is null")
         }.future()
         return windows.send(
-            MessageChainBuilder().appendEventId(eventID).append(message).build()
+            MessageChainBuilder().appendMeqSeq(msgSeq).appendEventId(eventID).append(message).build()
         )
     }
 
     fun reply(vararg items: MessageItem): Future<SendMessageResultBean> {
-        return reply(MessageChainBuilder().appendEventId(eventID).appendItems(*items).build())
+        msgSeq++
+        return reply(MessageChainBuilder().appendMeqSeq(msgSeq).appendEventId(eventID).appendItems(*items).build())
     }
 }

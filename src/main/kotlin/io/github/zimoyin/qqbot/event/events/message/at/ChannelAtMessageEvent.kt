@@ -27,4 +27,5 @@ class ChannelAtMessageEvent(
     override val botInfo: BotInfo,
     override val channel: Channel = windows,
     override val eventID: String ="",
+    override var msgSeq: Int=1,
 ) : ChannelMessageEvent, AtMessageEvent

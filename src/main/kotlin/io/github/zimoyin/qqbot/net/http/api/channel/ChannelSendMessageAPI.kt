@@ -98,7 +98,7 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
         return promise.future()
     }
     //发送信息处理
-    val finalMessage: SendMessageBean = message0.convertChannelMessage()
+    val finalMessage: SendMessageBean = message0.convertSendMessageBean()
     val finalMessageJson = finalMessage.toJson()
 
 

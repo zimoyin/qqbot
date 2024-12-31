@@ -62,10 +62,8 @@ data class MessageAttachment(
 ) : Serializable {
 
     @JsonIgnore
-    private val logger = LocalLogger(MessageAttachment::class.java)
-
-    @JsonIgnore
     fun getURL(): String? {
+        val logger = LocalLogger(MessageAttachment::class.java)
         if (uri == null) return null
         if (protocol != "https") logger.warn("附件协议不是https: $protocol://$uri")
         return URI.create("$protocol://$uri").toURL().toString()

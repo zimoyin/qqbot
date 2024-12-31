@@ -74,7 +74,9 @@ public class TMain {
         bot.onEvent(MessageEvent.class, true, event -> {
 //            KeyboardMessage keyboardMessage = KeyboardMessage.createByID("102077167_1706079223");
             KeyboardMessage keyboardMessage = KeyboardMessage.createByID("102077167_1733995104");
+            event.reply("你好");
             event.reply(keyboardMessage);
+            event.reply(ImageMessage.create(url));
         });
 
 

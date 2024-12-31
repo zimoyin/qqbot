@@ -3,6 +3,7 @@ package io.github.zimoyin.qqbot.net.bean.message.send
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import io.github.zimoyin.qqbot.LocalLogger
 import io.github.zimoyin.qqbot.bot.message.type.KeyboardMessage
 import io.github.zimoyin.qqbot.net.bean.message.MessageArk
 import io.github.zimoyin.qqbot.net.bean.message.MessageEmbed
@@ -12,6 +13,7 @@ import io.github.zimoyin.qqbot.utils.JSON
 import io.github.zimoyin.qqbot.utils.ex.toBase64
 import io.vertx.core.json.JsonObject
 import java.io.File
+import kotlin.random.Random
 
 /**
  *
@@ -94,6 +96,9 @@ data class SendMessageBean(
     val markdown: MessageMarkdownBean? = null,
     val keyboard: KeyboardMessage?,
 
+    @field:JsonProperty("msg_seq")
+    val msgSeq: Int = Random.nextInt(1, Int.MAX_VALUE-1),
+
     @JsonIgnore
     val file: File? = null,
     @JsonIgnore
@@ -103,6 +108,12 @@ data class SendMessageBean(
 
 //    @JsonIgnore
 //    val fileUri: String? = null,
+
+    /**
+     * 按键信息
+     */
+    @JsonIgnore
+    val button: KeyboardMessage? = null,
 
 
     /////////////////   群聊和私聊的字段   /////////////////
@@ -121,21 +132,26 @@ data class SendMessageBean(
      */
     var media: MediaMessageBean? = null,
 ) {
+    init {
+        inferMsgType()
+    }
+
     /**
      * 推断消息类型
      */
     @JsonIgnore
     fun inferMsgType(): SendMessageBean {
         return this.apply {
-            when {
-                media != null -> msgType = MSG_TYPE_MEDIA
-                fileUri != null -> msgType = MSG_TYPE_MEDIA
-                file != null -> msgType = MSG_TYPE_MEDIA
-                fileBytes != null -> msgType = MSG_TYPE_MEDIA
-                content != null -> msgType = MSG_TYPE_TEXT
-                markdown != null -> msgType = MSG_TYPE_MARKDOWN
-                ark != null -> msgType = MSG_TYPE_ARK
-                embed != null -> msgType = MSG_TYPE_EMBED
+            msgType = when {
+                media != null -> MSG_TYPE_MEDIA
+                fileUri != null -> MSG_TYPE_MEDIA
+                file != null -> MSG_TYPE_MEDIA
+                fileBytes != null -> MSG_TYPE_MEDIA
+                content != null -> MSG_TYPE_TEXT
+                markdown != null || button != null -> MSG_TYPE_MARKDOWN
+                ark != null -> MSG_TYPE_ARK
+                embed != null -> MSG_TYPE_EMBED
+                else -> throw IllegalArgumentException("unknown msg type")
             }
         }
     }

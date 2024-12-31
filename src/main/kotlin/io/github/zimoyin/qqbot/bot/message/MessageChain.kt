@@ -34,6 +34,7 @@ class MessageChain(
     val metaTextContent: String? = null,
     val replyEventID: String? = null,
     private val internalItems: ArrayList<MessageItem> = ArrayList(),
+    private val msgSeq: Int = 1,
 ) : Serializable, Cloneable, Iterable<MessageItem> {
     companion object {
         /**
@@ -270,7 +271,7 @@ class MessageChain(
     /**
      * 将 MessageChain 转换为 ChannelMessage。用于发送消息
      */
-    fun convertChannelMessage(): SendMessageBean {
+    fun convertSendMessageBean(): SendMessageBean {
         val reference = internalItems.filterIsInstance<ReferenceMessage>().lastOrNull()?.let { MessageReference(it.id) }
         val sb = StringBuilder()
         internalItems.forEach {
@@ -300,6 +301,7 @@ class MessageChain(
         val embed = internalItems.filterIsInstance<EmbedMessage>().lastOrNull()?.embed
         val md = internalItems.filterIsInstance<MarkdownMessage>().lastOrNull()?.markdown
         val kb = internalItems.filterIsInstance<KeyboardMessage>().lastOrNull()
+        val button = internalItems.filterIsInstance<KeyboardMessage>().lastOrNull()
 
         val fileType = when {
             image != null -> SendMediaBean.FILE_TYPE_IMAGE
@@ -312,6 +314,7 @@ class MessageChain(
             id = if (md != null) null else this.id,
             messageReference = reference,
             content = if (sb.isEmpty()) null else sb.toString(),
+            button = button,
             ark = ark,
             embed = embed,
             markdown = md,
@@ -321,6 +324,7 @@ class MessageChain(
             fileUri = imageURL ?: audioURL ?: videoURL,
             fileType = fileType,
             eventID = replyEventID,
+            msgSeq = msgSeq
         )
     }
 

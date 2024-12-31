@@ -41,12 +41,15 @@ interface MessageEvent : Event {
     val sender: User
 
 
+    var msgSeq: Int
+
     /**
      * 被动回复信息
      * 注意无法通过事件发送主动信息，请查询 Content.send 方法
      */
     fun reply(message: String): Future<SendMessageResultBean> {
-        return windows.send(MessageChainBuilder(msgID).append(message).build())
+        msgSeq++
+        return windows.send(MessageChainBuilder(msgID).appendMeqSeq(msgSeq).append(message).build())
     }
 
     /**
@@ -55,8 +58,9 @@ interface MessageEvent : Event {
      * 注: 对于非文本等形式的消息，可能会受限于主动信息推送
      */
     fun reply(vararg message: MessageItem): Future<SendMessageResultBean> {
+        msgSeq++
         return reply(
-            MessageChainBuilder(msgID).appendItems(*message).build()
+            MessageChainBuilder(msgID).appendMeqSeq(msgSeq).appendItems(*message).build()
         )
     }
 
@@ -66,8 +70,10 @@ interface MessageEvent : Event {
      * 注: 对于非文本等形式的消息，可能会受限于主动信息推送
      */
     fun reply(message: MessageChain): Future<SendMessageResultBean> {
+        msgSeq++
         return windows.send(
-            MessageChainBuilder(message.id ?: msgID).appendEventId(message.replyEventID).append(message).build()
+            MessageChainBuilder(message.id ?: msgID).appendMeqSeq(msgSeq).appendEventId(message.replyEventID)
+                .append(message).build()
         )
     }
 
@@ -77,7 +83,10 @@ interface MessageEvent : Event {
      * 注意无法通过事件发送主动信息，请查询 Content.send 方法
      */
     fun quote(message: String): Future<SendMessageResultBean> {
-        return windows.send(MessageChainBuilder(msgID).append(ReferenceMessage(msgID)).append(message).build())
+        msgSeq++
+        return windows.send(
+            MessageChainBuilder(msgID).appendMeqSeq(msgSeq).append(ReferenceMessage(msgID)).append(message).build()
+        )
     }
 
     /**
@@ -85,20 +94,30 @@ interface MessageEvent : Event {
      * 注意无法通过事件发送主动信息，请查询 Content.send 方法
      */
     fun quote(message: MessageChain): Future<SendMessageResultBean> {
+        msgSeq++
         return if (message.stream().filter { it is ReferenceMessage }.count() == 0.toLong()) {
             windows.send(
-                MessageChainBuilder(message.id ?: msgID).reference(msgID).appendEventId(message.replyEventID)
-                    .append(message).build()
+                MessageChainBuilder(message.id ?: msgID)
+                    .appendMeqSeq(msgSeq)
+                    .reference(msgID)
+                    .appendEventId(message.replyEventID)
+                    .append(message)
+                    .build()
             )
         } else {
             windows.send(
-                MessageChainBuilder(message.id ?: msgID).appendEventId(message.replyEventID).append(message).build()
+                MessageChainBuilder(message.id ?: msgID)
+                    .appendMeqSeq(msgSeq)
+                    .appendEventId(message.replyEventID)
+                    .append(message)
+                    .build()
             )
         }
     }
 
 
     fun qute(vararg message: MessageItem): Future<SendMessageResultBean> {
-        return reply(MessageChainBuilder(msgID).appendItems(*message).build())
+        msgSeq++
+        return reply(MessageChainBuilder(msgID).appendMeqSeq(msgSeq).appendItems(*message).build())
     }
 }

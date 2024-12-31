@@ -14,6 +14,8 @@ import kotlinx.coroutines.*
 import openDebug
 import java.io.File
 import java.net.URI
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 /**
  *
@@ -21,13 +23,9 @@ import java.net.URI
  * @date : 2024/12/26
  */
 suspend fun main() {
-    for (i in 0 until 5) {
-        println("准备... $i")
-        delay(1000)
-    }
-
-    for (i in 0 until 10) {
-        delay(500)
-        println("启动中... $i")
-    }
+    val time: Int = (System.currentTimeMillis() / 1000).toInt()
+    val now = LocalTime.now()
+    println(time)
+    println(now.second)
+    println(System.currentTimeMillis())
 }

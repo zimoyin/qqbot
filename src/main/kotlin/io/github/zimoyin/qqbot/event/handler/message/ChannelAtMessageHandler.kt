@@ -18,19 +18,19 @@ import io.github.zimoyin.qqbot.utils.JSON
  * 通用的消息处理器
  */
 class ChannelAtMessageHandler : AbsEventHandler<ChannelAtMessageEvent>() {
-  override fun handle(payload: Payload): ChannelAtMessageEvent {
-    val message = JSON.toObject<Message>(payload.eventContent.toString())
-    val info = BotInfo.create(payload.appID!!)
+    override fun handle(payload: Payload): ChannelAtMessageEvent {
+        val message = JSON.toObject<Message>(payload.eventContent.toString())
+        val info = BotInfo.create(payload.appID!!)
 
-    return ChannelAtMessageEvent(
-      msgID = message.msgID!!,
-      windows = ChannelImpl.convert(info, message),
-      messageChain = MessageChain.convert(message),
-      sender = ChannelPrivateUser.convert(info, message),
-      metadata = payload.metadata,
-      metadataType = payload.eventType!!,
-      botInfo = info,
-        eventID = payload.eventID?:""
-    )
-  }
+        return ChannelAtMessageEvent(
+            msgID = message.msgID!!,
+            windows = ChannelImpl.convert(info, message),
+            messageChain = MessageChain.convert(message),
+            sender = ChannelPrivateUser.convert(info, message),
+            metadata = payload.metadata,
+            metadataType = payload.eventType!!,
+            botInfo = info,
+            eventID = payload.eventID ?: ""
+        )
+    }
 }

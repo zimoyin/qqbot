@@ -28,4 +28,5 @@ class UserPrivateMessageEvent(
     override val friendID: String,
     override val timestamp: Date,
     override val eventID: String ="",
+    override var msgSeq: Int = 1,
     ) : FriendEvent, PrivateMessageEvent

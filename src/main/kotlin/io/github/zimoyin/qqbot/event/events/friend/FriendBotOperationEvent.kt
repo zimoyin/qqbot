@@ -1,6 +1,7 @@
 package io.github.zimoyin.qqbot.event.events.friend
 
 import io.github.zimoyin.qqbot.annotation.EventAnnotation
+import io.github.zimoyin.qqbot.event.events.operation.BotOperationEvent
 
 /**
  *
@@ -9,4 +10,4 @@ import io.github.zimoyin.qqbot.annotation.EventAnnotation
  */
 @EventAnnotation.EventMetaType("Not_MetaType_FriendBotOperationEvent")
 @EventAnnotation.EventHandler(ignore = true)
-interface FriendBotOperationEvent : FriendEvent
+interface FriendBotOperationEvent : FriendEvent,BotOperationEvent

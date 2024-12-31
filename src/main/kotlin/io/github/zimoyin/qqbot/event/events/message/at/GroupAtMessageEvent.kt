@@ -31,4 +31,5 @@ class GroupAtMessageEvent(
     override val timestamp: Date,
     override val opMemberOpenid: String,
     override val eventID: String ="",
+    override var msgSeq: Int=1,
 ) : GroupEvent, AtMessageEvent

@@ -85,7 +85,7 @@ private fun HttpAPIClient.sendFriendMessage(
         return promise.future()
     }
     //发送信息处理
-    val finalMessage = message0.convertChannelMessage().inferMsgType()
+    val finalMessage = message0.convertSendMessageBean().inferMsgType()
     if (finalMessage.msgType == SendMessageBean.MSG_TYPE_MEDIA && finalMessage.media == null) {
         uploadMediaToFriend(id, token, finalMessage.toMediaBean()).onSuccess {
             sendFriendMessage0(finalMessage, client, id, token, promise, friend, message, it)

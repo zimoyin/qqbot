@@ -4,6 +4,7 @@ import io.github.zimoyin.qqbot.net.Token
 import io.github.zimoyin.qqbot.net.http.addRestfulParam
 import io.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Future
+import io.vertx.kotlin.core.json.jsonObjectOf
 
 /**
  *
@@ -15,8 +16,7 @@ fun HttpAPIClient.replyInteractions(token: Token, interactionId: String, code: I
     API.ReplyInteractions
         .putHeaders(token.getHeaders())
         .addRestfulParam(interactionId)
-        .addQueryParam("code", code.toString())
-        .send()
+        .sendJsonObject(jsonObjectOf("code" to code))
         .bodyJsonHandle(promise, "ReplyInteractions", "send interactions error") {
             if (it.result) {
                 promise.tryComplete()

@@ -2,6 +2,7 @@ package io.github.zimoyin.qqbot.event.events.group.operation
 
 import io.github.zimoyin.qqbot.annotation.EventAnnotation
 import io.github.zimoyin.qqbot.bot.BotInfo
+import io.github.zimoyin.qqbot.event.events.operation.CloseBotOperationEvent
 import io.github.zimoyin.qqbot.event.handler.group.CloseGroupBotHandler
 import java.util.*
 
@@ -22,4 +23,4 @@ data class CloseGroupBotEvent(
     override val timestamp: Date,
     override val opMemberOpenid: String,
     override val eventID: String ="",
-) : GroupBotOperationEvent
+) : CloseBotOperationEvent,GroupBotOperationEvent

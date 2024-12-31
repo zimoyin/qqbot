@@ -1,6 +1,7 @@
 package io.github.zimoyin.qqbot.net.bean.message
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import java.io.Serializable
 
 /**
  * 表示一个平台事件的数据类，用于解析从平台接收到的事件信息。
@@ -9,7 +10,7 @@ data class InteractionEventData(
     /**
      * 平台方事件 ID，可以用于被动消息发送。
      */
-    @field:JsonProperty("id") val id: String,
+    @field:JsonProperty("id") val id: String = "",
 
     /**
      * 消息类型：
@@ -72,8 +73,11 @@ data class InteractionEventData(
     /**
      * 版本号，默认为 1。
      */
-    @field:JsonProperty("version") val version: Int = 1
-)
+    @field:JsonProperty("version") val version: Int = 1,
+
+
+    @field:JsonProperty("application_id") val applicationId: Int = 1,
+) : Serializable
 
 /**
  * 表示 [InteractionEventData] 中 'data.resolved' 字段的嵌套数据类，用于解析与操作按钮相关的额外信息。
@@ -102,5 +106,15 @@ data class DataResolved(
     /**
      * 操作的消息 id，目前仅在频道场景提供该字段。
      */
-    @field:JsonProperty("message_id") val messageId: String? = null
-)
+    @field:JsonProperty("message_id") val messageId: String? = null,
+
+
+    @field:JsonProperty("resolved") val resolved: Resolved? = null,
+
+    @field:JsonProperty("type") val type: Int? = null,
+) : Serializable
+
+data class Resolved(
+    @field:JsonProperty("button_data") val buttonData: String? = null,
+    @field:JsonProperty("button_id") val buttonId: String? = null,
+) : Serializable

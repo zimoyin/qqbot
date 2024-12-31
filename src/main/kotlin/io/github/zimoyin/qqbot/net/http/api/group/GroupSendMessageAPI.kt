@@ -3,7 +3,6 @@ package io.github.zimoyin.qqbot.net.http.api.group
 import io.github.zimoyin.qqbot.bot.BotInfo
 import io.github.zimoyin.qqbot.bot.contact.Group
 import io.github.zimoyin.qqbot.bot.message.MessageChain
-import io.github.zimoyin.qqbot.bot.message.type.MarkdownMessage
 import io.github.zimoyin.qqbot.event.events.MessageStartAuditEvent
 import io.github.zimoyin.qqbot.event.events.platform.GroupMessageSendEvent
 import io.github.zimoyin.qqbot.event.events.platform.GroupMessageSendPreEvent
@@ -85,7 +84,7 @@ private fun HttpAPIClient.sendGroupMessage(
         return promise.future()
     }
     //发送信息处理
-    val finalMessage = message0.convertChannelMessage().inferMsgType()
+    val finalMessage = message0.convertSendMessageBean().inferMsgType()
 
     if (finalMessage.msgType == SendMessageBean.MSG_TYPE_MEDIA && finalMessage.media == null) {
         uploadMediaToGroup(id, token, finalMessage.toMediaBean()).onSuccess {

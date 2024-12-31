@@ -7,6 +7,7 @@ import io.github.zimoyin.qqbot.bot.contact.GroupImpl
 import io.github.zimoyin.qqbot.bot.message.MessageChain
 import io.github.zimoyin.qqbot.bot.message.MessageChainBuilder
 import io.github.zimoyin.qqbot.bot.message.type.MessageItem
+import io.github.zimoyin.qqbot.event.events.operation.OpenBotOperationEvent
 import io.github.zimoyin.qqbot.net.bean.SendMessageResultBean
 import io.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Future
@@ -30,12 +31,15 @@ data class OpenGroupBotEvent(
     override val opMemberOpenid: String,
     val windows: GroupImpl,
     override val eventID: String
-) : GroupBotOperationEvent{
+) : OpenBotOperationEvent,GroupBotOperationEvent{
+    var msgSeq: Int = 1
     fun reply(msg: String): Future<SendMessageResultBean> {
-        return reply(MessageChainBuilder().append(msg).build())
+        msgSeq++
+        return reply(MessageChainBuilder().appendMeqSeq(msgSeq).append(msg).build())
     }
 
     fun reply(message: MessageChain): Future<SendMessageResultBean> {
+        msgSeq++
         val eventID = if (message.replyEventID.isNullOrEmpty()) {
             eventID
         } else {
@@ -45,11 +49,12 @@ data class OpenGroupBotEvent(
             tryFail("eventID is null")
         }.future()
         return windows.send(
-            MessageChainBuilder().appendEventId(eventID).append(message).build()
+            MessageChainBuilder().appendMeqSeq(msgSeq).appendEventId(eventID).append(message).build()
         )
     }
 
     fun reply(vararg items: MessageItem): Future<SendMessageResultBean> {
-        return reply(MessageChainBuilder().appendEventId(eventID).appendItems(*items).build())
+        msgSeq++
+        return reply(MessageChainBuilder().appendMeqSeq(msgSeq).appendEventId(eventID).appendItems(*items).build())
     }
 }
