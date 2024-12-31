@@ -13,7 +13,7 @@ import java.io.Serializable
  * Markdown消息
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class MessageMarkdown(
+data class MessageMarkdownBean(
     /**
      * Markdown 模板 id
      * 如果你确信你有权限不需要申请模板可以为 null
@@ -36,18 +36,18 @@ data class MessageMarkdown(
 ) : Serializable {
 
     @JsonIgnore
-    fun appendParam(value: MessageMarkdownParam): MessageMarkdown {
+    fun appendParam(value: MessageMarkdownParam): MessageMarkdownBean {
         return params.apply { add(value) }.let { this }
     }
 
 
     @JsonIgnore
-    fun appendParam(key: String, vararg value: String): MessageMarkdown {
+    fun appendParam(key: String, vararg value: String): MessageMarkdownBean {
         return params.apply { add(MessageMarkdownParam(key, value.toList())) }.let { this }
     }
 
     @JsonIgnore
-    fun appendParams(vararg value: MessageMarkdownParam): MessageMarkdown {
+    fun appendParams(vararg value: MessageMarkdownParam): MessageMarkdownBean {
         return params.apply { addAll(value) }.let { this }
     }
 
@@ -74,20 +74,20 @@ data class MessageMarkdown(
         @JsonIgnore
         @JvmStatic
         @UntestedApi
-        fun createOfJson(@Language("JSON") json: String): MessageMarkdown {
-            return JSON.toObject<MessageMarkdown>(json)
+        fun createOfJson(@Language("JSON") json: String): MessageMarkdownBean {
+            return JSON.toObject<MessageMarkdownBean>(json)
         }
 
         @JsonIgnore
         @JvmStatic
-        fun create(templateId: String, params: ArrayList<MessageMarkdownParam>): MessageMarkdown {
-            return MessageMarkdown(templateId, params, null)
+        fun create(templateId: String, params: ArrayList<MessageMarkdownParam>): MessageMarkdownBean {
+            return MessageMarkdownBean(templateId, params, null)
         }
 
         @JsonIgnore
         @JvmStatic
-        fun create(templateId: String): MessageMarkdown {
-            return MessageMarkdown(templateId, content = null)
+        fun create(templateId: String): MessageMarkdownBean {
+            return MessageMarkdownBean(templateId, content = null)
         }
     }
 }

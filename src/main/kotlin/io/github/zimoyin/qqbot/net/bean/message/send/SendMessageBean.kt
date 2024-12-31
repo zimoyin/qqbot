@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import io.github.zimoyin.qqbot.bot.message.type.KeyboardMessage
 import io.github.zimoyin.qqbot.net.bean.message.MessageArk
 import io.github.zimoyin.qqbot.net.bean.message.MessageEmbed
-import io.github.zimoyin.qqbot.net.bean.message.MessageMarkdown
+import io.github.zimoyin.qqbot.net.bean.message.MessageMarkdownBean
 import io.github.zimoyin.qqbot.net.bean.message.MessageReference
 import io.github.zimoyin.qqbot.utils.JSON
 import io.github.zimoyin.qqbot.utils.ex.toBase64
@@ -91,7 +91,7 @@ data class SendMessageBean(
      * 选填，markdown 息
      */
     @field:JsonProperty("markdown")
-    val markdown: MessageMarkdown? = null,
+    val markdown: MessageMarkdownBean? = null,
     val keyboard: KeyboardMessage?,
 
     @JsonIgnore

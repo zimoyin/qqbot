@@ -41,6 +41,7 @@ data class KeyboardMessage(
 
 
         @JvmStatic
+        @JvmOverloads
         fun create(id: String? = null, content: CustomKeyboard? = null): KeyboardMessage {
             return when {
                 id != null && content != null -> KeyboardMessage(

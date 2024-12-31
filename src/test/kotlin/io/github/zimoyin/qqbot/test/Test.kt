@@ -2,6 +2,9 @@ package io.github.zimoyin.qqbot.test
 
 import io.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
 import io.github.zimoyin.qqbot.bot.BotInfo
+import io.github.zimoyin.qqbot.bot.message.type.CustomKeyboard
+import io.github.zimoyin.qqbot.bot.message.type.KeyboardMessage
+import io.github.zimoyin.qqbot.bot.message.type.customKeyboard
 import io.github.zimoyin.qqbot.event.events.Event
 import io.github.zimoyin.qqbot.event.events.platform.bot.BotOnlineEvent
 import io.github.zimoyin.qqbot.event.supporter.GlobalEventBus
@@ -17,9 +20,14 @@ import java.net.URI
  * @author : zimo
  * @date : 2024/12/26
  */
-fun main() = repeat(1_000) {
-    io { //12S
-        println(Thread.currentThread().name)
-        File("G:\\resources\\office.7z").readBytes()
+suspend fun main() {
+    for (i in 0 until 5) {
+        println("准备... $i")
+        delay(1000)
+    }
+
+    for (i in 0 until 10) {
+        delay(500)
+        println("启动中... $i")
     }
 }

@@ -7,6 +7,9 @@ import io.github.zimoyin.qqbot.bot.message.EmojiType;
 import io.github.zimoyin.qqbot.bot.message.MessageChain;
 import io.github.zimoyin.qqbot.bot.message.MessageChainBuilder;
 import io.github.zimoyin.qqbot.bot.message.type.ImageMessage;
+import io.github.zimoyin.qqbot.bot.message.type.KeyboardMessage;
+import io.github.zimoyin.qqbot.bot.message.type.MarkdownMessage;
+import io.github.zimoyin.qqbot.bot.message.type.PlainTextMessage;
 import io.github.zimoyin.qqbot.event.events.Event;
 import io.github.zimoyin.qqbot.event.events.group.GroupEvent;
 import io.github.zimoyin.qqbot.event.events.group.operation.OpenGroupBotEvent;
@@ -69,7 +72,9 @@ public class TMain {
         });
 
         bot.onEvent(MessageEvent.class, true, event -> {
-            event.reply("你好");
+//            KeyboardMessage keyboardMessage = KeyboardMessage.createByID("102077167_1706079223");
+            KeyboardMessage keyboardMessage = KeyboardMessage.createByID("102077167_1733995104");
+            event.reply(keyboardMessage);
         });
 
 

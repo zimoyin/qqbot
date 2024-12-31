@@ -10,6 +10,6 @@ import token
  */
 fun main() {
     openDebug()
-//    TMain.run(token)
-    TMain2.run(token)
+    TMain.run(token)
+//    TMain2.run(token)
 }

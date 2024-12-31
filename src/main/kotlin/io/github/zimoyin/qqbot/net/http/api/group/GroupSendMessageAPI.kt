@@ -3,6 +3,7 @@ package io.github.zimoyin.qqbot.net.http.api.group
 import io.github.zimoyin.qqbot.bot.BotInfo
 import io.github.zimoyin.qqbot.bot.contact.Group
 import io.github.zimoyin.qqbot.bot.message.MessageChain
+import io.github.zimoyin.qqbot.bot.message.type.MarkdownMessage
 import io.github.zimoyin.qqbot.event.events.MessageStartAuditEvent
 import io.github.zimoyin.qqbot.event.events.platform.GroupMessageSendEvent
 import io.github.zimoyin.qqbot.event.events.platform.GroupMessageSendPreEvent
@@ -85,11 +86,7 @@ private fun HttpAPIClient.sendGroupMessage(
     }
     //发送信息处理
     val finalMessage = message0.convertChannelMessage().inferMsgType()
-//    if (finalMessage.fileBytes != null || finalMessage.file != null) {
-//        logError("sendGroupMessage", "ChannelFileBytes or ChannelFile 不能在群组和私聊中使用")
-//        promise.tryFail(IllegalArgumentException("ChannelFileBytes or ChannelFile cannot be used for resource sending in group chats or friends"))
-//        return promise.future()
-//    }
+
     if (finalMessage.msgType == SendMessageBean.MSG_TYPE_MEDIA && finalMessage.media == null) {
         uploadMediaToGroup(id, token, finalMessage.toMediaBean()).onSuccess {
             sendGroupMessage0(finalMessage, client, id, token, promise, group, message, it)
@@ -228,6 +225,7 @@ private fun HttpAPIClient.parseJsonSuccess(
             msgID = it.getString("id") ?: it.getString("message_id"),
             contact = group
         )
+
     if (it.containsKey("code")) when (it.getInteger("code")) {
         304023, 304024 -> {
             //信息审核事件推送
