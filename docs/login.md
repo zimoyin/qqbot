@@ -41,8 +41,9 @@ bot.start(WebHookConfig("./127.0.0.1", enableWebSocketForwarding = true)) // 用
 ```kotlin
 TencentOpenApiHttpClient.host = "127.0.0.1:8080"
 //    TencentOpenApiHttpClient.host = "127.0.0.1" //默认 443
+//    TencentOpenApiHttpClient.isUseCustomHost = true // 是否访问 代理服务器的 openapi
 //    TencentOpenApiHttpClient.webSocketForwardingAddress = "wss://127.0.0.1/websocket"
-bot.login();
+bot.login(true | false); // 参数用于启用或禁用主机验证，如果服务器SSL 与 IP 无法对应的话请设置 false
 ```
 
 对于开发中的程序需要启用沙盒模式才能正常连接服务器：
