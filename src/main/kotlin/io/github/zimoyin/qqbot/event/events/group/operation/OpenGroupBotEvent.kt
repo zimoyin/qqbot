@@ -34,12 +34,10 @@ data class OpenGroupBotEvent(
 ) : OpenBotOperationEvent,GroupBotOperationEvent{
     var msgSeq: Int = 1
     fun reply(msg: String): Future<SendMessageResultBean> {
-        msgSeq++
-        return reply(MessageChainBuilder().appendMeqSeq(msgSeq).append(msg).build())
+        return reply(MessageChainBuilder().appendMeqSeq(msgSeq++).append(msg).build())
     }
 
     fun reply(message: MessageChain): Future<SendMessageResultBean> {
-        msgSeq++
         val eventID = if (message.replyEventID.isNullOrEmpty()) {
             eventID
         } else {
@@ -49,12 +47,11 @@ data class OpenGroupBotEvent(
             tryFail("eventID is null")
         }.future()
         return windows.send(
-            MessageChainBuilder().appendMeqSeq(msgSeq).appendEventId(eventID).append(message).build()
+            MessageChainBuilder().appendMeqSeq(msgSeq++).appendEventId(eventID).append(message).build()
         )
     }
 
     fun reply(vararg items: MessageItem): Future<SendMessageResultBean> {
-        msgSeq++
-        return reply(MessageChainBuilder().appendMeqSeq(msgSeq).appendEventId(eventID).appendItems(*items).build())
+        return reply(MessageChainBuilder().appendMeqSeq(msgSeq++).appendEventId(eventID).appendItems(*items).build())
     }
 }

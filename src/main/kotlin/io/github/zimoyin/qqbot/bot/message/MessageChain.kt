@@ -328,7 +328,5 @@ class MessageChain(
         )
     }
 
-    //TODO 单聊/群聊 -> 信息bean 构建
-
 }
 

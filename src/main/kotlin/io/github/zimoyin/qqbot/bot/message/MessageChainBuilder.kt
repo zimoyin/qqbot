@@ -94,6 +94,5 @@ class MessageChainBuilder(private var id: String? = null) {
     fun appendMeqSeq(msgSeq0: Int): MessageChainBuilder {
         msgSeq = msgSeq0
         return this
-
     }
 }
