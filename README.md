@@ -21,13 +21,13 @@ QQBot 实现了 WebHook 与 WebSocket 两种方式的连接，并提供了 WebHo
 > start 方法参数传入 [WebHookConfig.kt](src/main/kotlin/io/github/zimoyin/qqbot/net/webhook/WebHookConfig.kt) 时，配置 WebHookConfig 中的 websocket 相关配置即可启动 WebSocket
 >
 > **本项目 release 下的 jar 就是对本功能的调用实现**，第一次启动时将会生成配置文件，第二次会读取配置文件并启动
->
-> * 默认 websocket 访问路径为 ip:port/websocket
-> * 其他API访问路径为 ip:port/*
->  * 例如访问： /v2/users/{openid}/messages 就是访问 https://ip:port/v2/users/{openid}/messages
->
 > > 启动需要配置SSL
->
+
+> 转发注意
+* 默认 websocket 访问路径为 ip:port/websocket
+  * 例如 wss://ip:port/websocket
+* 其他API访问路径为 ip:port/*
+  * 例如访问： /v2/users/{openid}/messages 就是访问 https://ip:port/v2/users/{openid}/messages
 
 
 * 项目使用 SL4j 2.0.9 注意版本兼容
