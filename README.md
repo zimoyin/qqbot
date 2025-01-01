@@ -92,6 +92,13 @@ Bot bot = Bot.createBot(config -> {
 //# 快速搭建(WebHook)代码复用    #
 //-----------------------------
 
+//---------------------------------------------------------------------------------------
+//#              访问 WebHook 搭建的 转发代理 WebSocket 服务器                               #
+//    TencentOpenApiHttpClient.host = "127.0.0.1" //默认 443                             #
+//    TencentOpenApiHttpClient.isUseCustomHost = true // 是否访问 代理服务器的 openapi      #
+//    TencentOpenApiHttpClient.webSocketForwardingAddress = "wss://127.0.0.1/websocket" #
+//---------------------------------------------------------------------------------------
+
 // login 参数为 false 时，忽略服务器证书不匹配问题
 bot.login().onSuccess(ws -> {
     logger.info("登录成功");
