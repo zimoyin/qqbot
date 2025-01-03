@@ -28,6 +28,7 @@ class ApplicationStart(val config: BotConfig) {
     private val logger = LoggerFactory.getLogger(ApplicationStart::class.java)
 
     val bot: Bot by lazy {
+        TencentOpenApiHttpClient.isSandBox = config.isSandBox
         Bot.createBot(config.token.toToken(), config.websocket.intents).apply {
             logger.info("机器人创建成功: $this")
         }
