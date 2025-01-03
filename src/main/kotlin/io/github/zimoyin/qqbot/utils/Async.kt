@@ -9,10 +9,68 @@ import io.vertx.core.Vertx
 import io.vertx.core.impl.WorkerPool
 import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.*
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.function.Consumer
 import kotlin.reflect.KProperty
 
 /**
+ * 创建一个虚拟线程池
+ */
+val virtualThreadExecutor: ExecutorService? by lazy {
+    runCatching {
+        val clazz = Executors::class.java
+        val method = clazz.getMethod("newVirtualThreadPerTaskExecutor")
+        method.isAccessible = true
+        method.invoke(null) as ExecutorService
+    }.getOrNull()
+}
+
+/**
+ * 启动一个虚拟线程，如果没有虚拟线程则启动一个协程
+ */
+fun <T> CoroutineScope.virtualThread(block: suspend CoroutineScope.() -> T): java.util.concurrent.Future<T> {
+    val future = CompletableFuture<T>()
+
+    val job = Job()
+    if (virtualThreadExecutor != null) {
+        return virtualThreadExecutor!!.submit {
+            runBlocking(coroutineContext + job) {
+                block()
+            }
+        } as java.util.concurrent.Future<T>
+    }
+
+    launch {
+        kotlin.runCatching { block().apply { future.complete(this) } }.onFailure {
+            future.completeExceptionally(it)
+        }
+    }
+    return future
+}
+
+/**
+ * 启动一个虚拟线程，如果没有虚拟线程则启动一个IO协程
+ */
+fun <T> virtualThread(block: suspend CoroutineScope.() -> T): java.util.concurrent.Future<T> {
+    val future = CompletableFuture<T>()
+    if (virtualThreadExecutor != null) {
+        return virtualThreadExecutor!!.submit {
+            runBlocking(block = block)
+        } as java.util.concurrent.Future<T>
+    }
+
+    CoroutineScope(Dispatchers.Default).launch {
+        kotlin.runCatching { block().apply { future.complete(this) } }.onFailure {
+            future.completeExceptionally(it)
+        }
+    }
+    return future
+}
+
+
+/**
  * 在后台线程执行非挂起的代码块。
  *
  * @author : zimo
@@ -20,7 +78,7 @@ import kotlin.reflect.KProperty
  * @param callback 需要在后台线程执行的非挂起代码块。
  * @return 一个 [Job] 对象，用于管理协程的生命周期。
  */
-fun io(callback: suspend () -> Unit): Job = CoroutineScope(Dispatchers.IO).launch {
+fun io(callback: suspend CoroutineScope.() -> Unit): Job = CoroutineScope(Dispatchers.IO).launch {
     callback()
 }
 
@@ -33,11 +91,11 @@ fun io(callback: suspend () -> Unit): Job = CoroutineScope(Dispatchers.IO).launc
  * @param callback 需要在后台线程执行的非挂起代码块。
  * @return 一个 [Job] 对象，用于管理协程的生命周期。
  */
-fun cpu(callback: suspend () -> Unit): Job = CoroutineScope(Dispatchers.Default).launch {
+fun cpu(callback: suspend CoroutineScope.() -> Unit): Job = CoroutineScope(Dispatchers.Default).launch {
     callback()
 }
 
-fun coroutine(callback: suspend () -> Unit): Job = CoroutineScope(Dispatchers.vertx()).launch {
+fun coroutine(callback: suspend CoroutineScope.() -> Unit): Job = CoroutineScope(Dispatchers.vertx()).launch {
     callback()
 }
 
@@ -52,7 +110,7 @@ fun coroutine(callback: suspend () -> Unit): Job = CoroutineScope(Dispatchers.ve
  */
 fun <T> async(
     dispatcher: CoroutineDispatcher = Dispatchers.vertxWorker(),
-    callback: suspend () -> T
+    callback: suspend CoroutineScope.() -> T
 ): Deferred<T> =
     CoroutineScope(dispatcher).async {
         callback()
@@ -62,7 +120,7 @@ fun <T> async(
 /**
  * 在后台线程执行挂起的代码块，并返回一个 [Future] 对象，用于获取执行结果。使用 await 可以挂起协程并等待结果
  */
-fun <T> task(callback: suspend (Promise<T>) -> T): Future<T> {
+fun <T> task(callback: suspend CoroutineScope.(Promise<T>) -> T): Future<T> {
     val promise = promise<T>()
     CoroutineScope(Dispatchers.vertxWorker()).launch {
         kotlin.runCatching {
@@ -163,6 +221,16 @@ class Async {
         @JvmStatic
         fun createWorkerThread(callback: Runnable) {
             vertx.orCreateContext.get<ExecutorCoroutineDispatcher>("worker_ExecutorCoroutineDispatcher").executor.execute {
+                callback.run()
+            }
+        }
+
+        /**
+         * 创建一个虚拟线程,如果没有虚拟线程则启动一个协程
+         */
+        @JvmStatic
+        fun createVirtualThread(callback: Runnable) {
+            virtualThread {
                 callback.run()
             }
         }
