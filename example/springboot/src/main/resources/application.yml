@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: ra3_qqbot
+logging:
+  file:
+    path: ./logs
+  level:
+    root: info
+    sql: info
+    web: info
+    com.github.zimoyin: debug
+    io.github.zimoyin: debug
+qqbot:
+  token:
+    appid: ---
+    token: ---
+    secret: ---
+  websocket:
+    intents: private_group_intents
+    enable: true
