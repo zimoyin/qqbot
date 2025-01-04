@@ -154,8 +154,8 @@ fun Dispatchers.vertx(vertx: Vertx = GLOBAL_VERTX_INSTANCE): CoroutineDispatcher
  * 获取一个与 Vertx 工作线程对应的协程调度器。
  */
 fun Dispatchers.vertxWorker(vertx: Vertx = GLOBAL_VERTX_INSTANCE): CoroutineDispatcher {
-    val worker = vertx.orCreateContext.get<ExecutorCoroutineDispatcher>("worker_ExecutorCoroutineDispatcher") ?: run {
-        var context = vertx.orCreateContext
+    var context = Vertx.currentContext() ?: vertx.orCreateContext
+    val worker = context.get<ExecutorCoroutineDispatcher>("worker_ExecutorCoroutineDispatcher") ?: run {
         val workerPoolField = try {
             context::class.java.getDeclaredField("workerPool").apply { isAccessible = true }
         } catch (e: NoSuchFieldException) {
@@ -165,7 +165,7 @@ fun Dispatchers.vertxWorker(vertx: Vertx = GLOBAL_VERTX_INSTANCE): CoroutineDisp
         }
         (workerPoolField.get(context) as WorkerPool).executor().asCoroutineDispatcher()
     }
-    vertx.orCreateContext.put("worker_ExecutorCoroutineDispatcher", worker)
+    context.put("worker_ExecutorCoroutineDispatcher", worker)
     return worker
 }
 

@@ -16,6 +16,7 @@ import io.github.zimoyin.qqbot.net.http.api.channel.getGuildInfos
 import io.github.zimoyin.qqbot.net.http.api.channel.getGuilds
 import io.github.zimoyin.qqbot.net.webhook.WebHookConfig
 import io.github.zimoyin.qqbot.net.webhook.WebHookHttpServer
+import io.github.zimoyin.qqbot.utils.ex.executeBlockingKt
 import io.github.zimoyin.qqbot.utils.vertx
 import io.github.zimoyin.qqbot.utils.vertxWorker
 import io.vertx.core.Future
@@ -247,11 +248,12 @@ interface Bot : Serializable, Contact {
             EventMapping.add(cls)
             val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
             val consumer = getVertxEventBus().localConsumer<T>(cls.name) { msg ->
-                if (msg.body().botInfo.token.appID == this.token.appID) {
+                val body = msg.body()
+                if (body.botInfo.token.appID == this.token.appID) {
                     val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
                     CoroutineScope(scope).launch {
                         kotlin.runCatching {
-                            callback.accept(msg.body())
+                            callback.accept(body)
                         }.onFailure {
                             throw EventBusException(RuntimeException("Caller: $stackTrace", it))
                         }
