@@ -49,6 +49,9 @@ object Config {
         if (options.clusterManager == null) {
             SystemLogger.info("创建一个全局的单机 Vertx 实例")
             Vertx.vertx(options).exceptionHandler {
+                if (it is java.lang.IllegalArgumentException){
+                    SystemLogger.warn("如果是在HttpClient 中导致的报错的：java.lang.IllegalArgumentException 异常可能是线程上下文与 HttpClient 上下文不一致，可能存在跨线程问题产生报错。新开一个线程或者协程执行网络请求来缓解问题")
+                }
                 SystemLogger.error("Global Vertx Exception", it)
             }
         } else {

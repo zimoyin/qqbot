@@ -1,6 +1,7 @@
 package io.github.zimoyin.qqbot.utils
 
 import io.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
+import io.github.zimoyin.qqbot.SystemLogger
 import io.github.zimoyin.qqbot.annotation.UntestedApi
 import io.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Context
@@ -159,6 +160,7 @@ fun Dispatchers.vertx(vertx: Vertx = GLOBAL_VERTX_INSTANCE): CoroutineDispatcher
 fun Dispatchers.vertxWorker(vertx: Vertx = GLOBAL_VERTX_INSTANCE): CoroutineDispatcher {
     var context = Vertx.currentContext() ?: vertx.orCreateContext
     val worker = context.get<ExecutorCoroutineDispatcher>("worker_ExecutorCoroutineDispatcher") ?: run {
+        SystemLogger.warn("你正在使用 Vertx 工作线程池转化的协程调度器，该调度器可能存在调度BUG，执行 Vertx 代码时可能导致上下文不匹配问题")
         val workerPoolField = try {
             if (context is ContextImpl) {
                 return@run (context as ContextImpl).workerPool().executor().asCoroutineDispatcher()

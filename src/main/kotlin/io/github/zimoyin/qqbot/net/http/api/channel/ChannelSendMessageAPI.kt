@@ -17,7 +17,9 @@ import io.github.zimoyin.qqbot.net.http.api.API
 import io.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import io.vertx.core.Future
 import io.vertx.core.Promise
+import io.vertx.core.Vertx
 import io.vertx.core.buffer.Buffer
+import io.vertx.core.http.impl.HttpClientInternal
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.client.HttpRequest
 import io.vertx.ext.web.client.HttpResponse
@@ -153,6 +155,7 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
         if (finalMessageJson.getString("embed") != null) {
             logDebug("sendChannelMessageAsync0", "在频道发送本地图片时发送EMBED消息可能会导致无法发送")
         }
+
         client0.sendMultipartForm(form).onFailure {
             logPreError(promise, "sendChannelMessageAsync0", "网络错误: 发送消息失败", it).let { isLog ->
                 if (!promise.tryFail(it)) {
