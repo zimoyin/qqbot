@@ -26,6 +26,7 @@ import java.io.File;
  */
 public class TMain {
     public static void run(Token token) {
+        token.version(1);
         long start = System.currentTimeMillis();
         long start2 = start;
         String url = "http://ts1.cn.mm.bing.net/th/id/R-C.23034dbcaded6ab4169b9514f76f51b5?rik=mSGADwV9o/teUA&riu=http://pic.bizhi360.com/bbpic/40/9640_1.jpg&ehk=RYei4n5qyNCPVysJmE2a3WhxSOXqGQMGJcvWBmFyfdg=&risl=&pid=ImgRaw&r=0";
@@ -69,11 +70,13 @@ public class TMain {
         });
 
         bot.onEvent(MessageEvent.class, true, event -> {
-//            KeyboardMessage keyboardMessage = KeyboardMessage.createByID("102077167_1706091638");
-            KeyboardMessage keyboardMessage = KeyboardMessage.createByID("102077167_1733995104");
-            event.reply("你好");
-            event.reply(EmojiMessage.create(EmojiType.DENGYAN));
-            event.reply(keyboardMessage);
+////            KeyboardMessage keyboardMessage = KeyboardMessage.createByID("102077167_1706091638");
+//            KeyboardMessage keyboardMessage = KeyboardMessage.createByID("102077167_1733995104");
+//            event.reply("你好");
+//            event.reply(EmojiMessage.create(EmojiType.DENGYAN));
+//            event.reply(keyboardMessage);
+
+            event.reply(ImageMessage.create(new File("D:\\code\\java_kotlin\\ra3_qqbot\\data\\images\\camp_1.png")));
         });
 
 

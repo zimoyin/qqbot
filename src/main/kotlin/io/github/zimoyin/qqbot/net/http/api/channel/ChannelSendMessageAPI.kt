@@ -104,6 +104,7 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
 
     val form = MultipartForm.create()
     finalMessageJson.forEach {
+        if (it.key == "msg_seq" || it.key == "msg_type") return@forEach
         if (it.key != null && it.value != null && it.value.toString() != "") form.attribute(it.key, it.value.toString())
     }
 
@@ -126,14 +127,14 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
 //    logDebug("sendChannelMessageAsync", "发送消息: ${finalMessage.toStrings().replace("\n", "\\n")}")
     //发送信息
     val client0 = client.addRestfulParam(id).putHeaders(token.getHeaders())
-    if (finalMessage.file == null && finalMessage.fileBytes == null) {
+    if (finalMessage.file == null && finalMessage.fileBytes == null && false) {
         logDebug("sendChannelMessageAsync", "以JSON形式发送信息")
         logDebug("sendChannelMessageAsync", "发送消息: $finalMessageJson")
         // JSON 发生方式，markdown 参数在 from 方式下无法被服务器正确的解析
         client0.sendJsonObject(finalMessageJson).onFailure {
-            logPreError(promise, "sendChannelPrivateMessageAsync", "网络错误: 发送消息失败", it).let { isLog ->
+            logPreError(promise, "sendChannelMessageAsync0", "网络错误: 发送消息失败", it).let { isLog ->
                 if (!promise.tryFail(it)) {
-                    if (!isLog) logError("sendChannelPrivateMessageAsync", "网络错误: 发送消息失败", it)
+                    if (!isLog) logError("sendChannelMessageAsync0", "网络错误: 发送消息失败", it)
                 }
             }
         }
@@ -153,9 +154,9 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
             logDebug("sendChannelMessageAsync0", "在频道发送本地图片时发送EMBED消息可能会导致无法发送")
         }
         client0.sendMultipartForm(form).onFailure {
-            logPreError(promise, "sendChannelPrivateMessageAsync", "网络错误: 发送消息失败", it).let { isLog ->
+            logPreError(promise, "sendChannelMessageAsync0", "网络错误: 发送消息失败", it).let { isLog ->
                 if (!promise.tryFail(it)) {
-                    if (!isLog) logError("sendChannelPrivateMessageAsync", "网络错误: 发送消息失败", it)
+                    if (!isLog) logError("sendChannelMessageAsync0", "网络错误: 发送消息失败", it)
                 }
             }
         }
