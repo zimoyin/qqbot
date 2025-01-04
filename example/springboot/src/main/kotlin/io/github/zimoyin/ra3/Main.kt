@@ -1,14 +1,16 @@
-package io.github.zimoyin
+package io.github.zimoyin.ra3
 
-import io.github.zimoyin.config.BotConfig
+import io.github.zimoyin.ra3.config.BotConfig
+import io.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
 import io.github.zimoyin.qqbot.bot.Bot
+import io.github.zimoyin.qqbot.net.http.TencentOpenApiHttpClient
 import io.github.zimoyin.qqbot.net.webhook.WebHookConfig
+import org.mybatis.spring.annotation.MapperScan
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.runApplication
-import org.springframework.context.annotation.Bean
+import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.event.EventListener
 
 /**
@@ -17,6 +19,8 @@ import org.springframework.context.event.EventListener
  * @date : 2025/01/03
  */
 @SpringBootApplication
+@EnableCaching
+@MapperScan(basePackages = ["io.github.zimoyin.ra3.mapper"])
 class ApplicationStart(val config: BotConfig) {
     companion object {
         @JvmStatic
@@ -55,6 +59,7 @@ class ApplicationStart(val config: BotConfig) {
             logger.info("WebHook启动成功，监听地址: ${it.port}")
         }.onFailure {
             logger.error("WebHook启动失败", it)
+            GLOBAL_VERTX_INSTANCE.close()
         }
     }
 
@@ -66,6 +71,7 @@ class ApplicationStart(val config: BotConfig) {
             logger.info("Bot 启动完成")
         }.onFailure{
             logger.error("Bot 启动失败", it)
+            GLOBAL_VERTX_INSTANCE.close()
         }
     }
 }

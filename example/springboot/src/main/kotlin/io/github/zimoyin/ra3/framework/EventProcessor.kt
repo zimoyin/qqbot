@@ -1,8 +1,8 @@
-package io.github.zimoyin.framework
+package io.github.zimoyin.ra3.framework
 
-import io.github.zimoyin.ApplicationStart
-import io.github.zimoyin.annotations.EventHandle
-import io.github.zimoyin.annotations.IEvent
+import io.github.zimoyin.ra3.ApplicationStart
+import io.github.zimoyin.ra3.annotations.EventHandle
+import io.github.zimoyin.ra3.annotations.IEvent
 import io.github.zimoyin.qqbot.event.events.Event
 import io.github.zimoyin.qqbot.event.events.message.MessageEvent
 import jakarta.annotation.PostConstruct

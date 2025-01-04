@@ -1,6 +1,8 @@
-package io.github.zimoyin.annotations
+package io.github.zimoyin.ra3.annotations
 
 import io.github.zimoyin.qqbot.event.events.message.MessageEvent
+import org.aspectj.lang.annotation.Aspect
+import org.springframework.stereotype.Component
 import kotlin.reflect.KClass
 
 /**
@@ -11,6 +13,8 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
+@Aspect
+@Component
 annotation class Commander(
     val name: String,
     val event: KClass<out MessageEvent> = MessageEvent::class,
@@ -21,4 +25,5 @@ annotation class Commander(
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
+@Component
 annotation class NotFundCommand()

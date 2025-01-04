@@ -1,9 +1,9 @@
-package io.github.zimoyin.framework
+package io.github.zimoyin.ra3.framework
 
-import io.github.zimoyin.ApplicationStart
-import io.github.zimoyin.annotations.Commander
-import io.github.zimoyin.annotations.ICommand
-import io.github.zimoyin.annotations.NotFundCommand
+import io.github.zimoyin.ra3.ApplicationStart
+import io.github.zimoyin.ra3.annotations.Commander
+import io.github.zimoyin.ra3.annotations.ICommand
+import io.github.zimoyin.ra3.annotations.NotFundCommand
 import io.github.zimoyin.qqbot.bot.onEvent
 import io.github.zimoyin.qqbot.command.SimpleCommandRegistrationCenter
 import io.github.zimoyin.qqbot.event.events.Event

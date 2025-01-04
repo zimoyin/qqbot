@@ -1,7 +1,7 @@
-package io.github.zimoyin.controller.event
+package io.github.zimoyin.ra3.controller.event
 
-import io.github.zimoyin.annotations.EventHandle
-import io.github.zimoyin.annotations.IEvent
+import io.github.zimoyin.ra3.annotations.EventHandle
+import io.github.zimoyin.ra3.annotations.IEvent
 import io.github.zimoyin.qqbot.event.events.message.MessageEvent
 import io.github.zimoyin.qqbot.event.events.message.at.AtMessageEvent
 
@@ -11,7 +11,7 @@ import io.github.zimoyin.qqbot.event.events.message.at.AtMessageEvent
  * @date : 2025/01/03
  */
 @EventHandle(executeMethod = "test",event = AtMessageEvent::class)
-class HelloEvent :IEvent<MessageEvent>{
+class HelloEvent : IEvent<MessageEvent> {
     override fun execute(event: MessageEvent) {
         event.reply("hello HelloEvent.execute")
     }

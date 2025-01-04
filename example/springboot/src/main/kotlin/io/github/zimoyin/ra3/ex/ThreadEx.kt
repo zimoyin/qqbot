@@ -1,4 +1,4 @@
-package io.github.zimoyin.ex
+package io.github.zimoyin.ra3.ex
 
 import kotlinx.coroutines.*
 import java.util.concurrent.CompletableFuture

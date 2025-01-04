@@ -1,9 +1,8 @@
-package io.github.zimoyin.commander
+package io.github.zimoyin.ra3.commander
 
-import io.github.zimoyin.annotations.ICommand
-import io.github.zimoyin.annotations.Commander
-import io.github.zimoyin.annotations.NotFundCommand
-import io.github.zimoyin.qqbot.command.SimpleCommandRegistrationCenter
+import io.github.zimoyin.ra3.annotations.ICommand
+import io.github.zimoyin.ra3.annotations.Commander
+import io.github.zimoyin.ra3.annotations.NotFundCommand
 import io.github.zimoyin.qqbot.event.events.message.MessageEvent
 import org.springframework.stereotype.Component
 

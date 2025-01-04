@@ -1,4 +1,4 @@
-package io.github.zimoyin.annotations
+package io.github.zimoyin.ra3.annotations
 
 import io.github.zimoyin.qqbot.event.events.Event
 

@@ -1,13 +1,10 @@
-package io.github.zimoyin.config
+package io.github.zimoyin.ra3.config
 
 import io.github.zimoyin.qqbot.net.Intents
 import io.github.zimoyin.qqbot.net.Token
 import io.github.zimoyin.qqbot.net.http.TencentOpenApiHttpClient
-import io.github.zimoyin.qqbot.net.webhook.WebHookConfig
-import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import org.springframework.validation.annotation.Validated
 
