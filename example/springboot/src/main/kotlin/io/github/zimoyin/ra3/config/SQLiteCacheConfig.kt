@@ -1,5 +1,6 @@
 package io.github.zimoyin.ra3.config
 
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.cache.Cache
@@ -19,8 +20,9 @@ import java.util.concurrent.ConcurrentHashMap
  */
 @Configuration
 class SQLiteCacheConfig {
+    private val logger = LoggerFactory.getLogger(SQLiteCacheConfig::class.java)
 
-    @Value("\${spring.cache.sqlite.url:\"jdbc:sqlite::memory:\"}")
+    @Value("\${spring.cache.sqlite.url:jdbc:sqlite::memory:}")
     var url: String = "jdbc:sqlite::memory:"
 
     @Value("\${spring.cache.sqlite.enable:false}")
@@ -36,6 +38,7 @@ class SQLiteCacheConfig {
     fun sqliteMemoryConnection(): Connection {
         val dataSource = SQLiteDataSource()
         dataSource.url = url
+        logger.info("SQLite cache 创建连接: $url")
         return dataSource.connection
     }
 

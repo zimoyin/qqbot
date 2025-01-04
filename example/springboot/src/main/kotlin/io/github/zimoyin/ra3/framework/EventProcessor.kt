@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Component
 import java.lang.reflect.Method
+import java.sql.Connection
 
 
 /**
@@ -58,8 +59,11 @@ class EventProcessor(val applicationContext: ApplicationContext) {
      */
     private val initializedBeanInstances by lazy {
         applicationContext.beanDefinitionNames.filter {
-            it != this.javaClass.simpleName && it != CommanderProcessor::class.simpleName
-        }.map {
+            it != this.javaClass.simpleName &&
+                    it != CommanderProcessor::class.simpleName &&
+                    it != RouterProcessor::class.simpleName &&
+                    it != Connection::class.simpleName
+        }.mapNotNull {
             applicationContext.getBean(it)
         }
     }

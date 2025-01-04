@@ -38,12 +38,12 @@ class SqliteConfig {
     fun initializeDatabase() {
         try {
             val file = File(getPath()).apply {
-                logger.info("数据库文件路径: $this")
+                logger.info("SQLite 数据库路径: $this")
                 this.parentFile.mkdirs()
             }
 
             if (file.exists()) {
-                logger.info("数据库文件已存在，无需初始化")
+                logger.info("SQLite 数据库文件已存在，无需初始化")
                 return
             }
 
@@ -55,18 +55,21 @@ class SqliteConfig {
                 }.getOrNull()
 
                 if (sql.isNullOrEmpty()) {
-                    logger.error("无法读取初始化 SQL 文件")
+                    logger.warn("classpath: ./data.sql 文件不存在")
+                    logger.warn("./data.sql 文件不存在")
+                    logger.warn("./data/data.sql 文件不存在")
+                    logger.error("SQLite 无法读取初始化 SQL 文件")
                     return@use
                 }
 
                 connection.createStatement().use { statement ->
                     statement.executeLargeUpdate(sql)
                 }.let {
-                    logger.info("数据库初始化成功")
+                    logger.info("SQLite 数据库初始化成功")
                 }
             }
         } catch (e: Exception) {
-            logger.error("数据库初始化失败", e)
+            logger.error("SQLite 数据库初始化失败", e)
         }
     }
 }

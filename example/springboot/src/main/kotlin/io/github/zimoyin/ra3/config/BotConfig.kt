@@ -43,8 +43,8 @@ data class BotConfig(
     data class WebhookConfig(
         var enable: Boolean = false,
         var port: Int = 443,
-        var sslPath: String = "./ssl",
-        var isSSL: Boolean = true,
+        var sslPath: String = "./",
+        var ssl: Boolean = true,
         var host: String = "0.0.0.0",
         var enableWebSocketForwarding: Boolean = true,
         var enableWebSocketForwardingLoginVerify: Boolean = true,
