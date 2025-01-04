@@ -1,34 +1,23 @@
 package io.github.zimoyin
 
-import io.github.zimoyin.annotations.ICommand
-import io.github.zimoyin.annotations.Commander
-import io.github.zimoyin.commander.HelloCommand
+import io.github.zimoyin.ra3.config.MyService
 import org.junit.jupiter.api.Test
-
+import org.mybatis.spring.annotation.MapperScan
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.cache.CacheManager
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.cache.annotation.EnableCaching
+import org.springframework.stereotype.Service
+import java.util.concurrent.CountDownLatch
 
 @SpringBootTest
 class ApplicationStartTests {
 
+
     @Test
     fun contextLoads() {
-
+        // 确保应用程序上下文成功加载
     }
-
 }
-
-fun main() {
-    val java = io.github.zimoyin.Test()
-    println(isCommander(java))
-}
-
-fun isCommander(bean: Any): Boolean {
-    val commander = bean.javaClass.getAnnotation(Commander::class.java)?.let {
-        return true
-    }
-
-    // bean 是 Command(接口) 的实现类。或者 bean 是 实现了 Command 的类子孙类
-    return ICommand::class.java.isAssignableFrom(bean.javaClass)
-}
-
-class Test :HelloCommand()

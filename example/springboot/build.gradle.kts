@@ -13,20 +13,32 @@ repositories {
 }
 
 dependencies {
+
     testImplementation(kotlin("test"))
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+
     implementation("io.github.zimoyin:qqbot:1.2.6"){
         exclude("org.slf4j:slf4j-api:2.0.9")
     }
-    implementation("io.github.zimoyin:ClassSeeker:1.0.0")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+//    runtimeOnly("com.h2database:h2")
 
-    implementation("org.springframework.boot:spring-boot-starter-jdbc")
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
-    runtimeOnly("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    implementation("org.xerial:sqlite-jdbc:3.47.1.0")
+    implementation("com.alibaba:druid-spring-boot-starter:1.2.24")
+    implementation("com.baomidou:mybatis-plus-spring-boot3-starter:3.5.9")
+//    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+//    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 }
+
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)

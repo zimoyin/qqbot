@@ -1,6 +1,16 @@
 spring:
   application:
     name: ra3_qqbot
+  datasource:
+    url: jdbc:sqlite:./data/sqlite/ra3.db
+    driver-class-name: org.sqlite.JDBC
+    username: sa
+    password: password
+  cache:
+    sqlite:
+        enable: true
+        cache-size: 10000
+        expiration-milliseconds: 60000
 logging:
   file:
     path: ./logs
@@ -8,13 +18,30 @@ logging:
     root: info
     sql: info
     web: info
-    com.github.zimoyin: debug
+    io.github.zimoyin.qqbot.event.supporter: info
     io.github.zimoyin: debug
 qqbot:
+  is-sand-box: true
   token:
-    appid: ---
-    token: ---
-    secret: ---
+    appid: --
+    token: --
+    secret: --
   websocket:
     intents: private_group_intents
-    enable: true
+    enable: false
+mybatis-plus:
+  # xml扫描，多个目录用逗号或者分号分隔（告诉 Mapper 所对应的 XML 文件位置）
+  mapper-locations: classpath:mapper/*.xml
+  # 以下配置均有默认值,可以不设置
+  global-config:
+    db-config:
+      #主键类型 AUTO:"数据库ID自增" INPUT:"用户输入ID",ID_WORKER:"全局唯一ID (数字类型唯一ID)", UUID:"全局唯一ID UUID";
+      id-type: auto
+  configuration:
+    # 是否开启自动驼峰命名规则映射:从数据库列名到Java属性驼峰命名的类似映射
+    map-underscore-to-camel-case: true
+    # 如果查询结果中包含空值的列，则 MyBatis 在映射的时候，不会映射这个字段
+    call-setters-on-nulls: true
+    # 这个配置会将执行的sql打印出来，在开发或测试的时候可以用
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
