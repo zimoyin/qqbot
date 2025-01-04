@@ -12,11 +12,14 @@ import io.github.zimoyin.qqbot.event.events.group.GroupEvent;
 import io.github.zimoyin.qqbot.event.events.group.operation.OpenGroupBotEvent;
 import io.github.zimoyin.qqbot.event.events.message.ChannelMessageEvent;
 import io.github.zimoyin.qqbot.event.events.message.MessageEvent;
+import io.github.zimoyin.qqbot.event.events.message.PrivateChannelMessageEvent;
 import io.github.zimoyin.qqbot.event.supporter.GlobalEventBus;
 import io.github.zimoyin.qqbot.net.Intents;
 import io.github.zimoyin.qqbot.net.Token;
 import io.github.zimoyin.qqbot.net.http.TencentOpenApiHttpClient;
 import io.github.zimoyin.qqbot.net.http.api.API;
+import io.github.zimoyin.qqbot.utils.Async;
+import io.vertx.core.Vertx;
 
 import java.io.File;
 
@@ -35,7 +38,7 @@ public class TMain {
 
         //全局事件监听
         GlobalEventBus.INSTANCE.onEvent(Event.class, true, event -> {
-            logger.info("收到事件："+event.toString() );
+            logger.info("收到事件：" + event.toString());
         });
 
         System.out.println("Vertx 与组件初始化耗时: " + (System.currentTimeMillis() - start));
@@ -48,8 +51,6 @@ public class TMain {
             config.setToken(finalToken);
             config.setIntents(Intents.Presets.PRIVATE_GROUP_INTENTS);
         });
-
-
 
 
         System.out.println("Bot 创建耗时: " + (System.currentTimeMillis() - start));
@@ -69,13 +70,7 @@ public class TMain {
             event.reply("你好");
         });
 
-        bot.onEvent(MessageEvent.class, true, event -> {
-////            KeyboardMessage keyboardMessage = KeyboardMessage.createByID("102077167_1706091638");
-//            KeyboardMessage keyboardMessage = KeyboardMessage.createByID("102077167_1733995104");
-//            event.reply("你好");
-//            event.reply(EmojiMessage.create(EmojiType.DENGYAN));
-//            event.reply(keyboardMessage);
-
+        bot.onEvent(PrivateChannelMessageEvent.class, true, event -> {
             event.reply(ImageMessage.create(new File("D:\\code\\java_kotlin\\ra3_qqbot\\data\\images\\camp_1.png")));
         });
 

@@ -1,11 +1,13 @@
 package io.github.zimoyin.qqbot.utils
 
 import io.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
+import io.github.zimoyin.qqbot.annotation.UntestedApi
 import io.github.zimoyin.qqbot.utils.ex.promise
 import io.vertx.core.Context
 import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.Vertx
+import io.vertx.core.impl.ContextImpl
 import io.vertx.core.impl.WorkerPool
 import io.vertx.kotlin.coroutines.dispatcher
 import kotlinx.coroutines.*
@@ -152,11 +154,15 @@ fun Dispatchers.vertx(vertx: Vertx = GLOBAL_VERTX_INSTANCE): CoroutineDispatcher
 
 /**
  * 获取一个与 Vertx 工作线程对应的协程调度器。
+ * 该调度器是复用了 Vertx 工作线程池，因此可能会导致意外的调度错误
  */
 fun Dispatchers.vertxWorker(vertx: Vertx = GLOBAL_VERTX_INSTANCE): CoroutineDispatcher {
     var context = Vertx.currentContext() ?: vertx.orCreateContext
     val worker = context.get<ExecutorCoroutineDispatcher>("worker_ExecutorCoroutineDispatcher") ?: run {
         val workerPoolField = try {
+            if (context is ContextImpl) {
+                return@run (context as ContextImpl).workerPool().executor().asCoroutineDispatcher()
+            }
             context::class.java.getDeclaredField("workerPool").apply { isAccessible = true }
         } catch (e: NoSuchFieldException) {
             val delegateField = context::class.java.getDeclaredField("delegate").apply { isAccessible = true }
@@ -165,6 +171,7 @@ fun Dispatchers.vertxWorker(vertx: Vertx = GLOBAL_VERTX_INSTANCE): CoroutineDisp
         }
         (workerPoolField.get(context) as WorkerPool).executor().asCoroutineDispatcher()
     }
+
     context.put("worker_ExecutorCoroutineDispatcher", worker)
     return worker
 }
@@ -237,8 +244,8 @@ class Async {
     }
 }
 
-fun workerThread(callback: () -> Unit){
-    Async.createWorkerThread{
+fun workerThread(callback: () -> Unit) {
+    Async.createWorkerThread {
         callback()
     }
 }
