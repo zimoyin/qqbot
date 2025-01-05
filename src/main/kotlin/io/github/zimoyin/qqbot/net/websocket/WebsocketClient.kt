@@ -237,4 +237,8 @@ class WebsocketClient(
         voidPromise.tryComplete()
         return client?.close() ?: bot.context.get<WebSocket>("ws")?.close() ?: voidPromise.future()
     }
+
+    override suspend fun stop() {
+        close()
+    }
 }

@@ -189,4 +189,8 @@ class WebHookHttpServer(
     private fun HttpServer.addWebSocketForwarding(): HttpServer {
         return WebSocketServerHandler(this@WebHookHttpServer).addWebSocketForwarding(this)
     }
+
+    override suspend fun stop() {
+        close()
+    }
 }
