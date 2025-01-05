@@ -1,18 +1,26 @@
 package io.github.zimoyin.ra3
 
-import io.github.zimoyin.ra3.config.BotConfig
 import io.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
 import io.github.zimoyin.qqbot.bot.Bot
+import io.github.zimoyin.qqbot.command.SimpleCommandRegistrationCenter
+import io.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import io.github.zimoyin.qqbot.net.http.TencentOpenApiHttpClient
 import io.github.zimoyin.qqbot.net.webhook.WebHookConfig
+import io.github.zimoyin.qqbot.utils.MediaManager
+import io.github.zimoyin.ra3.config.BotConfig
 import io.github.zimoyin.ra3.expand.registerSingletonBean
+import io.vertx.core.eventbus.MessageConsumer
 import jakarta.annotation.PostConstruct
 import org.mybatis.spring.annotation.MapperScan
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.context.event.ApplicationFailedEvent
 import org.springframework.boot.runApplication
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.ApplicationContext
+import org.springframework.context.event.ContextClosedEvent
+import org.springframework.context.event.EventListener
+
 
 /**
  *
@@ -89,6 +97,46 @@ class ApplicationStart(
             logger.error("Bot 启动失败", it)
             GLOBAL_VERTX_INSTANCE.close()
         }
+    }
+
+    @EventListener(ContextClosedEvent::class)
+    fun handleContextClosed(event: ContextClosedEvent) {
+        bot.close()
+        val vertx = bot.config.vertx
+        vertx.deploymentIDs().forEach {id->
+            vertx.undeploy(id)
+        }
+        unregisters(GlobalEventBus.consumers)
+        unregisters(bot.config.consumers)
+        MediaManager.instance.clear()
+        for (commandObject in SimpleCommandRegistrationCenter.getCommandList().toMutableList()) {
+            SimpleCommandRegistrationCenter.unregister(commandObject)
+        }
+    }
+
+    private fun unregisters(consumers0:HashSet<MessageConsumer<*>>) {
+        val consumers = consumers0.toMutableList()
+        for (consumer in consumers) {
+            consumer.unregister().onSuccess {
+                consumers.remove(consumer)
+            }
+        }
+        for (consumer in consumers) {
+            GlobalEventBus.consumers.remove(consumer)
+        }
+    }
+
+    @EventListener(ApplicationFailedEvent::class)
+    fun handleApplicationFailedEvent(event: ApplicationFailedEvent) {
+        bot.close()
+        GLOBAL_VERTX_INSTANCE.close()
+    }
+
+    @PostConstruct
+    fun close() {
+        Runtime.getRuntime().addShutdownHook(Thread {
+            GLOBAL_VERTX_INSTANCE.close()
+        })
     }
 }
 

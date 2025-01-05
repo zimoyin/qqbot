@@ -16,7 +16,6 @@ import org.springframework.validation.annotation.Validated
 @Configuration
 @Validated
 @ConfigurationProperties(prefix = "qqbot")
-@Component
 data class BotConfig(
     var token: TokenConfig = TokenConfig(),
     var webhook: WebhookConfig = WebhookConfig(),

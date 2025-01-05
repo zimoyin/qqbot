@@ -1,5 +1,6 @@
 package io.github.zimoyin.ra3.framework
 
+import io.github.zimoyin.qqbot.utils.ex.toJsonObject
 import io.github.zimoyin.ra3.ApplicationStart
 import io.github.zimoyin.ra3.annotations.*
 import io.github.zimoyin.ra3.expand.getBeanByName
@@ -12,9 +13,11 @@ import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationContext
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
+import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 import java.lang.reflect.Parameter
 import java.sql.Connection
+import javax.swing.text.html.HTML.Tag.P
 
 /**
  *
@@ -161,6 +164,7 @@ class RouterProcessor(val applicationContext: ApplicationContext) {
 
     fun invoke(method: Method, bean: Any, routingContext: RoutingContext) {
         val args = arrayListOf<Any>()
+        val isHasAutoClose = method.isAnnotationPresent(AutoClose::class.java)
 
         method.parameters.forEach {
             val bean0 = kotlin.runCatching { applicationContext.getBean(it.name, it.type) }.getOrNull()
@@ -172,10 +176,28 @@ class RouterProcessor(val applicationContext: ApplicationContext) {
                 args.add(createParameter(it, routingContext))
             }
         }
+
         //执行方法
         try {
-            method.invoke(bean, *args.toTypedArray())
-        } catch (e: Exception) {
+            val result = method.invoke(bean, *args.toTypedArray())
+            kotlin.runCatching {
+                if (isHasAutoClose) {
+                    if (result == null || result is Unit){
+                        routingContext.response().end()
+                        return@runCatching
+                    }
+                    if (result is String) {
+                        routingContext.response().end(result)
+                    } else {
+                        routingContext.response().end(result.toJsonObject().toString())
+                    }
+                }
+            }
+        } catch (e: InvocationTargetException) {
+            kotlin.runCatching { routingContext.response().end("Server Error!!!!") }
+            logger.error("路由执行失败, $method 方法内部存在错误逻辑导致方法执行失败", e)
+        }catch (e: Exception) {
+            kotlin.runCatching { routingContext.response().end("Server Error!!!!") }
             logger.error("路由执行失败", e)
         }
     }

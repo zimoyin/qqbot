@@ -2,6 +2,7 @@ package io.github.zimoyin.ra3.controller
 
 import io.github.zimoyin.qqbot.utils.ex.writeToText
 import io.github.zimoyin.ra3.annotations.Rout
+import io.github.zimoyin.ra3.annotations.RouterController
 import io.github.zimoyin.ra3.annotations.RouterGet
 import io.vertx.core.http.HttpServerRequest
 import io.vertx.core.http.HttpServerResponse
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component
  * @author : zimo
  * @date : 2025/01/04
  */
-@Component
+@RouterController
 class HelloRouter {
 
 
