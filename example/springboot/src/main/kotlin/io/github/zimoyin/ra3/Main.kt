@@ -101,20 +101,32 @@ class ApplicationStart(
 
     @EventListener(ContextClosedEvent::class)
     fun handleContextClosed(event: ContextClosedEvent) {
-        bot.close()
-        val vertx = bot.config.vertx
-        vertx.deploymentIDs().forEach {id->
-            vertx.undeploy(id)
+        runCatch { bot.close() }
+        runCatch {
+            val vertx = bot.config.vertx
+            vertx.deploymentIDs().forEach { id ->
+                vertx.undeploy(id)
+            }
         }
-        unregisters(GlobalEventBus.consumers)
-        unregisters(bot.config.consumers)
-        MediaManager.instance.clear()
-        for (commandObject in SimpleCommandRegistrationCenter.getCommandList().toMutableList()) {
-            SimpleCommandRegistrationCenter.unregister(commandObject)
+        runCatch { unregisters(GlobalEventBus.consumers) }
+        runCatch { unregisters(bot.config.consumers) }
+        runCatch { MediaManager.instance.clear() }
+        runCatch {
+            for (commandObject in SimpleCommandRegistrationCenter.getCommandList().toMutableList()) {
+                SimpleCommandRegistrationCenter.unregister(commandObject)
+            }
         }
     }
 
-    private fun unregisters(consumers0:HashSet<MessageConsumer<*>>) {
+    fun runCatch(callback: () -> Unit) {
+        kotlin.runCatching {
+            callback()
+        }.onFailure {
+            logger.error("捕获到异常", it)
+        }
+    }
+
+    private fun unregisters(consumers0: HashSet<MessageConsumer<*>>) {
         val consumers = consumers0.toMutableList()
         for (consumer in consumers) {
             consumer.unregister().onSuccess {
@@ -122,20 +134,20 @@ class ApplicationStart(
             }
         }
         for (consumer in consumers) {
-            GlobalEventBus.consumers.remove(consumer)
+            consumers0.remove(consumer)
         }
     }
 
     @EventListener(ApplicationFailedEvent::class)
     fun handleApplicationFailedEvent(event: ApplicationFailedEvent) {
-        bot.close()
-        GLOBAL_VERTX_INSTANCE.close()
+        runCatch { bot.close() }
+        runCatch { GLOBAL_VERTX_INSTANCE.close() }
     }
 
     @PostConstruct
     fun close() {
         Runtime.getRuntime().addShutdownHook(Thread {
-            GLOBAL_VERTX_INSTANCE.close()
+            runCatch { GLOBAL_VERTX_INSTANCE.close() }
         })
     }
 }

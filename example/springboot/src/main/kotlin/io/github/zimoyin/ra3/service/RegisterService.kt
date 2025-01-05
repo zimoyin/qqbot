@@ -1,18 +1,9 @@
 package io.github.zimoyin.ra3.service
 
-import com.baomidou.mybatisplus.core.toolkit.Wrappers
-import com.baomidou.mybatisplus.core.toolkit.support.SFunction
-import com.baomidou.mybatisplus.extension.kotlin.KtQueryWrapper
 import io.github.zimoyin.ra3.entity.User
 import io.github.zimoyin.ra3.expand.KtWrappers
 import io.github.zimoyin.ra3.mapper.UsersMapper
 import org.springframework.stereotype.Service
-import kotlin.reflect.KFunction1
-import kotlin.reflect.KProperty1
-import kotlin.reflect.jvm.javaField
-import kotlin.reflect.jvm.javaGetter
-import kotlin.reflect.jvm.javaMethod
-import kotlin.reflect.jvm.reflect
 
 interface IRegisterService {
     /**
@@ -59,6 +50,6 @@ class RegisterService(
     }
 
     override fun isRegistered(uid: String): Boolean {
-        return mapper.selectCount(KtWrappers.lambdaQueryKt<User>().eq(User::uid, uid)) > 0
+        return mapper.selectCount(KtWrappers.lambdaQuery<User>().eq(User::uid, uid)) > 0
     }
 }

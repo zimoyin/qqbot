@@ -3,10 +3,8 @@ package io.github.zimoyin.ra3.expand
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper
 import com.baomidou.mybatisplus.core.toolkit.Wrappers
-import com.baomidou.mybatisplus.core.toolkit.Wrappers.emptyWrapper
 import com.baomidou.mybatisplus.extension.kotlin.KtQueryWrapper
 import com.baomidou.mybatisplus.extension.kotlin.KtUpdateWrapper
-import io.github.zimoyin.ra3.entity.User
 
 /**
  *
@@ -16,27 +14,27 @@ import io.github.zimoyin.ra3.entity.User
 
 class KtWrappers private constructor() {
     companion object {
-        inline fun <reified T : Any> lambdaQueryKt(): KtQueryWrapper<T> {
+        inline fun <reified T : Any> lambdaQuery(): KtQueryWrapper<T> {
             return KtQueryWrapper<T>(T::class.java)
         }
 
-        fun <T : Any> lambdaQueryKt(clzz: Class<T>): KtQueryWrapper<T> {
+        fun <T : Any> lambdaQuery(clzz: Class<T>): KtQueryWrapper<T> {
             return KtQueryWrapper<T>(clzz)
         }
 
-        fun <T : Any> lambdaQueryKt(obj: T): KtQueryWrapper<T> {
+        fun <T : Any> lambdaQuery(obj: T): KtQueryWrapper<T> {
             return KtQueryWrapper<T>(obj)
         }
 
-        inline fun <reified T : Any> lambdaUpdateKt(): KtUpdateWrapper<T> {
+        inline fun <reified T : Any> lambdaUpdate(): KtUpdateWrapper<T> {
             return KtUpdateWrapper<T>(T::class.java)
         }
 
-        fun <T : Any> lambdaUpdateKt(clzz: Class<T>): KtUpdateWrapper<T> {
+        fun <T : Any> lambdaUpdate(clzz: Class<T>): KtUpdateWrapper<T> {
             return KtUpdateWrapper<T>(clzz)
         }
 
-        fun <T : Any> lambdaUpdateKt(obj: T): KtUpdateWrapper<T> {
+        fun <T : Any> lambdaUpdate(obj: T): KtUpdateWrapper<T> {
             return KtUpdateWrapper<T>(obj)
         }
 
