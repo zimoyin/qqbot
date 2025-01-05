@@ -105,7 +105,7 @@ class ApplicationStart(
         runCatch {
             val vertx = bot.config.vertx
             vertx.deploymentIDs().forEach { id ->
-                vertx.undeploy(id)
+                runCatch { vertx.undeploy(id).onFailure { logger.error("undeploy失败", it) } }
             }
         }
         runCatch { unregisters(GlobalEventBus.consumers) }
