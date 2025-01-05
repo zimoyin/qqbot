@@ -22,7 +22,7 @@ annotation class Commander(
     val enabled: Boolean = true,
 )
 
-@Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
+@Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
 @Component

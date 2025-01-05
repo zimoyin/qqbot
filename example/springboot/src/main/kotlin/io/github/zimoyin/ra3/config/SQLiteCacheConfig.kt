@@ -1,12 +1,13 @@
 package io.github.zimoyin.ra3.config
 
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.cache.Cache
 import org.springframework.cache.CacheManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.validation.annotation.Validated
 import org.sqlite.SQLiteDataSource
 import java.sql.Connection
 import java.util.*
@@ -19,20 +20,15 @@ import java.util.concurrent.ConcurrentHashMap
  * @date : 2025/01/04
  */
 @Configuration
-class SQLiteCacheConfig {
+@Validated
+@ConfigurationProperties(prefix = "spring.cache.sqlite")
+class SQLiteCacheConfig(
+    var url: String = "jdbc:sqlite::memory:",
+    var enable: Boolean = false,
+    var tableCacheSize: Int = 100,
+    var expirationMilliseconds: Long = 60000L
+) {
     private val logger = LoggerFactory.getLogger(SQLiteCacheConfig::class.java)
-
-    @Value("\${spring.cache.sqlite.url:jdbc:sqlite::memory:}")
-    var url: String = "jdbc:sqlite::memory:"
-
-    @Value("\${spring.cache.sqlite.enable:false}")
-    var enable: Boolean = false
-
-    @Value("\${spring.cache.sqlite.cache-size:100}")
-    var cacheSize: Int = 100
-
-    @Value("\${spring.cache.sqlite.expiration-milliseconds:60000}")
-    var expirationMilliseconds: Long = 60000L // 缓存过期时间，单位：毫秒
 
     @Bean
     fun sqliteMemoryConnection(): Connection {
@@ -45,7 +41,7 @@ class SQLiteCacheConfig {
     @Bean("cacheManager")
     @ConditionalOnProperty(name = ["spring.cache.sqlite.enable"], havingValue = "true", matchIfMissing = false)
     fun cacheManager(sqliteMemoryConnection: Connection): CacheManager {
-        return SQLiteCacheManager(sqliteMemoryConnection, cacheSize, expirationMilliseconds)
+        return SQLiteCacheManager(sqliteMemoryConnection, tableCacheSize, expirationMilliseconds)
     }
 
     class SQLiteCacheManager(
@@ -53,19 +49,22 @@ class SQLiteCacheConfig {
         private val maxSize: Int,
         private val expirationTime: Long
     ) : CacheManager {
-        private val cacheMap: MutableMap<String, Cache> = ConcurrentHashMap()
-
-        init {
-            connection.createStatement()
-                .execute(""" CREATE TABLE IF NOT EXISTS cache (key TEXT PRIMARY KEY, value BLOB, expires_at INTEGER, created_at INTEGER)""")
-        }
+        private val cacheMap: MutableMap<String, SQLiteCache> = ConcurrentHashMap()
 
         override fun getCache(name: String): Cache {
-            return cacheMap.computeIfAbsent(name) { k -> SQLiteCache(k, connection, maxSize, expirationTime) }
+            return cacheMap.computeIfAbsent(name) { key ->
+                initTable(key)
+                SQLiteCache(key, connection, maxSize, expirationTime)
+            }
         }
 
         override fun getCacheNames(): Collection<String> {
             return Collections.unmodifiableSet(cacheMap.keys)
+        }
+
+        private fun initTable(name: String){
+            connection.createStatement()
+                .execute(""" CREATE TABLE IF NOT EXISTS $name (key TEXT PRIMARY KEY, value BLOB, expires_at INTEGER, created_at INTEGER)""")
         }
     }
 
@@ -103,9 +102,9 @@ class SQLiteCacheConfig {
 
         override fun put(key: Any, value: Any?) {
             synchronized(lock) {
+                evictExpiredItems() // 清理过期的缓存
                 // 如果缓存数量已超过最大限制
                 if (getCacheSize() >= maxSize) {
-                    evictExpiredItems() // 清理过期的缓存
                     if (getCacheSize() >= maxSize) evictOldestItem() // 删除最旧的缓存
                 }
                 putInDatabase(key.toString(), value)
@@ -122,7 +121,7 @@ class SQLiteCacheConfig {
 
         private fun getFromDatabase(key: String): Cache.ValueWrapper? {
             var result: Cache.ValueWrapper? = null
-            connection.prepareStatement("SELECT value, expires_at, created_at FROM cache WHERE key = ?")
+            connection.prepareStatement("SELECT value, expires_at, created_at FROM $name WHERE key = ?")
                 .let { preparedStatement ->
                     preparedStatement.setString(1, key)
                     preparedStatement.executeQuery().let { resultSet ->
@@ -145,7 +144,7 @@ class SQLiteCacheConfig {
         private fun putInDatabase(key: String, value: Any?) {
             val createdAt = System.currentTimeMillis()
             val expiresAt = createdAt + expirationTime
-            connection.prepareStatement("INSERT OR REPLACE INTO cache (key, value, expires_at, created_at) VALUES (?, ?, ?, ?)")
+            connection.prepareStatement("INSERT OR REPLACE INTO $name (key, value, expires_at, created_at) VALUES (?, ?, ?, ?)")
                 .let { preparedStatement ->
                     preparedStatement.setString(1, key)
                     preparedStatement.setObject(2, value)
@@ -156,7 +155,7 @@ class SQLiteCacheConfig {
         }
 
         private fun deleteFromDatabase(key: String) {
-            connection.prepareStatement("DELETE FROM cache WHERE key = ?").let { preparedStatement ->
+            connection.prepareStatement("DELETE FROM $name WHERE key = ?").let { preparedStatement ->
                 preparedStatement.setString(1, key)
                 preparedStatement.executeUpdate()
             }
@@ -164,13 +163,13 @@ class SQLiteCacheConfig {
 
         private fun clearDatabase() {
             connection.createStatement().let { statement ->
-                statement.execute("DELETE FROM cache")
+                statement.execute("DELETE FROM $name")
             }
         }
 
         private fun getCacheSize(): Int {
             connection.createStatement().let { statement ->
-                val resultSet = statement.executeQuery("SELECT COUNT(*) FROM cache")
+                val resultSet = statement.executeQuery("SELECT COUNT(*) FROM $name")
                 if (resultSet.next()) {
                     return resultSet.getInt(1)
                 }
@@ -181,7 +180,7 @@ class SQLiteCacheConfig {
         private fun evictOldestItem() {
             connection.createStatement().let { statement ->
                 // 获取最旧的缓存项
-                val resultSet = statement.executeQuery("SELECT key FROM cache ORDER BY created_at ASC LIMIT 1")
+                val resultSet = statement.executeQuery("SELECT key FROM $name ORDER BY created_at ASC LIMIT 1")
                 if (resultSet.next()) {
                     val oldestKey = resultSet.getString(1)
                     deleteFromDatabase(oldestKey)
@@ -191,7 +190,7 @@ class SQLiteCacheConfig {
 
         private fun evictExpiredItems() {
             val currentTime = System.currentTimeMillis()
-            connection.prepareStatement("DELETE FROM cache WHERE expires_at < ?").let { preparedStatement ->
+            connection.prepareStatement("DELETE FROM $name WHERE expires_at < ?").let { preparedStatement ->
                 preparedStatement.setLong(1, currentTime)
                 preparedStatement.executeUpdate()
             }

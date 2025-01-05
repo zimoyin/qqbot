@@ -69,7 +69,7 @@ class RouterProcessor(val applicationContext: ApplicationContext) {
         if (method.isAnnotationPresent(Router::class.java)) {
             val path = method.getAnnotation(Router::class.java).path
             router.let {
-                if (path.startsWith("^")) it.routeWithRegex(path.replaceFirst("^",""))
+                if (path.startsWith("^")) it.routeWithRegex(path.replaceFirst("^", ""))
                 else it.route(path)
             }.order(0).handler {
                 invoke(method, bean, it)
@@ -79,7 +79,7 @@ class RouterProcessor(val applicationContext: ApplicationContext) {
         if (method.isAnnotationPresent(Rout::class.java)) {
             val path = method.getAnnotation(Rout::class.java).path
             router.let {
-                if (path.startsWith("^")) it.routeWithRegex(path.replaceFirst("^",""))
+                if (path.startsWith("^")) it.routeWithRegex(path.replaceFirst("^", ""))
                 else it.route(path)
             }.order(0).handler {
                 invoke(method, bean, it)
@@ -90,7 +90,7 @@ class RouterProcessor(val applicationContext: ApplicationContext) {
         if (method.isAnnotationPresent(RouterPost::class.java)) {
             val path = method.getAnnotation(RouterPost::class.java).path
             router.let {
-                if (path.startsWith("^")) it.postWithRegex(path.replaceFirst("^",""))
+                if (path.startsWith("^")) it.postWithRegex(path.replaceFirst("^", ""))
                 else it.post(path)
             }.order(0).handler {
                 invoke(method, bean, it)
@@ -101,7 +101,7 @@ class RouterProcessor(val applicationContext: ApplicationContext) {
         if (method.isAnnotationPresent(RouterGet::class.java)) {
             val path = method.getAnnotation(RouterGet::class.java).path
             router.let {
-                if (path.startsWith("^")) it.getWithRegex(path.replaceFirst("^",""))
+                if (path.startsWith("^")) it.getWithRegex(path.replaceFirst("^", ""))
                 else it.get(path)
             }.order(0).handler {
                 invoke(method, bean, it)
@@ -112,7 +112,7 @@ class RouterProcessor(val applicationContext: ApplicationContext) {
         if (method.isAnnotationPresent(RouterPut::class.java)) {
             val path = method.getAnnotation(RouterPut::class.java).path
             router.let {
-                if (path.startsWith("^")) it.putWithRegex(path.replaceFirst("^",""))
+                if (path.startsWith("^")) it.putWithRegex(path.replaceFirst("^", ""))
                 else it.put(path)
             }.order(0).handler {
                 invoke(method, bean, it)
@@ -123,7 +123,7 @@ class RouterProcessor(val applicationContext: ApplicationContext) {
         if (method.isAnnotationPresent(RouterPatch::class.java)) {
             val path = method.getAnnotation(RouterPatch::class.java).path
             router.let {
-                if (path.startsWith("^")) it.patchWithRegex(path.replaceFirst("^",""))
+                if (path.startsWith("^")) it.patchWithRegex(path.replaceFirst("^", ""))
                 else it.patch(path)
             }.order(0).handler {
                 invoke(method, bean, it)
@@ -133,7 +133,7 @@ class RouterProcessor(val applicationContext: ApplicationContext) {
         if (method.isAnnotationPresent(RouterPatch::class.java)) {
             val path = method.getAnnotation(RouterDelete::class.java).path
             router.let {
-                if (path.startsWith("^")) it.deleteWithRegex(path.replaceFirst("^",""))
+                if (path.startsWith("^")) it.deleteWithRegex(path.replaceFirst("^", ""))
                 else it.delete(path)
             }.order(0).handler {
                 invoke(method, bean, it)
@@ -143,7 +143,7 @@ class RouterProcessor(val applicationContext: ApplicationContext) {
         if (method.isAnnotationPresent(RouterHead::class.java)) {
             val path = method.getAnnotation(RouterHead::class.java).path
             router.let {
-                if (path.startsWith("^")) it.headWithRegex(path.replaceFirst("^",""))
+                if (path.startsWith("^")) it.headWithRegex(path.replaceFirst("^", ""))
                 else it.head(path)
             }.order(0).handler {
                 invoke(method, bean, it)
@@ -153,7 +153,7 @@ class RouterProcessor(val applicationContext: ApplicationContext) {
         if (method.isAnnotationPresent(RouterOptions::class.java)) {
             val path = method.getAnnotation(RouterOptions::class.java).path
             router.let {
-                if (path.startsWith("^")) it.optionsWithRegex(path.replaceFirst("^",""))
+                if (path.startsWith("^")) it.optionsWithRegex(path.replaceFirst("^", ""))
                 else it.options(path)
             }.order(0).handler {
                 invoke(method, bean, it)
@@ -179,24 +179,34 @@ class RouterProcessor(val applicationContext: ApplicationContext) {
 
         //执行方法
         try {
+            routingContext.request().paramsCharset = "UTF-8"
             val result = method.invoke(bean, *args.toTypedArray())
             kotlin.runCatching {
                 if (isHasAutoClose) {
-                    if (result == null || result is Unit){
-                        routingContext.response().end()
-                        return@runCatching
+                    val response = routingContext.response()
+                    response.putHeader("content-type", "application/json")
+                    if (method.returnType == Unit::class.java) {
+                        response.end()
+                    }
+                    if (result == null) {
+                        response.end()
                     }
                     if (result is String) {
-                        routingContext.response().end(result)
+                        response.end(result)
                     } else {
-                        routingContext.response().end(result.toJsonObject().toString())
+                        kotlin.runCatching {
+                            response.end(result.toJsonObject().toString())
+                        }.onFailure {
+                            response.end()
+                            logger.debug("自动关闭连接失败", it)
+                        }
                     }
                 }
             }
         } catch (e: InvocationTargetException) {
             kotlin.runCatching { routingContext.response().end("Server Error!!!!") }
             logger.error("路由执行失败, $method 方法内部存在错误逻辑导致方法执行失败", e)
-        }catch (e: Exception) {
+        } catch (e: Exception) {
             kotlin.runCatching { routingContext.response().end("Server Error!!!!") }
             logger.error("路由执行失败", e)
         }
