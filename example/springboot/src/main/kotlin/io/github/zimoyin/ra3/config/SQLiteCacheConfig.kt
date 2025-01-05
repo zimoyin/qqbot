@@ -50,9 +50,11 @@ class SQLiteCacheConfig(
         private val expirationTime: Long
     ) : CacheManager {
         private val cacheMap: MutableMap<String, SQLiteCache> = ConcurrentHashMap()
+        private val logger = LoggerFactory.getLogger(SQLiteCacheManager::class.java)
 
         override fun getCache(name: String): Cache {
             return cacheMap.computeIfAbsent(name) { key ->
+                logger.debug("SQLite cache 创建表: $name")
                 initTable(key)
                 SQLiteCache(key, connection, maxSize, expirationTime)
             }

@@ -193,6 +193,8 @@ class RouterProcessor(val applicationContext: ApplicationContext) {
                     }
                     if (result is String) {
                         response.end(result)
+                    } else if (result is Number || result is Comparable<*>) {
+                        response.end(result.toString())
                     } else {
                         kotlin.runCatching {
                             response.end(result.toJsonObject().toString())
