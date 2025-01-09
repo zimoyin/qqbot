@@ -1,5 +1,6 @@
 package io.github.zimoyin.qqbot.net.webhook
 
+import io.github.zimoyin.qqbot.SystemLogger
 import io.vertx.core.http.HttpServerOptions
 import io.vertx.core.net.JksOptions
 import io.vertx.core.net.PemKeyCertOptions
@@ -27,7 +28,7 @@ data class WebHookConfig(
     /**
      * HttpServerOptions 实例
      */
-    val options: HttpServerOptions = createHttpServerOptions(),
+    val options: HttpServerOptions = createHttpServerOptions(sslPath,isSSL),
     /**
      * WebHook Server 端口，如果为 0 则是随机端口
      */
@@ -232,7 +233,7 @@ data class WebHookConfig(
         fun build(): WebHookConfig = WebHookConfig(
             sslPath = _sslPath,
             password = _password,
-            isSSL = _sslPath.isNotEmpty(),
+            isSSL = _isSSL,
             options = createHttpServerOptions(_sslPath, _isSSL, _password),
             port = _port,
             host = _host,

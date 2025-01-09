@@ -138,6 +138,7 @@ class WebHookHttpServer(
         kotlin.runCatching {
             init()
             webHttpServer = vertx.createHttpServer(webHookConfig.options)
+            if (debugLog) logger.info("WebHookHttpServer 创建成功")
             webHttpServer.addWebSocketForwarding()
                 .requestHandler(router)
                 .listen(webHookConfig.port, webHookConfig.host)
