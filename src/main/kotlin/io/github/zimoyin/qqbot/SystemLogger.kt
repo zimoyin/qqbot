@@ -9,20 +9,22 @@ object SystemLogger : LocalLogger("System")
 open class LocalLogger(name: String) {
     constructor(clazz: Class<*>) : this(clazz.name)
 
-    private val SystemLogger1: Logger? by lazy {
-        if (isSlf4jImplClassExists()) LoggerFactory.getLogger(name) else null
+    companion object{
+        /**
+         * 判断项目中是否有slf4j的实现类
+         */
+        fun isSlf4jImplClassExists(): Boolean {
+            return try {
+                Class.forName("org.slf4j.impl.StaticLoggerBinder")
+                true
+            } catch (e: ClassNotFoundException) {
+                false
+            }
+        }
     }
 
-    /**
-     * 判断项目中是否有slf4j的实现类
-     */
-    private fun isSlf4jImplClassExists(): Boolean {
-        return try {
-            Class.forName("org.slf4j.impl.StaticLoggerBinder")
-            true
-        } catch (e: ClassNotFoundException) {
-            false
-        }
+    private val SystemLogger1: Logger? by lazy {
+        if (isSlf4jImplClassExists()) LoggerFactory.getLogger(name) else null
     }
 
     private val SystemLogger2: io.vertx.core.impl.logging.Logger by lazy {
