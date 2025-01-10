@@ -3,6 +3,7 @@ package io.github.zimoyin.qqbot.bot.message.type
 import com.fasterxml.jackson.annotation.JsonIgnore
 import io.github.zimoyin.qqbot.annotation.UntestedApi
 import io.github.zimoyin.qqbot.net.bean.message.MessageAttachment
+import io.github.zimoyin.qqbot.utils.ex.toUrl
 import java.io.File
 import java.io.InputStream
 import java.net.URI
@@ -21,6 +22,11 @@ data class AudioMessage(val name: String?, val attachment: MessageAttachment) : 
 
     @JsonIgnore
     var localFileBytes: ByteArray? = null
+
+    @get:JsonIgnore
+    val bytes:ByteArray? by lazy {
+        localFileBytes?:localFile?.readBytes()?:attachment.getURL()?.toUrl()?.readBytes()
+    }
 
     companion object {
         /**

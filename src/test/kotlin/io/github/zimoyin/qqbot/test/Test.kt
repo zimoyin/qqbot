@@ -55,7 +55,7 @@ data class VirtualMessageEvent(
         nick = "测试机器人",
         avatar = "https://q1.qlogo.cn/g?b=qq&nk=1234567890&s=640",
         unionOpenid = null,
-        token = Token.createByAppSecret("123","321"),
+        token = Token.createByAppSecret("123", "321"),
         unionUserAccount = null,
     ),
     override val messageChain: MessageChain,
@@ -74,9 +74,9 @@ data class VirtualMessageEvent(
         botInfo = botInfo
     ),
     override val windows: Contact
-) :Serializable, MessageEvent {
-    companion object{
-        fun create(messageChain: MessageChain){
+) : MessageEvent {
+    companion object {
+        fun create(messageChain: MessageChain) {
             EventMapping.add(VirtualMessageEvent::class.java)
             val event = VirtualMessageEvent(
                 messageChain = messageChain,
@@ -88,16 +88,16 @@ data class VirtualMessageEvent(
 }
 
 data class VirtualContact(
-    override val id: String="1234567890",
+    override val id: String = "1234567890",
     override val botInfo: BotInfo = BotInfo(
         id = "1234567890",
         nick = "测试机器人",
         avatar = "https://q1.qlogo.cn/g?b=qq&nk=1234567890&s=640",
         unionOpenid = null,
-        token = Token.createByAppSecret("123","321"),
+        token = Token.createByAppSecret("123", "321"),
         unionUserAccount = null,
     )
-) : Contact {
+) : Serializable, Contact {
     val logger: Logger = LoggerFactory.getLogger(javaClass)
     override fun send(message: MessageChain): Future<SendMessageResultBean> {
         var sb = ""
@@ -107,8 +107,8 @@ data class VirtualContact(
         logger.debug("SEND MESSAGE: \n$sb\n")
         return Future.succeededFuture(
             SendMessageResultBean(
-            contact = this
-        )
+                contact = this
+            )
         )
     }
 }
