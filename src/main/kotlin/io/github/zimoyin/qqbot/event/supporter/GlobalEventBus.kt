@@ -100,16 +100,6 @@ open class BotEventBus(val bus: EventBus) {
         val currentClass: Class<*> = message::class.java
         broadcastMessage(currentClass, message)
     }
-    /**
-     * 广播事件，能将当前事件广播到当前事件与父事件的接收者。
-     * 自动推导类型： 将当前的事件以这个事件的Class类型为基础进行广播
-     * 该方法只会传播事件中的继承树中所有来自Event的接口与类
-     */
-    @OptIn(UntestedApi::class)
-    inline fun <reified T : Event> broadcastAuto(message: T) {
-        val currentClass: Class<*> = T::class.java
-        broadcastMessage(currentClass, message, false)
-    }
 
     @UntestedApi
     @JvmName("banOnUseBroadcastMessage")
