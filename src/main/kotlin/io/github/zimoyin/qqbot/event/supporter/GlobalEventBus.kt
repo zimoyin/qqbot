@@ -1,6 +1,5 @@
 package io.github.zimoyin.qqbot.event.supporter
 
-
 import io.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
 import io.github.zimoyin.qqbot.LocalLogger
 import io.github.zimoyin.qqbot.SystemLogger
@@ -143,7 +142,7 @@ open class BotEventBus(val bus: EventBus) {
                 )
                 blackList.add(it)
             } else {
-                return
+                return@forEach
             }
 
             if (deepPropagation) broadcastInterface(it.interfaces, root, message, blackList)

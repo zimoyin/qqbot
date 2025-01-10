@@ -28,6 +28,7 @@ import kotlinx.coroutines.launch
 import openDebug
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.io.Serializable
 import java.util.*
 
 /**
@@ -37,7 +38,7 @@ import java.util.*
  */
 fun main() {
     openDebug()
-    GlobalEventBus.onEvent<Event> {
+    GlobalEventBus.onEvent<MessageEvent> {
         println(15262)
     }
     Thread.sleep(1000)
@@ -73,7 +74,7 @@ data class VirtualMessageEvent(
         botInfo = botInfo
     ),
     override val windows: Contact
-) : MessageEvent {
+) :Serializable, MessageEvent {
     companion object{
         fun create(messageChain: MessageChain){
             EventMapping.add(VirtualMessageEvent::class.java)
@@ -81,7 +82,7 @@ data class VirtualMessageEvent(
                 messageChain = messageChain,
                 windows = VirtualContact()
             )
-            GlobalEventBus.broadcast(event)
+            GlobalEventBus.broadcastAuto(event)
         }
     }
 }
