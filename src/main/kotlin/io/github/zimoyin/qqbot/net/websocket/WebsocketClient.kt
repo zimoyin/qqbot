@@ -144,7 +144,7 @@ class WebsocketClient(
                             is WebSocketReconnectException -> {
                                 logger.debug("WebSocket[${ws.hashCode()}]  准备重连 -> HttpClosedException: ${it.message}")
                                 //广播机器人下线事件
-                                GlobalEventBus.broadcast(
+                                GlobalEventBus.broadcastAuto(
                                     BotOfflineEvent(
                                         bot.botInfo,
                                         bot.context.get<Throwable>(throwableKey)
@@ -167,7 +167,7 @@ class WebsocketClient(
                 handler.close()
                 logger.info("WebSocketClient[${client.hashCode()}] 被关闭")
                 //广播机器人下线事件
-                GlobalEventBus.broadcast(BotOfflineEvent(bot.botInfo, bot.context[throwableKey]))
+                GlobalEventBus.broadcastAuto(BotOfflineEvent(bot.botInfo, bot.context[throwableKey]))
             }
 
             ws.exceptionHandler {

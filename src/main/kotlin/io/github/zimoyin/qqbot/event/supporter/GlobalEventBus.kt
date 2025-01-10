@@ -4,6 +4,7 @@ package io.github.zimoyin.qqbot.event.supporter
 import io.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
 import io.github.zimoyin.qqbot.LocalLogger
 import io.github.zimoyin.qqbot.SystemLogger
+import io.github.zimoyin.qqbot.annotation.UntestedApi
 import io.github.zimoyin.qqbot.bot.Bot
 import io.github.zimoyin.qqbot.event.events.Event
 import io.github.zimoyin.qqbot.exception.EventBusException
@@ -25,7 +26,7 @@ import java.util.function.Consumer
 open class BotEventBus(val bus: EventBus) {
     val logger by lazy { LocalLogger(BotEventBus::class.java) }
     val consumers = HashSet<MessageConsumer<*>>()
-    val openLogger = false
+    var debugLogger: Boolean = true
 
 
     /**
@@ -71,73 +72,67 @@ open class BotEventBus(val bus: EventBus) {
     /**
      * 广播事件，能将当前事件（当前事件的Class为基础）广播到当前事件与父事件的接收者。
      * 将当前的事件以泛型描述的类型进行广播。
-     * 后补的注释：当前事件向上转型到父事件，然后父事件的订阅者就能接收了。这样就能让监听高抽象事件的订阅者能收到子事件的了。
-     * 同时多个事件因为是向上转型，这就意味着高订阅者实际接收到的是当前的事件。不会丢失子事件细节
+     * 该方法只会截至到当前事件的继承树中的一级接口与全部类
      */
+    @OptIn(UntestedApi::class)
     inline fun <reified T : Event> broadcast(message: T) {
-        var currentClass: Class<*>? = T::class.java
-        val root = Event::class.java
-        if (EventMapping.get(message.metadataType)?.eventCls?.name == null) {
-            logger.debug("正在广播一个未在EventMapping中注册的事件 [${currentClass?.name}]")
-        } else if (EventMapping.get(message.metadataType)?.eventCls?.name != currentClass?.name) {
-            logger.warn("服务器要求下发事件为[${EventMapping.get(message.metadataType)?.eventCls?.name}], 但是实际下发事件为[${currentClass?.name}];")
-            logger.warn("请实现该事件的处理器，不要使用父级处理器。否则不会广播该事件，而是广播当前事件并将当前事件从该处理器返回的事件层级中开始广播")
-        }
-        while (currentClass != null && (root.isAssignableFrom(currentClass) || root == currentClass)) {
-            if (openLogger) logger.debug(
-                "发布事件[${message.metadataType}:${message.botInfo.token.appID}]: ${currentClass.name}",
-            )
-            bus.publish(currentClass.name, message)
-            currentClass.interfaces.forEach {
-                if (it != null && (root.isAssignableFrom(it) || root == it)) {
-                    bus.publish(it.name, message)
-                    if (openLogger) logger.debug(
-                        "发布事件[${message.metadataType}::${message.botInfo.token.appID}]: ${it.name}"
-                    )
-                }
-            }
-            currentClass = currentClass.superclass
-        }
-    }
-
-    /**
-     * 广播事件，能将当前事件广播到当前事件与父事件的接收者。
-     * 自动推导类型： 将当前的事件以这个事件的Class类型为基础进行广播
-     */
-    fun broadcastAuto(message: Event) {
-        var currentClass: Class<*>? = message::class.java
-        val root = Event::class.java
-        if (currentClass!! != EventMapping.get(message.metadataType)?.eventCls) {
-            if (EventMapping.get(message.metadataType)?.eventCls?.name == null) {
-                logger.debug("正在广播一个未在EventMapping中注册的事件 [${currentClass.name}]")
-            } else if (EventMapping.get(message.metadataType)?.eventCls?.name != currentClass.name) {
-                logger.warn("服务器要求下发事件为[${EventMapping.get(message.metadataType)?.eventCls?.name}], 但是实际下发事件为[${currentClass.name}];")
-                logger.warn("请实现该事件的处理器，不要使用父级处理器。否则不会广播该事件，而是广播当前事件并将当前事件从该处理器返回的事件层级中开始广播")
-            }
-        }
-        while (currentClass != null && (root.isAssignableFrom(currentClass) || root == currentClass)) {
-            if (openLogger) logger.debug(
-                "发布事件[${message.metadataType}:${message.botInfo.token.appID}]: ${currentClass.name}"
-            )
-            bus.publish(currentClass.name, message)
-            broadcastInterface(currentClass.interfaces, root, message)
-            currentClass = currentClass.superclass
-        }
+        val currentClass: Class<*> = T::class.java
+        broadcastMessage(currentClass, message, false)
     }
 
     /**
      * 广播事件，能将当前事件广播（当前事件的Class为基础）到当前事件与父事件的接收者。
      * 将当前的事件以Class描述的类型进行广播
+     * 该方法只会截至到当前事件的继承树中的一级接口与全部类
      */
+    @OptIn(UntestedApi::class)
     fun broadcast(cls: Class<out Event>, message: Event) {
-        var currentClass: Class<*>? = cls
+        broadcastMessage(cls, message, false)
+    }
+
+    /**
+     * 广播事件，能将当前事件广播到当前事件与父事件的接收者。
+     * 自动推导类型： 将当前的事件以这个事件的Class类型为基础进行广播
+     * 该方法只会传播事件中的继承树中所有来自Event的接口与类
+     */
+    @OptIn(UntestedApi::class)
+    fun broadcastAuto(message: Event) {
+        val currentClass: Class<*> = message::class.java
+        broadcastMessage(currentClass, message)
+    }
+    /**
+     * 广播事件，能将当前事件广播到当前事件与父事件的接收者。
+     * 自动推导类型： 将当前的事件以这个事件的Class类型为基础进行广播
+     * 该方法只会传播事件中的继承树中所有来自Event的接口与类
+     */
+    @OptIn(UntestedApi::class)
+    inline fun <reified T : Event> broadcastAuto(message: T) {
+        val currentClass: Class<*> = T::class.java
+        broadcastMessage(currentClass, message, false)
+    }
+
+    @UntestedApi
+    @JvmName("banOnUseBroadcastMessage")
+    fun broadcastMessage(
+        clz: Class<*>,
+        message: Event,
+        deepPropagation: Boolean = true
+    ) {
+        if (EventMapping.get(message.metadataType)?.eventCls?.name == null) {
+            logger.warn("正在广播一个未在EventMapping中注册的事件 [${clz.name}]")
+        } else if (EventMapping.get(message.metadataType)?.eventCls?.name != clz.name) {
+            logger.warn("服务器要求下发事件为[${EventMapping.get(message.metadataType)?.eventCls?.name}], 但是实际下发事件为[${clz.name}];")
+            logger.warn("请实现该事件的处理器，不要使用父级处理器。否则不会广播该事件，而是广播当前事件并将当前事件从该处理器返回的事件层级中开始广播")
+        }
+
         val root = Event::class.java
-        while (currentClass != null && (root.isAssignableFrom(currentClass) || root == currentClass)) {
-            if (openLogger) logger.debug(
+        var currentClass = clz
+        while (root.isAssignableFrom(currentClass) || root == currentClass) {
+            if (debugLogger) logger.debug(
                 "发布事件[${message.metadataType}:${message.botInfo.token.appID}]: ${currentClass.name}"
             )
             bus.publish(currentClass.name, message)
-            broadcastInterface(currentClass.interfaces, root, message)
+            broadcastInterface(currentClass.interfaces, root, message, arrayListOf(), deepPropagation)
             currentClass = currentClass.superclass
         }
     }
@@ -147,12 +142,13 @@ open class BotEventBus(val bus: EventBus) {
         root: Class<*>,
         message: Event,
         blackList: ArrayList<Class<*>> = arrayListOf(),
+        deepPropagation: Boolean = true
     ) {
         its.forEach {
             if (blackList.contains(it)) return
             if (root.isAssignableFrom(it) || root == it) {
                 bus.publish(it.name, message)
-                if (openLogger) logger.debug(
+                if (debugLogger) logger.debug(
                     "发布事件[${message.metadataType}:${message.botInfo.token.appID}]: ${it.name}",
                 )
                 blackList.add(it)
@@ -160,7 +156,7 @@ open class BotEventBus(val bus: EventBus) {
                 return
             }
 
-            broadcastInterface(it.interfaces, root, message, blackList)
+            if (deepPropagation) broadcastInterface(it.interfaces, root, message, blackList)
         }
     }
 
@@ -359,7 +355,6 @@ open class BotEventBus(val bus: EventBus) {
         }
         consumers.add(consumer)
     }
-
 
 
     fun clear() {
