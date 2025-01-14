@@ -1,5 +1,6 @@
 package io.github.zimoyin.qqbot
 
+import io.github.zimoyin.qqbot.LocalLogger.Companion.vertxFormatter
 import io.github.zimoyin.qqbot.bot.Bot
 import io.github.zimoyin.qqbot.event.events.Event
 import io.github.zimoyin.qqbot.event.supporter.GlobalEventBus
@@ -17,6 +18,7 @@ import kotlin.system.exitProcess
  * @author : zimo
  * @date : 2024/12/21
  */
+private val levelMap: HashMap<String, Level> = hashMapOf()
 fun main() {
     println("开始启动")
     if (!LocalLogger.isSlf4jImplClassExists()) {
@@ -51,9 +53,22 @@ fun main() {
     val isSandBox = config.getProperty("isSandBox")?.toBoolean() ?: true
     val debugLog = config.getProperty("debugLog")?.toBoolean() ?: false
     val mataDataDebugLog = config.getProperty("mataDataDebugLog")?.toBoolean() ?: false
-    val loggerLevel = config.getProperty("loggerLevel") ?: "INFO"
+    val enableVertxLogFormat = config.getProperty("jul.enableVertxLogFormat")?.toBoolean() ?: false
+    var loggerLevel = (config.getProperty("jul.loggerLevel") ?: "INFO") // FINE
+    val levels = (config.getProperty("jul.levels") ?: "") // FINE
+    parserLevels(levels)
+    if (loggerLevel.equals("DEBUG", true)) {
+        loggerLevel = "FINE"
+        levelMap["defaultLogLevel"] = Level.INFO
+        levelMap["sun"] = Level.INFO
+        levelMap["javax"] = Level.INFO
+        levelMap["jdk"] = Level.INFO
+        levelMap["io.netty"] = Level.INFO
+        levelMap["io.vertx.core.logging.LoggerFactory"] = Level.INFO
+    }
 
-    LocalLogger.changeJULogging(Level.parse(loggerLevel))
+    if (!enableVertxLogFormat) LocalLogger.changeJULogging(Level.parse(loggerLevel), levelMap = levelMap)
+    else LocalLogger.changeJULogging(Level.parse(loggerLevel), levelMap = levelMap, formatter = vertxFormatter)
 
     TencentOpenApiHttpClient.isSandBox = isSandBox
     val webConfig = WebHookConfig(
@@ -87,6 +102,16 @@ fun main() {
     }
 }
 
+private fun parserLevels(str: String) {
+    val list = str.split(",").filter { it.isNotEmpty() }
+    for (item in list) {
+        runCatching {
+            val (key, value) = item.split(":").filter { it.isNotEmpty() }.map { it.trim() }
+            levelMap[key] = Level.parse(value)
+        }
+    }
+}
+
 private fun loadConfig(): Properties {
     val file = File("./application.properties")
     if (file.exists().not()) {
@@ -96,7 +121,7 @@ private fun loadConfig(): Properties {
         token=
         secret=
         sslPath=./
-        isSsl=true
+        isSsl=false
         enableWebSocketForwarding=true
         port=443
         password=
@@ -106,7 +131,9 @@ private fun loadConfig(): Properties {
         isSandBox=true
         debugLog=false
         mataDataDebugLog=false
-        loggerLevel=INFO # ALL，SEVERE，WARNING，INFO，CONFIG，FINE，FINER，FINEST，OFF
+        jul.enableVertxLogFormat=false
+        jul.loggerLevel=INFO # ALL，SEVERE，WARNING，INFO，CONFIG，FINE/DEBUG，FINER，FINEST，OFF
+        jul.levels=defaultLogLevel:INFO,sun:INFO,javax:INFO,jdk:INFO,io.netty:INFO,java:INFO,io.vertx:INFO
     """.trimIndent()
         )
         SystemLogger.error("配置文件application.properties不存在,已创建默认配置文件,请修改后再次运行程序")

@@ -32,13 +32,19 @@ open class LocalLogger(name: String) {
         }
 
         @JvmStatic
+        val vertxFormatter = fun(record: LogRecord): String {
+            return VertxLoggerFormatter().format(record)
+        }
+
+        @JvmStatic
         @JvmOverloads
         fun changeJULogging(
             // 日志级别
             level: Level = Level.INFO,
             // 获取根记录器
             rootLogger: java.util.logging.Logger = java.util.logging.Logger.getLogger(""),
-            simpleFormatter: (LogRecord) -> String = { record ->
+            levelMap: HashMap<String, Level> = hashMapOf(),
+            formatter: (LogRecord) -> String = { record ->
                 String.format(
                     "%1\$tF %1\$tT [%4\$s] %5\$s %n",
                     Date(record.millis),
@@ -65,11 +71,23 @@ open class LocalLogger(name: String) {
                 // 设置控制台处理器的日志级别
                 consoleHandler.level = level
 
+                consoleHandler.filter = Filter { record ->
+                    for ((key, value) in levelMap) {
+                        val d = value.intValue() <= record.level.intValue()
+                        if (record.sourceClassName?.startsWith(key, true) == true){
+                            return@Filter d
+                        }
+                        if (record.loggerName.startsWith(key, true)) {
+                            return@Filter d
+                        }
+                    }
+                    true
+                }
                 // 设置自定义的格式化器
                 consoleHandler.formatter = object : SimpleFormatter() {
                     @Synchronized
-                    override fun format(record: LogRecord): String {
-                        return simpleFormatter(record)
+                    override fun format(record: LogRecord): String? {
+                        return formatter(record)
                     }
                 }
             }
@@ -86,9 +104,9 @@ open class LocalLogger(name: String) {
 
     fun error(throwable: Throwable) {
         if (SystemLogger1 != null) {
-            SystemLogger1!!.error("",throwable)
+            SystemLogger1!!.error("", throwable)
         } else {
-            SystemLogger2.error("",throwable)
+            SystemLogger2.error("", throwable)
         }
     }
 
@@ -123,11 +141,12 @@ open class LocalLogger(name: String) {
             SystemLogger2.warn(formatMessage(message, *strs))
         }
     }
+
     fun warn(throwable: Throwable) {
         if (SystemLogger1 != null) {
             SystemLogger1!!.info("", throwable)
         } else {
-            SystemLogger2.info("",throwable)
+            SystemLogger2.info("", throwable)
         }
     }
 
@@ -146,11 +165,12 @@ open class LocalLogger(name: String) {
             SystemLogger2.info(formatMessage(message, *strs))
         }
     }
+
     fun info(throwable: Throwable) {
         if (SystemLogger1 != null) {
             SystemLogger1!!.info("", throwable)
         } else {
-            SystemLogger2.info("",throwable)
+            SystemLogger2.info("", throwable)
         }
     }
 
@@ -174,7 +194,7 @@ open class LocalLogger(name: String) {
         if (SystemLogger1 != null) {
             SystemLogger1!!.debug("", throwable)
         } else {
-            SystemLogger2.debug("",throwable)
+            SystemLogger2.debug("", throwable)
         }
     }
 
