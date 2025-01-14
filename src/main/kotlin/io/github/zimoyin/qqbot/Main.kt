@@ -53,7 +53,7 @@ fun main() {
     val mataDataDebugLog = config.getProperty("mataDataDebugLog")?.toBoolean() ?: false
     val loggerLevel = config.getProperty("loggerLevel") ?: "INFO"
 
-    configureLogging(Level.parse(loggerLevel))
+    LocalLogger.changeJULogging(Level.parse(loggerLevel))
 
     TencentOpenApiHttpClient.isSandBox = isSandBox
     val webConfig = WebHookConfig(
@@ -116,44 +116,4 @@ private fun loadConfig(): Properties {
     val inputStream: InputStream = file.inputStream()
     properties.load(inputStream)
     return properties
-}
-
-
-private fun configureLogging(
-    // 日志级别
-    level: Level = Level.INFO,
-    // 获取根记录器
-    rootLogger: Logger = Logger.getLogger("")
-) {
-    // 设置全局日志级别
-    rootLogger.setLevel(level)
-
-    // 获取控制台处理器
-    var consoleHandler: Handler? = null
-    for (handler in rootLogger.handlers) {
-        if (handler is ConsoleHandler) {
-            consoleHandler = handler
-            break
-        }
-    }
-
-    if (consoleHandler != null) {
-        // 设置控制台处理器的日志级别
-        consoleHandler.level = level
-
-        // 设置自定义的格式化器
-        consoleHandler.formatter = object : SimpleFormatter() {
-            @Synchronized
-            override fun format(record: LogRecord): String {
-                return String.format(
-                    "%1\$tF %1\$tT [%4\$s] %5\$s %n",
-                    Date(record.millis),
-                    record.sourceClassName,
-                    record.sourceMethodName,
-                    record.level.name,
-                    record.message
-                )
-            }
-        }
-    }
 }
