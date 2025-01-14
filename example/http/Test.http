@@ -1,0 +1,32 @@
+### GET request to example server
+POST https://sandbox.api.sgroup.qq.com/channels/634322609/messages
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization:
+
+--WebAppBoundary
+Content-Disposition: form-data; name="msg_id"
+Content-Type: text/plain
+
+08b0c3be83acc3f391db0110b1fdbbae0238c80a48cd8f99bc06
+--WebAppBoundary
+Content-Disposition: form-data; name="file_image"; filename="file_image"
+
+< D:\code\java_kotlin\ra3_qqbot\data\images\camp_1.png
+--WebAppBoundary--
+###
+### GET request to example server
+POST https://sandbox.api.sgroup.qq.com/channels/634322609/messages
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+Authorization:
+
+--WebAppBoundary
+Content-Disposition: form-data; name="msg_id"
+Content-Type: text/plain
+
+08b0c3be83acc3f391db0110b1fdbbae0238cc0a48b19299bc06
+--WebAppBoundary
+Content-Disposition: form-data; name="image";
+
+https://ts1.cn.mm.bing.net/th/id/R-C.b3a7697d2793ba094a861d546c31190d?rik=NevOIW4XmkUuMA&riu=http%3a%2f%2fseopic.699pic.com%2fphoto%2f50069%2f5445.jpg_wh1200.jpg&ehk=wuLPicg%2b9wXz8QAwp%2fAVFBtJQ6loBUiVfQZu2bbZODA%3d&risl=&pid=ImgRaw&r=0
+--WebAppBoundary--
+###

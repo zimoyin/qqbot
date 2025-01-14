@@ -78,6 +78,7 @@ public class TMain {
                     System.out.println("发送图片耗时: " + (System.currentTimeMillis() - start1));
                 }
             });
+            System.out.println(event.getMsgID());
         });
 
         MediaManager.setEnable(true);
