@@ -129,7 +129,7 @@ private fun HttpAPIClient.sendChannelMessageAsync0(
 //    logDebug("sendChannelMessageAsync", "发送消息: ${finalMessage.toStrings().replace("\n", "\\n")}")
     //发送信息
     val client0 = client.addRestfulParam(id).putHeaders(token.getHeaders())
-    if (finalMessage.file == null && finalMessage.fileBytes == null && false) {
+    if (finalMessage.file == null && finalMessage.fileBytes == null) {
         logDebug("sendChannelMessageAsync", "以JSON形式发送信息")
         logDebug("sendChannelMessageAsync", "发送消息: $finalMessageJson")
         // JSON 发生方式，markdown 参数在 from 方式下无法被服务器正确的解析
