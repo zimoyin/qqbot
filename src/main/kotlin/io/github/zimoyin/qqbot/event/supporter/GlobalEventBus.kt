@@ -28,7 +28,7 @@ open class BotEventBus(val vertx: Vertx) {
     val bus = vertx.eventBus()
     val logger by lazy { LocalLogger(BotEventBus::class.java) }
     val consumers = HashSet<MessageConsumer<*>>()
-    var debugLogger: Boolean = true
+    var debugLogger: Boolean = false
 
 
     /**
