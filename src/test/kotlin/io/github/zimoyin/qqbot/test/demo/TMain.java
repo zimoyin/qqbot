@@ -37,7 +37,7 @@ public class TMain {
         LocalLogger logger = new LocalLogger("Main");
 
         //全局事件监听
-        GlobalEventBus.INSTANCE.onEvent(Event.class, true, event -> {
+        GlobalEventBus.INSTANCE.onEvent(Event.class, false, event -> {
             logger.info("收到事件：" + event.toString());
         });
 
@@ -66,11 +66,11 @@ public class TMain {
         bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG", false);
         bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT", false);
 
-        bot.onEvent(OpenGroupBotEvent.class, true, event -> {
+        bot.onEvent(OpenGroupBotEvent.class, false, event -> {
             event.reply("你好");
         });
 
-        bot.onEvent(PrivateChannelMessageEvent.class, true, event -> {
+        bot.onEvent(PrivateChannelMessageEvent.class, false, event -> {
             event.reply(ImageMessage.create(new File("D:\\code\\java_kotlin\\ra3_qqbot\\data\\images\\camp_1.png")));
         });
 

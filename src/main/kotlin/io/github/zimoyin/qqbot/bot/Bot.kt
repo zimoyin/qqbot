@@ -231,6 +231,20 @@ interface Bot : Serializable, Contact {
     fun <T : Event> onEvent(cls: Class<out T>, callback: Consumer<T>) {
         onEvent(cls, false, callback)
     }
+
+    /**
+     * 取消事件监听
+     */
+    fun unregister(id: Int) {
+        this.config.globalEventBus.unregister(id)
+    }
+
+    /**
+     * 获取事件监听
+     */
+    fun getConsumer(id: Int): MessageConsumer<*>? {
+        return this.config.globalEventBus.getConsumer(id)
+    }
 }
 
 data class BotConfig(
