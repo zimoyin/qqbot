@@ -5,21 +5,15 @@ import io.github.zimoyin.qqbot.bot.message.type.ImageMessage
 import io.github.zimoyin.qqbot.bot.message.type.PlainTextMessage
 import io.github.zimoyin.ra3.annotations.Commander
 import io.github.zimoyin.qqbot.event.events.message.MessageEvent
+import io.github.zimoyin.ra3.aspect.RegisterAOP
 import io.github.zimoyin.ra3.config.ResourcesReleaseConfig
-import io.github.zimoyin.ra3.expand.bytes
-import io.github.zimoyin.ra3.expand.toBufferedImage
-import io.github.zimoyin.ra3.expand.toImageMessage
 import io.github.zimoyin.ra3.expand.toMessageImage
 import io.github.zimoyin.ra3.service.CommandParser
 import io.github.zimoyin.ra3.service.IRegisterService
 import io.github.zimoyin.ra3.utils.ImageUtilEx.Companion.combineImagesVertically
-import io.github.zimoyin.ra3.utils.resize
-import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import java.awt.Graphics2D
-import java.awt.image.BufferedImage
 import java.io.File
-import javax.imageio.ImageIO
 
 /**
  *
@@ -27,8 +21,8 @@ import javax.imageio.ImageIO
  * @date : 2025/01/03
  */
 @Component
-class RegisterCommand(
-    val service: IRegisterService
+open class RegisterCommand(
+    val service: IRegisterService,
 ) : AbsCommander<MessageEvent>() {
     val image1 by lazy { File(config.targetPath, ResourcesReleaseConfig.CAMP_1_IMAGE) }
     val image2 by lazy { File(config.targetPath, ResourcesReleaseConfig.CAMP_2_IMAGE) }
@@ -42,6 +36,22 @@ class RegisterCommand(
         register(event)
     }
 
+
+    @Commander(name = "/注销")
+    fun unregister(event: MessageEvent) {
+        val uid = event.sender.id
+        // TODO 使用定时任务清理资产
+        if (service.unregister(uid) > 0) {
+            event.reply(
+                PlainTextMessage("您已成功注销，请重新注册")
+            )
+        } else {
+            event.reply(
+                PlainTextMessage("注销失败,您可能还未注册")
+            )
+        }
+    }
+
     /**
      * 注册命令
      */
@@ -52,6 +62,12 @@ class RegisterCommand(
         val parse = CommandParser.parse(event)
         val param = parse.params.lastOrNull()
         logger.debug("注册命令：{}", parse)
+        if (service.isRegistered(uid)) {
+            event.reply(
+                PlainTextMessage("欢迎回来指挥官！您已经在籍了\n请输入 /流浪矿车 来开始你的征战吧")
+            )
+            return
+        }
         if (param == null) {
             event.reply(
                 combineImagesVertically(image1, image2, image3).toMessageImage(),
@@ -82,4 +98,5 @@ class RegisterCommand(
             }
         }
     }
+
 }

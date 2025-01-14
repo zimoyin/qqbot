@@ -18,6 +18,7 @@ import org.springframework.boot.context.event.ApplicationFailedEvent
 import org.springframework.boot.runApplication
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.ApplicationContext
+import org.springframework.context.annotation.EnableAspectJAutoProxy
 import org.springframework.context.event.ContextClosedEvent
 import org.springframework.context.event.EventListener
 
@@ -45,9 +46,10 @@ class ApplicationStart(
 
     val bot: Bot by lazy {
         kotlin.runCatching {
-            TencentOpenApiHttpClient.isSandBox = config.isSandBox
+            TencentOpenApiHttpClient.isSandBox = config.sandBox
+            logger.info("设置了是否使用沙盒环境: ${config.sandBox}")
         }.onFailure {
-            logger.warn("已经设置了是否使用沙盒环境，请不要再此设置", it)
+            logger.warn("已经设置了是否使用沙盒环境，框架无法再次选择")
         }
         Bot.createBot(config.token.toToken(), config.websocket.intents).apply {
             logger.info("机器人创建成功: $this")
@@ -128,14 +130,13 @@ class ApplicationStart(
 
     private fun unregisters(consumers0: HashSet<MessageConsumer<*>>) {
         val consumers = consumers0.toMutableList()
+        val toRemove = mutableListOf<MessageConsumer<*>>()
         for (consumer in consumers) {
             consumer.unregister().onSuccess {
-                consumers.remove(consumer)
+                toRemove.add(consumer)
             }
         }
-        for (consumer in consumers) {
-            consumers0.remove(consumer)
-        }
+        consumers0.removeAll(toRemove.toSet())
     }
 
     @EventListener(ApplicationFailedEvent::class)

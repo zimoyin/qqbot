@@ -31,6 +31,7 @@ interface IRegisterService {
     fun register(user: User): Boolean
 
     fun isRegistered(uid: String): Boolean
+    fun unregister(uid: String): Int
 }
 
 /**
@@ -51,5 +52,9 @@ class RegisterService(
 
     override fun isRegistered(uid: String): Boolean {
         return mapper.selectCount(KtWrappers.lambdaQuery<User>().eq(User::uid, uid)) > 0
+    }
+
+    override fun unregister(uid: String): Int {
+        return mapper.delete(KtWrappers.lambdaQuery<User>().eq(User::uid, uid))
     }
 }

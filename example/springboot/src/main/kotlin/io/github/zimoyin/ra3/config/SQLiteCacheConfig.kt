@@ -53,6 +53,7 @@ class SQLiteCacheConfig(
         private val logger = LoggerFactory.getLogger(SQLiteCacheManager::class.java)
 
         override fun getCache(name: String): Cache {
+            logger.debug("SQLite cache 获取表: $name")
             return cacheMap.computeIfAbsent(name) { key ->
                 logger.debug("SQLite cache 创建表: $name")
                 initTable(key)
@@ -64,7 +65,7 @@ class SQLiteCacheConfig(
             return Collections.unmodifiableSet(cacheMap.keys)
         }
 
-        private fun initTable(name: String){
+        private fun initTable(name: String) {
             connection.createStatement()
                 .execute(""" CREATE TABLE IF NOT EXISTS $name (key TEXT PRIMARY KEY, value BLOB, expires_at INTEGER, created_at INTEGER)""")
         }
@@ -76,6 +77,8 @@ class SQLiteCacheConfig(
         private val maxSize: Int,
         private val expirationTime: Long
     ) : Cache {
+
+        private val logger = LoggerFactory.getLogger(SQLiteCache::class.java)
 
         private val lock = Any()
 
@@ -102,7 +105,9 @@ class SQLiteCacheConfig(
             return newValue
         }
 
+
         override fun put(key: Any, value: Any?) {
+            logger.debug("SQLite cache put: {}", key)
             synchronized(lock) {
                 evictExpiredItems() // 清理过期的缓存
                 // 如果缓存数量已超过最大限制

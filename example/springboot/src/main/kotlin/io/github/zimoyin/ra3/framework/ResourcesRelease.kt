@@ -3,6 +3,8 @@ package io.github.zimoyin.ra3.framework
 import io.github.zimoyin.ra3.config.ResourcesReleaseConfig
 import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.event.EventListener
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.springframework.stereotype.Component
 import java.io.File
@@ -22,7 +24,7 @@ class ResourcesRelease(val config:ResourcesReleaseConfig) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent::class)
     private fun extractImages() {
         // 创建目标目录
         val destDir = File(config.targetPath)

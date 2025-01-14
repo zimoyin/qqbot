@@ -20,7 +20,7 @@ data class BotConfig(
     var token: TokenConfig = TokenConfig(),
     var webhook: WebhookConfig = WebhookConfig(),
     var websocket: WebSocket = WebSocket(),
-    var isSandBox: Boolean = true
+    var sandBox: Boolean = true
 ) {
     data class TokenConfig(
         var appid: String = "", var token: String = "", var secret: String = ""

@@ -12,6 +12,7 @@ interface ICommand<T : MessageEvent> {
         return this::class.simpleName!!
     }
 
+
     fun enabled(): Boolean {
         return true
     }

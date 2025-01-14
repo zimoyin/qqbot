@@ -8,7 +8,9 @@ import io.github.zimoyin.qqbot.event.events.message.MessageEvent
 import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationContext
+import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import java.lang.reflect.Method
 import java.sql.Connection
@@ -28,7 +30,7 @@ class EventProcessor(val applicationContext: ApplicationContext) {
     @Autowired
     private lateinit var start: ApplicationStart
 
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent::class)
     fun init() {
         kotlin.runCatching {
             for (bean in initializedBeanInstances) {
@@ -82,9 +84,9 @@ class EventProcessor(val applicationContext: ApplicationContext) {
             kotlin.runCatching {
                 val first = method.parameterTypes.firstOrNull()
                     ?: throw NullPointerException("${bean.javaClass}: The ${annotation.executeMethod} method parameter is not one")
-                // first 必须是 MessageEvent 类型或者他的子类
-                if (!MessageEvent::class.java.isAssignableFrom(first))
-                    throw IllegalArgumentException("${bean.javaClass}: The parameter type of ${annotation.executeMethod} method must be either the type of Message Event or its subclass") //
+                // first 必须是 Event 类型或者他的子类
+                if (!Event::class.java.isAssignableFrom(first))
+                    throw IllegalArgumentException("${bean.javaClass}: The parameter type of ${annotation.executeMethod} method must be either the type of Event or its subclass") //
                 eventMethods[beanClass.packageName + "." + method.name] = EventMethod(
                     event = annotation.event.java,
                     executeMethod = method,
@@ -107,7 +109,7 @@ class EventProcessor(val applicationContext: ApplicationContext) {
 
                 val first = method.parameterTypes.first()
                 // first 必须是 MessageEvent 类型或者他的子类
-                if (!MessageEvent::class.java.isAssignableFrom(first)) throw IllegalArgumentException("${bean.javaClass}: The parameter type of ${annotation.executeMethod} method must be either the type of Message Event or its subclass") //
+                if (!Event::class.java.isAssignableFrom(first)) throw IllegalArgumentException("${bean.javaClass}: The parameter type of ${annotation.executeMethod} method must be either the type of Event or its subclass") //
                 eventMethods[beanClass.packageName + "." + method.name] = EventMethod(
                     event = annotation.event.java,
                     executeMethod = method,

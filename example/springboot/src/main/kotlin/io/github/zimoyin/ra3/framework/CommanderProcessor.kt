@@ -1,5 +1,6 @@
 package io.github.zimoyin.ra3.framework
 
+import ch.qos.logback.core.util.ContextUtil
 import io.github.zimoyin.ra3.ApplicationStart
 import io.github.zimoyin.ra3.annotations.Commander
 import io.github.zimoyin.ra3.annotations.ICommand
@@ -9,10 +10,16 @@ import io.github.zimoyin.qqbot.command.SimpleCommandRegistrationCenter
 import io.github.zimoyin.qqbot.event.events.Event
 import io.github.zimoyin.qqbot.event.events.message.MessageEvent
 import io.github.zimoyin.qqbot.exception.CommandNotFoundException
+import io.github.zimoyin.ra3.expand.getTargetBean
 import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
+import org.springframework.aop.framework.AopProxyUtils
+import org.springframework.aop.support.AopUtils
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationContext
+import org.springframework.context.event.ContextClosedEvent
+import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import java.lang.reflect.Method
 import java.sql.Connection
@@ -24,16 +31,13 @@ import java.sql.Connection
  * @date : 2025/01/03
  */
 @Component("CommanderProcessor")
-class CommanderProcessor(val applicationContext: ApplicationContext) {
+class CommanderProcessor(val applicationContext: ApplicationContext,val start: ApplicationStart) {
 
     private val commandMethods = HashMap<String, CommandMethod>()
     private val exceptionMethods = ArrayList<CommandMethod>()
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    @Autowired
-    private lateinit var start: ApplicationStart
-
-    @PostConstruct
+    @EventListener(ApplicationReadyEvent::class)
     fun init() {
         kotlin.runCatching {
             for (bean in initializedBeanInstances) {
@@ -104,6 +108,7 @@ class CommanderProcessor(val applicationContext: ApplicationContext) {
         val annotationClass = Commander::class.java
         val annotationClass2 = NotFundCommand::class.java
 
+
         // 注册方法级别的命令
         for (method in beanClass.methods) {
             val annotation = method.getAnnotation(annotationClass)
@@ -113,6 +118,10 @@ class CommanderProcessor(val applicationContext: ApplicationContext) {
                 // first 必须是 MessageEvent 类型或者他的子类
                 if (!MessageEvent::class.java.isAssignableFrom(first))
                     throw IllegalArgumentException("${bean.javaClass}: The parameter type of ${annotation.executeMethod} method must be either the type of Message Event or its subclass") //
+                if (commandMethods.containsKey(annotation.name)) {
+                    logger.warn("命令名冲突: ${annotation.name}, bean: ${bean.javaClass}")
+                    return
+                }
                 commandMethods[annotation.name] = CommandMethod(
                     name = annotation.name,
                     event = annotation.event.java,
@@ -139,6 +148,10 @@ class CommanderProcessor(val applicationContext: ApplicationContext) {
         // 注册类级别的命令
         kotlin.runCatching {
             beanClass.getAnnotation(annotationClass)?.let { annotation ->
+                if (commandMethods.containsKey(annotation.name)) {
+                    logger.warn("命令名冲突: ${annotation.name}, bean: ${bean.javaClass}")
+                    return
+                }
                 val method = beanClass.methods.firstOrNull() {
                     it.name == annotation.executeMethod && it.parameterCount == 1
                 }
@@ -158,6 +171,7 @@ class CommanderProcessor(val applicationContext: ApplicationContext) {
         }.onFailure {
             logger.error("bean: ${bean.javaClass} 注册注解类命令时失败", it)
         }
+        // 注册继承了 ICommand 接口的类
         kotlin.runCatching {
             val isCommand = ICommand::class.java.isAssignableFrom(beanClass)
             if (!isCommand) return

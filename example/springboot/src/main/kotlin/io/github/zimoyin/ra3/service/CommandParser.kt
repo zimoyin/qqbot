@@ -13,7 +13,9 @@ class CommandParser {
 
     companion object {
         fun parse(event: MessageEvent): CommandParserBean {
-            return parse(event.messageChain.content())
+            return parse(event.messageChain.content()).apply {
+                senderID = event.sender.id
+            }
         }
 
         fun parse(command: String): CommandParserBean {
@@ -34,6 +36,7 @@ class CommandParser {
         val params: List<String>,
         val paramContent: String,
     ) {
+        var senderID = ""
         val first: String by lazy {
             params.firstOrNull() ?: ""
         }

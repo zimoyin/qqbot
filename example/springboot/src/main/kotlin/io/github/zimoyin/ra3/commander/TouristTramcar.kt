@@ -1,21 +1,20 @@
 package io.github.zimoyin.ra3.commander
 
-import io.github.zimoyin.qqbot.bot.message.type.ImageMessage
 import io.github.zimoyin.qqbot.bot.message.type.MessageItem
-import io.github.zimoyin.qqbot.bot.message.type.PlainTextMessage
 import io.github.zimoyin.qqbot.event.events.message.MessageEvent
-import io.github.zimoyin.ra3.annotations.Commander
+import io.github.zimoyin.ra3.aspect.RegisterAOP
 import io.github.zimoyin.ra3.config.ResourcesReleaseConfig
 import io.github.zimoyin.ra3.expand.*
-import io.github.zimoyin.ra3.service.CommandParser
-import io.github.zimoyin.ra3.utils.ImageUtil
+import io.github.zimoyin.ra3.service.PlayerCarService
 import io.github.zimoyin.ra3.utils.ImageUtil.loadImage
 import io.github.zimoyin.ra3.utils.ImageUtilEx.Companion.addTextToAutoSizeImage
 import io.github.zimoyin.ra3.utils.ImageUtilEx.Companion.combineImagesVertically
-import org.slf4j.LoggerFactory
+import io.github.zimoyin.ra3.utils.RandomUtil
 import org.springframework.stereotype.Component
 import java.awt.image.BufferedImage
 import java.io.File
+import java.time.Instant
+import java.time.ZoneId
 
 /**
  *
@@ -23,7 +22,12 @@ import java.io.File
  * @date : 2025/01/05
  */
 @Component
-class TouristTramcar : AbsCommander<MessageEvent>() {
+class TouristTramcar(
+    val service: PlayerCarService
+) : AbsCommander<MessageEvent>() {
+    companion object{
+        const val MONEY_MAX = 3_0000
+    }
     val entityImage by lazy { File(config.targetPath, ResourcesReleaseConfig.CAMP_2_ENTITY_TRAMCAR_1_IMAGE) }
     val bgi by lazy { File(config.targetPath, ResourcesReleaseConfig.COMMAND_BACKGROUND_IMAGE) }
     val divider by lazy { File(config.targetPath, ResourcesReleaseConfig.DIVIDER_IMAGE) }
@@ -33,15 +37,16 @@ class TouristTramcar : AbsCommander<MessageEvent>() {
         return "/流浪矿车"
     }
 
+    @RegisterAOP
     override fun execute(event: MessageEvent) {
         val command = event.getCommand()
         val first = command.first
         val message: List<MessageItem> = when (first) {
-            "","0"-> handleEmpty(command)
-            "领养", "1" -> handleAdopt(command)
-            "外出", "外出流浪", "流浪", "2" -> handleOut(command)
-            "召回", "召回矿车", "回家", "3" -> handleRecall(command)
-            "升级", "4" -> handleUpgrade(command)
+            "", "0" -> handleEmpty(event)
+            "领养", "1" -> handleAdopt(event)
+            "外出", "外出流浪", "流浪", "2" -> handleOut(event)
+            "召回", "召回矿车", "回家", "3" -> handleRecall(event)
+            "升级", "4" -> handleUpgrade(event)
             else -> listOf(
                 createCommandImage(
                     """
@@ -57,26 +62,36 @@ class TouristTramcar : AbsCommander<MessageEvent>() {
         event.reply(*message.toTypedArray())
     }
 
-    private fun handleUpgrade(command: CommandParser.CommandParserBean): List<MessageItem> {
+    private fun handleUpgrade(event: MessageEvent): List<MessageItem> {
         // TODO 检测是否复合升级条件
+        val car = service.getPlayerCar(event.sender.id)
+        val level = car.level
         return arrayListOf(
             combineImagesVertically(
                 entityImage.toBufferedImage(),
                 divider.toBufferedImage(),
                 createCommandImage(
                     """
-                |叮叮铛！指挥官您将矿车从 level 0 升级到了 level 1
+                |叮叮铛！指挥官您将矿车从 level $level 升级到了 level ${(level+1)}
                 | 【特性】
-                |· 矿车每次带回的科技最高可到 T2
-                |· 矿产资源提升至 10%~23% (6900/3_0000)
+                |· 矿车每次带回的科技最高可到 T$level
+                |· 矿产资源提升
             """.trimIndent()
                 )
             ).toMessageImage()
         )
     }
 
-    private fun handleRecall(command: CommandParser.CommandParserBean): List<MessageItem> {
-        // TODO 计算可以获取的资源
+    private fun handleRecall(event: MessageEvent): List<MessageItem> {
+        // 外出时间
+        val time = System.currentTimeMillis() - service.returned(event.sender.id)
+        val car = service.getPlayerCar(event.sender.id)
+        val level = car.level
+
+        val money = (time / MONEY_MAX * (level + 0.1)).toInt()
+        // TODO 随机一个单位/科技出现
+        val entityResult = if (RandomUtil.randomBoolean(0.3))"天狗机器人" else "无"
+        val result = if (RandomUtil.randomBoolean(0.3)) "天狗机器人" else "无"
         return arrayListOf(
             combineImagesVertically(
                 entityImage.toBufferedImage(),
@@ -84,8 +99,10 @@ class TouristTramcar : AbsCommander<MessageEvent>() {
                 createCommandImage(
                     """
                 |叮叮铛！指挥官您将矿车召回了，看看他带来了哪些域外土特产吧！
-                |您的矿车在外流浪了 0d:1h:0m:0s
-                | 【TODO】
+                |您的矿车在外流浪了 ${Instant.ofEpochMilli(time).atZone(ZoneId.systemDefault()).toLocalDateTime()}
+                | 【资金】$money
+                | 【科技】$result
+                | 【单位】$entityResult
             """.trimIndent()
                 )
             ).toMessageImage()
@@ -93,8 +110,19 @@ class TouristTramcar : AbsCommander<MessageEvent>() {
     }
 
 
-    private fun handleOut(command: CommandParser.CommandParserBean): List<MessageItem> {
-        // TODO 修改矿车状态
+    private fun handleOut(event: MessageEvent): List<MessageItem> {
+        if (!service.egress(event.sender.id)) {
+            logger.error("command: /流浪矿车 外出流浪 无法派出（uid ${event.sender.id}）")
+            arrayListOf(
+                combineImagesVertically(
+                    createCommandImage(
+                        """
+                |非常抱歉指挥官，现在您的矿车无法派出流浪
+            """.trimIndent()
+                    )
+                ).toMessageImage()
+            )
+        }
         return arrayListOf(
             combineImagesVertically(
                 entityImage.toBufferedImage(),
@@ -111,8 +139,19 @@ class TouristTramcar : AbsCommander<MessageEvent>() {
         )
     }
 
-    private fun handleAdopt(command: CommandParser.CommandParserBean): ArrayList<MessageItem> {
-        // TODO 修改矿车状态
+    private fun handleAdopt(event: MessageEvent): ArrayList<MessageItem> {
+        if (!service.create(event.sender.id)) {
+            arrayListOf(
+                combineImagesVertically(
+                    createCommandImage(
+                        """
+                |非常抱歉现在您无法领养矿车，请稍后再试
+                |· /流浪矿车 领养
+            """.trimIndent()
+                    )
+                ).toMessageImage()
+            )
+        }
         return arrayListOf(
             combineImagesVertically(
                 entityImage.toBufferedImage(),
@@ -147,8 +186,7 @@ class TouristTramcar : AbsCommander<MessageEvent>() {
         }
     }
 
-    private fun handleEmpty(command: CommandParser.CommandParserBean): ArrayList<MessageItem> {
-        // TODO 检测矿车状态，自动选择 领养/外出/召回
+    private fun handleEmpty(event: MessageEvent): List<MessageItem> {
         return arrayListOf(
             combineImagesVertically(
                 image1.toBufferedImage(),
@@ -156,7 +194,7 @@ class TouristTramcar : AbsCommander<MessageEvent>() {
                 createCommandImage(
                     """
                 |指令: 
-                | /流浪矿车 领养 
+                | /流浪矿车 领养 (*)
                 | /流浪矿车 外出流浪 
                 | /流浪矿车 召回流浪 
                 | /流浪矿车 升级 
