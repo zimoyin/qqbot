@@ -1,13 +1,11 @@
 package io.github.zimoyin.qqbot.bot
 
 
-import io.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
 import io.github.zimoyin.qqbot.bot.contact.Channel
 import io.github.zimoyin.qqbot.bot.contact.Contact
 import io.github.zimoyin.qqbot.event.events.Event
 import io.github.zimoyin.qqbot.event.supporter.BotEventBus
-import io.github.zimoyin.qqbot.event.supporter.EventMapping
-import io.github.zimoyin.qqbot.exception.EventBusException
+import io.github.zimoyin.qqbot.event.supporter.GlobalEventBus
 import io.github.zimoyin.qqbot.net.Intents
 import io.github.zimoyin.qqbot.net.Token
 import io.github.zimoyin.qqbot.net.bean.GuildBean
@@ -16,18 +14,12 @@ import io.github.zimoyin.qqbot.net.http.api.channel.getGuildInfos
 import io.github.zimoyin.qqbot.net.http.api.channel.getGuilds
 import io.github.zimoyin.qqbot.net.webhook.WebHookConfig
 import io.github.zimoyin.qqbot.net.webhook.WebHookHttpServer
-import io.github.zimoyin.qqbot.utils.ex.executeBlockingKt
-import io.github.zimoyin.qqbot.utils.vertx
-import io.github.zimoyin.qqbot.utils.vertxWorker
 import io.vertx.core.Future
 import io.vertx.core.Vertx
 import io.vertx.core.eventbus.EventBus
 import io.vertx.core.eventbus.Message
 import io.vertx.core.eventbus.MessageConsumer
 import io.vertx.core.http.WebSocket
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.io.Serializable
 import java.util.function.Consumer
 
@@ -215,22 +207,8 @@ interface Bot : Serializable, Contact {
     /**
      * Bot 事件监听，监听来自于创建该 vertx 的事件监听。 但凡是在该 vertx 中传播的事件都能被捕捉
      */
-    fun <T : Event> onVertxEvent(cls: Class<out T>, isUseWorkerThread: Boolean = false, callback: Consumer<T>) {
-        config.apply {
-            EventMapping.add(cls)
-            val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
-            val consumer = getVertxEventBus().localConsumer<T>(cls.name) { msg ->
-                val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
-                CoroutineScope(scope).launch {
-                    kotlin.runCatching {
-                        callback.accept(msg.body())
-                    }.onFailure {
-                        throw EventBusException(RuntimeException("Caller: $stackTrace", it))
-                    }
-                }
-            }
-            consumers.add(consumer)
-        }
+    fun <T : Event> onVertxEvent(cls: Class<out T>, isUseWorkerThread: Boolean = false, callback: Consumer<T>): Int {
+        return this.config.globalEventBus.onVertxBotEvent(this, cls, isUseWorkerThread, config.vertx, callback)
     }
 
     /**
@@ -243,25 +221,8 @@ interface Bot : Serializable, Contact {
     /**
      * Bot 事件监听，监听来自于创建该 vertx 的事件监听 并且 只监听该 Bot 的事件
      */
-    fun <T : Event> onEvent(cls: Class<out T>, isUseWorkerThread: Boolean = false, callback: Consumer<T>) {
-        config.apply {
-            EventMapping.add(cls)
-            val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
-            val consumer = getVertxEventBus().localConsumer<T>(cls.name) { msg ->
-                val body = msg.body()
-                if (body.botInfo.token.appID == this.token.appID) {
-                    val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
-                    CoroutineScope(scope).launch {
-                        kotlin.runCatching {
-                            callback.accept(body)
-                        }.onFailure {
-                            throw EventBusException(RuntimeException("Caller: $stackTrace", it))
-                        }
-                    }
-                }
-            }
-            consumers.add(consumer)
-        }
+    fun <T : Event> onEvent(cls: Class<out T>, isUseWorkerThread: Boolean = false, callback: Consumer<T>): Int {
+        return this.config.globalEventBus.onBotEvent(this, cls, isUseWorkerThread, config.vertx, callback)
     }
 
     /**
@@ -278,7 +239,6 @@ data class BotConfig(
     val vertx: Vertx,
     @Deprecated("The official has abandoned the WebSocket method")
     val shards: BotSection,
-    val consumers: HashSet<MessageConsumer<*>>,
     val token: Token,
     var reconnect: Boolean = true,
     /**
@@ -288,10 +248,19 @@ data class BotConfig(
 ) : Serializable {
 
     /**
-     * 适用于当前机器人的事件总线
+     * 适用于当前机器人的事件总线。
+     * 框架没有使用 botEventBus 来监听事件，机器人的监听方法也是使用的全局事件总线。
+     * 如果你使用该事件总线，需要保证使用 botEventBus.unregister(id) 来取消事件而不是使用全局事件总线取消监听
      */
     val botEventBus: BotEventBus by lazy {
-        BotEventBus(vertx.eventBus())
+        BotEventBus(vertx)
+    }
+
+    val globalEventBus = GlobalEventBus
+
+    @Deprecated("please use botEventBus.getConsumers()")
+    val consumers: HashSet<MessageConsumer<*>> by lazy {
+        botEventBus.consumers
     }
 
     /**
@@ -309,138 +278,6 @@ data class BotConfig(
     }
 }
 
-class BotConfigBuilder(token0: Token? = null) {
-
-    constructor(appid: String, token: String, appSecret: String, version: Int) : this(
-        Token(
-            appid,
-            token,
-            appSecret,
-            version = version
-        )
-    )
-
-    constructor(appid: String, token: String, appSecret: String) : this(Token(appid, token, appSecret))
-    constructor(appid: String, token: String, version: Int) : this(Token(appid, token, version = version))
-    constructor(appid: String, token: String) : this(Token(appid, token))
-    constructor() : this(null)
-
-    init {
-        token0?.let { setToken(it) }
-    }
-
-    /**
-     * 配置监听通道列表
-     * 请使用 setIntents 方法设置
-     */
-    private var intents: Int = Intents.Presets.DEFAULT.code
-
-    @Deprecated("The official has abandoned the WebSocket method")
-    fun setIntents(intents0: Int): BotConfigBuilder {
-        intents = intents0
-        return this
-    }
-
-    @Deprecated("The official has abandoned the WebSocket method")
-    fun setIntents(vararg intents0: Intents): BotConfigBuilder {
-        intents = Intents.START.and(*intents0)
-        return this
-    }
-
-    @Deprecated("The official has abandoned the WebSocket method")
-    fun setIntents(intents0: Intents.Presets): BotConfigBuilder {
-        intents = intents0.code
-        return this
-    }
-
-
-    /**
-     * 让 bot 在这个 vertx 上运行。
-     * 注意如果选择自己创建 vertx 请不要直接使用 EventBus来订阅事件请使用本类中的方法订阅。如果要使用 EventBus 请使用 createVertx 方法创建集群
-     */
-    private var vertx: Vertx = GLOBAL_VERTX_INSTANCE
-
-    fun setVertx(vertx0: Vertx): BotConfigBuilder {
-        vertx = vertx0
-        return this
-    }
-
-    /**
-     * 机器人切片，vertx 会根据当前切片进行启动机器人
-     */
-    @Deprecated("The official has abandoned the WebSocket method")
-    private var shards: BotSection = BotSection()
-
-    @Deprecated("The official has abandoned the WebSocket method")
-    fun setShards(shards0: BotSection): BotConfigBuilder {
-        shards = shards0
-        return this
-    }
-
-    /**
-     * 监听集合
-     */
-    private var consumers: HashSet<MessageConsumer<*>> = HashSet()
-
-    fun setConsumers(consumers0: HashSet<MessageConsumer<*>>): BotConfigBuilder {
-        consumers = consumers0
-        return this
-    }
-
-    /**
-     * 对于这个机器人的鉴权系统
-     */
-    private var token: Token? = null
-    fun setToken(token0: Token): BotConfigBuilder {
-        token = token0
-        return this
-    }
-
-    @JvmOverloads
-    fun setToken(appid: String, token: String = "", appSecret: String = ""): BotConfigBuilder {
-        this.token = Token(appid, token, appSecret)
-        return this
-    }
-
-
-    /**
-     * 是否允许重连
-     */
-    @Deprecated("The official has abandoned the WebSocket method")
-    private var reconnect: Boolean = true
-
-    @Deprecated("The official has abandoned the WebSocket method")
-    fun setReconnect(reconnect0: Boolean): BotConfigBuilder {
-        reconnect = reconnect0
-        return this
-    }
-
-    /**
-     * 是否允许重试
-     */
-    @Deprecated("The official has abandoned the WebSocket method")
-    private var retry: Int = 8
-
-    @Deprecated("The official has abandoned the WebSocket method")
-    fun setRetry(retry0: Int): BotConfigBuilder {
-        retry = retry0
-        return this
-    }
-
-    fun build(): BotConfig = BotConfig(
-        intents = intents,
-        vertx = vertx,
-        shards = shards,
-        consumers = consumers,
-        token = token ?: throw NullPointerException("token is null")
-    )
-
-    @Deprecated("")
-    fun createBot(): Bot {
-        return Bot.createBot(this)
-    }
-}
-
 /**
  * Bot 事件监听，监听来自于创建该 vertx 的事件监听
  *
@@ -449,22 +286,8 @@ class BotConfigBuilder(token0: Token? = null) {
 inline fun <reified T : Event> Bot.onVertxEvent(
     isUseWorkerThread: Boolean = false,
     crossinline callback: suspend Message<T>.(message: T) -> Unit
-) {
-    this.config.apply {
-        EventMapping.add(T::class.java)
-        val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
-        val consumer = getVertxEventBus().localConsumer<T>(T::class.java.name) { msg ->
-            val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
-            CoroutineScope(scope).launch {
-                kotlin.runCatching {
-                    msg.callback(msg.body())
-                }.onFailure {
-                    throw EventBusException(RuntimeException("Caller: $stackTrace", it))
-                }
-            }
-        }
-        consumers.add(consumer)
-    }
+): Int {
+    return this.config.globalEventBus.onVertxEvent(isUseWorkerThread, config.vertx, callback)
 }
 
 /**
@@ -475,22 +298,6 @@ inline fun <reified T : Event> Bot.onVertxEvent(
 inline fun <reified T : Event> Bot.onEvent(
     isUseWorkerThread: Boolean = false,
     crossinline callback: suspend Message<T>.(message: T) -> Unit
-) {
-    this.config.apply {
-        EventMapping.add(T::class.java)
-        val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
-        val consumer = getVertxEventBus().localConsumer<T>(T::class.java.name) { msg ->
-            if (msg.body().botInfo.token.appID == this.token.appID) {
-                val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
-                CoroutineScope(scope).launch {
-                    kotlin.runCatching {
-                        callback(msg, msg.body())
-                    }.onFailure {
-                        throw EventBusException(RuntimeException("Caller: $stackTrace", it))
-                    }
-                }
-            }
-        }
-        consumers.add(consumer)
-    }
+): Int {
+    return this.config.globalEventBus.onEvent(isUseWorkerThread, config.vertx, callback)
 }

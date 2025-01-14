@@ -7,8 +7,10 @@ import io.github.zimoyin.qqbot.annotation.UntestedApi
 import io.github.zimoyin.qqbot.bot.Bot
 import io.github.zimoyin.qqbot.event.events.Event
 import io.github.zimoyin.qqbot.exception.EventBusException
+import io.github.zimoyin.qqbot.utils.ex.promise
 import io.github.zimoyin.qqbot.utils.vertx
 import io.github.zimoyin.qqbot.utils.vertxWorker
+import io.vertx.core.Future
 import io.vertx.core.Vertx
 import io.vertx.core.eventbus.DeliveryOptions
 import io.vertx.core.eventbus.EventBus
@@ -22,7 +24,8 @@ import java.util.function.Consumer
 /**
  * 事件总线基础类
  */
-open class BotEventBus(val bus: EventBus) {
+open class BotEventBus(val vertx: Vertx) {
+    val bus = vertx.eventBus()
     val logger by lazy { LocalLogger(BotEventBus::class.java) }
     val consumers = HashSet<MessageConsumer<*>>()
     var debugLogger: Boolean = true
@@ -152,16 +155,14 @@ open class BotEventBus(val bus: EventBus) {
 
     /**
      * 全局事件监听，如果配置了集群则可以监听来自于所有的 vertx 的事件
-     * 如果只想监听某一杠Vertx 的事件，通过bot的 config 来监听
-     *
      */
     @JvmOverloads
     fun <T : Event> onEvent(
         cls: Class<out T>,
         isUseWorkerThread: Boolean = false,
-        vertx: Vertx = GLOBAL_VERTX_INSTANCE,
+        vertx: Vertx = this.vertx,
         callback: Consumer<T>
-    ) {
+    ): Int {
         /**
          * 通过 Event 上的注解可以确定事件的元类型  然后就去映射他们
          * 优点：方便框架使用者实现官方的事件类型
@@ -174,7 +175,7 @@ open class BotEventBus(val bus: EventBus) {
         EventMapping.add(cls)
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
 
-        val consumer = bus.consumer<T>(cls.name) { msg ->
+        val consumer = vertx.eventBus().consumer<T>(cls.name) { msg ->
             val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
             CoroutineScope(scope).launch {
                 kotlin.runCatching {
@@ -186,6 +187,7 @@ open class BotEventBus(val bus: EventBus) {
         }
 
         consumers.add(consumer)
+        return consumer.hashCode()
     }
 
     /**
@@ -196,9 +198,9 @@ open class BotEventBus(val bus: EventBus) {
     @JvmOverloads
     inline fun <reified T : Event> onEvent(
         isUseWorkerThread: Boolean = false,
-        vertx: Vertx = GLOBAL_VERTX_INSTANCE,
+        vertx: Vertx = this.vertx,
         crossinline callback: suspend Message<T>.(message: T) -> Unit
-    ) {
+    ): Int {
         /**
          * 通过 Event 上的注解可以确定事件的元类型  然后就去映射他们
          * 优点：方便框架使用者实现官方的事件类型
@@ -211,7 +213,7 @@ open class BotEventBus(val bus: EventBus) {
         EventMapping.add(T::class.java)
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
 
-        val consumer = bus.consumer(T::class.java.name) { msg ->
+        val consumer = vertx.eventBus().consumer(T::class.java.name) { msg ->
             val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
             CoroutineScope(scope).launch {
                 kotlin.runCatching {
@@ -223,20 +225,55 @@ open class BotEventBus(val bus: EventBus) {
         }
 
         consumers.add(consumer)
+        return consumer.hashCode()
+    }
+
+    /**
+     * 全局事件监听，如果配置了集群则可以监听来自于所有的 vertx 的事件
+     */
+    @JvmOverloads
+    inline fun <reified T : Event> onVertxEvent(
+        isUseWorkerThread: Boolean = false,
+        vertx: Vertx = this.vertx,
+        crossinline callback: suspend Message<T>.(message: T) -> Unit
+    ): Int {
+        /**
+         * 通过 Event 上的注解可以确定事件的元类型  然后就去映射他们
+         * 优点：方便框架使用者实现官方的事件类型
+         * 缺点：繁琐的配置，无法解析没有监听的事件
+         *
+         * 硬编码方式：
+         * 优点：一波梭
+         * 缺点：无法直接让框架使用者实现官方的事件类型，需要监听Event 事件后再去广播
+         */
+        EventMapping.add(T::class.java)
+        val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
+
+        val consumer = vertx.eventBus().localConsumer(T::class.java.name) { msg ->
+            val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
+            CoroutineScope(scope).launch {
+                kotlin.runCatching {
+                    msg.callback(msg.body())
+                }.onFailure {
+                    throw EventBusException(RuntimeException("Caller: $stackTrace", it))
+                }
+            }
+        }
+
+        consumers.add(consumer)
+        return consumer.hashCode()
     }
 
     /**
      * 全局事件监听，如果配置了集群则可以监听来自于所有的 vertx 的事件,并监听某一个Bot 的事件
-     * 如果只想监听某一杠Vertx 的事件，通过bot的 config 来监听
-     *
      */
     @JvmOverloads
     fun <T : Event> onBotEvent(
         bot: Bot, cls: Class<out T>,
         isUseWorkerThread: Boolean = false,
-        vertx: Vertx = GLOBAL_VERTX_INSTANCE,
+        vertx: Vertx = this.vertx,
         callback: Consumer<T>
-    ) {
+    ): Int {
         /**
          * 通过 Event 上的注解可以确定事件的元类型  然后就去映射他们
          * 优点：方便框架使用者实现官方的事件类型
@@ -249,7 +286,7 @@ open class BotEventBus(val bus: EventBus) {
         EventMapping.add(cls)
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
 
-        val consumer = bus.consumer<T>(cls.name) { msg ->
+        val consumer = vertx.eventBus().consumer<T>(cls.name) { msg ->
             val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
             CoroutineScope(scope).launch {
                 kotlin.runCatching {
@@ -261,23 +298,60 @@ open class BotEventBus(val bus: EventBus) {
         }
 
         consumers.add(consumer)
+        return consumer.hashCode()
+    }
+    /**
+     * 全局事件监听，如果配置了集群则可以监听来自于所有的 vertx 的事件,并监听某一个Bot 的事件
+     * 监听某一个Vertx 的事件
+     *
+     */
+    @JvmOverloads
+    fun <T : Event> onVertxBotEvent(
+        bot: Bot, cls: Class<out T>,
+        isUseWorkerThread: Boolean = false,
+        vertx: Vertx = this.vertx,
+        callback: Consumer<T>
+    ): Int {
+        /**
+         * 通过 Event 上的注解可以确定事件的元类型  然后就去映射他们
+         * 优点：方便框架使用者实现官方的事件类型
+         * 缺点：繁琐的配置，无法解析没有监听的事件
+         *
+         * 硬编码方式：
+         * 优点：一波梭
+         * 缺点：无法直接让框架使用者实现官方的事件类型，需要监听Event 事件后再去广播
+         */
+        EventMapping.add(cls)
+        val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
+
+        val consumer = vertx.eventBus().localConsumer<T>(cls.name) { msg ->
+            val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
+            CoroutineScope(scope).launch {
+                kotlin.runCatching {
+                    if ((msg.body() as T).botInfo.token.appID == bot.config.token.appID) callback.accept(msg.body())
+                }.onFailure {
+                    throw EventBusException(RuntimeException("Caller: $stackTrace", it))
+                }
+            }
+        }
+
+        consumers.add(consumer)
+        return consumer.hashCode()
     }
 
     /**
      * 全局事件监听，如果配置了集群则可以监听来自于所有的 vertx 的事件,并监听某一个Bot 的事件
-     * 如果只想监听某一杠Vertx 的事件，通过bot的 config 来监听
-     *
      */
     @JvmOverloads
     inline fun <reified T : Event> onBotEvent(
         bot: Bot,
         isUseWorkerThread: Boolean = false,
-        vertx: Vertx = GLOBAL_VERTX_INSTANCE,
+        vertx: Vertx = this.vertx,
         crossinline callback: suspend Message<T>.(message: T) -> Unit
-    ) {
+    ): Int {
         EventMapping.add(T::class.java)
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
-        val consumer = bus.consumer(T::class.java.name) { msg ->
+        val consumer = vertx.eventBus().consumer(T::class.java.name) { msg ->
             val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
             CoroutineScope(scope).launch {
                 kotlin.runCatching {
@@ -288,24 +362,23 @@ open class BotEventBus(val bus: EventBus) {
             }
         }
         consumers.add(consumer)
+        return consumer.hashCode()
     }
 
     /**
      * 全局事件监听，如果配置了集群则可以监听来自于所有的 vertx 的事件,并监听某一个Bot 的事件
-     * 如果只想监听某一杠Vertx 的事件，通过bot的 config 来监听
-     *
      */
     @JvmOverloads
     fun <T : Event> onBotEvent(
         appID: String,
         cls: Class<out T>,
         isUseWorkerThread: Boolean = false,
-        vertx: Vertx = GLOBAL_VERTX_INSTANCE,
+        vertx: Vertx = this.vertx,
         callback: Consumer<T>,
-    ) {
+    ): Int {
         EventMapping.add(cls)
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
-        val consumer = bus.consumer<T>(cls.name) { msg ->
+        val consumer = vertx.eventBus().consumer<T>(cls.name) { msg ->
             val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
             CoroutineScope(scope).launch {
                 kotlin.runCatching {
@@ -316,23 +389,22 @@ open class BotEventBus(val bus: EventBus) {
             }
         }
         consumers.add(consumer)
+        return consumer.hashCode()
     }
 
     /**
      * 全局事件监听，如果配置了集群则可以监听来自于所有的 vertx 的事件,并监听某一个Bot 的事件
-     * 如果只想监听某一杠Vertx 的事件，通过bot的 config 来监听
-     *
      */
     @JvmOverloads
     inline fun <reified T : Event> onBotEvent(
         appID: String,
         isUseWorkerThread: Boolean = false,
-        vertx: Vertx = GLOBAL_VERTX_INSTANCE,
+        vertx: Vertx = this.vertx,
         crossinline callback: suspend Message<T>.(message: T) -> Unit,
-    ) {
+    ): Int {
         EventMapping.add(T::class.java)
         val stackTrace = Thread.currentThread().stackTrace.getOrNull(1)?.toString() ?: ""
-        val consumer = bus.consumer(T::class.java.name) { msg ->
+        val consumer = vertx.eventBus().consumer(T::class.java.name) { msg ->
             val scope = if (isUseWorkerThread) Dispatchers.vertxWorker(vertx) else Dispatchers.vertx(vertx)
             CoroutineScope(scope).launch {
                 kotlin.runCatching {
@@ -343,8 +415,33 @@ open class BotEventBus(val bus: EventBus) {
             }
         }
         consumers.add(consumer)
+        return consumer.hashCode()
     }
 
+    /**
+     * 取消监听
+     */
+    fun unregister(id: Int): Future<Void> {
+        val promise = promise<Void>()
+        consumers.find { it.hashCode() == id }.let {mc->
+            if (mc == null) {
+                promise.fail(NullPointerException("Not Found Consumer"))
+                return@let
+            }
+            mc.unregister().onComplete {
+                promise.complete()
+                consumers.remove(mc)
+            }.onFailure { promise.fail(it) }
+        }
+        return promise.future()
+    }
+
+    /**
+     * 获取一个监听
+     */
+    fun getConsumer(id: Int): MessageConsumer<*>? {
+        return consumers.find { it.hashCode() == id }
+    }
 
     fun clear() {
         consumers.forEach { it.unregister() }
@@ -359,7 +456,7 @@ open class BotEventBus(val bus: EventBus) {
  * @date : 2023/12/06/17:29
  * @description ：默认的全局事件总线,可用监听同一个vertx中传输的所有机器人的事件。也可用在该总线上发布事件
  */
-object GlobalEventBus : BotEventBus(GLOBAL_VERTX_INSTANCE.eventBus()) {
+object GlobalEventBus : BotEventBus(GLOBAL_VERTX_INSTANCE) {
     init {
         SystemLogger.debug("Global EventBus 初始化完成")
     }
