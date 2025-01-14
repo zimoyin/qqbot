@@ -11,11 +11,13 @@ object SystemLogger : LocalLogger("System")
 
 open class LocalLogger(name: String) {
     constructor(clazz: Class<*>) : this(clazz.name)
+    constructor(obj: Any) : this(obj::class.java.name)
 
     companion object {
         init {
             changeJULogging { VertxLoggerFormatter().format(it) }
         }
+
         /**
          * 判断项目中是否有slf4j的实现类
          */
@@ -36,7 +38,7 @@ open class LocalLogger(name: String) {
             level: Level = Level.INFO,
             // 获取根记录器
             rootLogger: java.util.logging.Logger = java.util.logging.Logger.getLogger(""),
-            simpleFormatter: (LogRecord) -> String = {record->
+            simpleFormatter: (LogRecord) -> String = { record ->
                 String.format(
                     "%1\$tF %1\$tT [%4\$s] %5\$s %n",
                     Date(record.millis),
@@ -82,8 +84,15 @@ open class LocalLogger(name: String) {
         io.vertx.core.impl.logging.LoggerFactory.getLogger(name)
     }
 
-    @JvmOverloads
-    fun error(message: String = "", throwable: Throwable? = null) {
+    fun error(throwable: Throwable) {
+        if (SystemLogger1 != null) {
+            SystemLogger1!!.error("",throwable)
+        } else {
+            SystemLogger2.error("",throwable)
+        }
+    }
+
+    fun error(message: String = "", throwable: Throwable) {
         if (SystemLogger1 != null) {
             SystemLogger1!!.error(message, throwable)
         } else {
@@ -91,8 +100,15 @@ open class LocalLogger(name: String) {
         }
     }
 
-    @JvmOverloads
-    fun warn(message: String, throwable: Throwable? = null) {
+    fun error(message: String, vararg strs: Any?) {
+        if (SystemLogger1 != null) {
+            SystemLogger1!!.error(message, *strs)
+        } else {
+            SystemLogger2.error(formatMessage(message, *strs))
+        }
+    }
+
+    fun warn(message: String = "", throwable: Throwable) {
         if (SystemLogger1 != null) {
             SystemLogger1!!.warn(message, throwable)
         } else {
@@ -100,8 +116,22 @@ open class LocalLogger(name: String) {
         }
     }
 
-    @JvmOverloads
-    fun info(message: String, throwable: Throwable? = null) {
+    fun warn(message: String, vararg strs: Any?) {
+        if (SystemLogger1 != null) {
+            SystemLogger1!!.warn(message, *strs)
+        } else {
+            SystemLogger2.warn(formatMessage(message, *strs))
+        }
+    }
+    fun warn(throwable: Throwable) {
+        if (SystemLogger1 != null) {
+            SystemLogger1!!.info("", throwable)
+        } else {
+            SystemLogger2.info("",throwable)
+        }
+    }
+
+    fun info(message: String, throwable: Throwable) {
         if (SystemLogger1 != null) {
             SystemLogger1!!.info(message, throwable)
         } else {
@@ -109,12 +139,52 @@ open class LocalLogger(name: String) {
         }
     }
 
-    @JvmOverloads
-    fun debug(message: String, throwable: Throwable? = null) {
+    fun info(message: String, vararg strs: Any?) {
+        if (SystemLogger1 != null) {
+            SystemLogger1!!.info(message, *strs)
+        } else {
+            SystemLogger2.info(formatMessage(message, *strs))
+        }
+    }
+    fun info(throwable: Throwable) {
+        if (SystemLogger1 != null) {
+            SystemLogger1!!.info("", throwable)
+        } else {
+            SystemLogger2.info("",throwable)
+        }
+    }
+
+    fun debug(message: String, throwable: Throwable) {
         if (SystemLogger1 != null) {
             SystemLogger1!!.debug(message, throwable)
         } else {
             SystemLogger2.debug(message, throwable)
         }
+    }
+
+    fun debug(message: String, vararg strs: Any?) {
+        if (SystemLogger1 != null) {
+            SystemLogger1!!.debug(message, *strs)
+        } else {
+            SystemLogger2.debug(formatMessage(message, *strs))
+        }
+    }
+
+    fun debug(throwable: Throwable) {
+        if (SystemLogger1 != null) {
+            SystemLogger1!!.debug("", throwable)
+        } else {
+            SystemLogger2.debug("",throwable)
+        }
+    }
+
+    fun formatMessage(template: String, vararg args: Any?): String {
+        var result = template
+        var index = 0
+        while (index < args.size && "{}" in result) {
+            result = result.replaceFirst("{}", args[index].toString(), ignoreCase = false)
+            index++
+        }
+        return result
     }
 }
