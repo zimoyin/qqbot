@@ -33,3 +33,7 @@ fun String.toColor(hexString: String): Color {
     val hexValue = hexString.substring(1).toInt(16)
     return Color(hexValue)
 }
+
+fun String.md5(): String {
+    return this.toByteArray(Charsets.UTF_8).md5()
+}

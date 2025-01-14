@@ -34,7 +34,7 @@ object Config {
             setInternalBlockingPoolSize(VertxOptions.DEFAULT_INTERNAL_BLOCKING_POOL_SIZE)
             setHAEnabled(true)
             io {
-                SystemLogger.debug("[异步日志][${LocalDateTime.now()}]已完成一个全局的Vertx 实例的配置 : $this")
+                SystemLogger.debug("[异步日志][${LocalDateTime.now()}]已完成一个全局的Vertx 实例的配置 : $GLOBAL_VERTX_OPTIONS")
             }
         }
     }

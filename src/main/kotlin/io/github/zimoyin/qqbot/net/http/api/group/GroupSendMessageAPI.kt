@@ -139,14 +139,14 @@ private fun HttpAPIClient.sendGroupMessage0(
  */
 fun HttpAPIClient.uploadMediaToGroup(id: String, token: Token, mediaBean: SendMediaBean): Future<MediaMessageBean> {
     if (MediaManager.isEnable) {
-        val mediaMessageBean = MediaManager.instance[mediaBean.url ?: mediaBean.file_data]
+        val mediaMessageBean = MediaManager.instance[mediaBean.getFileDataMd5()]
         if (mediaMessageBean != null) {
             return Future.succeededFuture(mediaMessageBean)
         }
     }
 
     val promise = Promise.promise<MediaMessageBean>()
-    logDebug("sendGroupMessage", "预备上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url ?: "file_data"}")
+    logDebug("sendGroupMessage", "预备上传媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()}")
     API.uploadGroupMediaResource.addRestfulParam(id).putHeaders(token.getHeaders())
         .sendJsonObject(JSON.toJsonObject(mediaBean)).onSuccess {
             runCatching {
@@ -154,20 +154,20 @@ fun HttpAPIClient.uploadMediaToGroup(id: String, token: Token, mediaBean: SendMe
                 if (json.getInteger("code") != null) {
                     promise.fail(HttpClientException("Upload media resource failed: $json"))
                 } else {
-                    logDebug("sendGroupMessage", "上传富媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 成功: $json")
+                    logDebug("sendGroupMessage", "上传富媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()} 成功: $json")
                 }
                 json.mapTo(MediaMessageBean::class.java).apply {
-                    if (MediaManager.isEnable && mediaBean.url != null) MediaManager.instance[mediaBean.url] = this
+                    if (MediaManager.isEnable) MediaManager.instance[mediaBean.getFileDataMd5()] = this
                 }
             }.onSuccess {
                 promise.tryComplete(it)
             }.onFailure {
                 logPreError(
-                    promise, "sendGroupMessage", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 失败", it
+                    promise, "sendGroupMessage", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()} 失败", it
                 ).let { isLog ->
                     if (!promise.tryFail(it)) {
                         if (!isLog) logError(
-                            "sendGroupMessage", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 失败", it
+                            "sendGroupMessage", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()} 失败", it
                         )
                     }
                 }
@@ -175,11 +175,11 @@ fun HttpAPIClient.uploadMediaToGroup(id: String, token: Token, mediaBean: SendMe
             }
         }.onFailure {
             logPreError(
-                promise, "sendGroupMessage", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 失败", it
+                promise, "sendGroupMessage", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()} 失败", it
             ).let { isLog ->
                 if (!promise.tryFail(it)) {
                     if (!isLog) logError(
-                        "sendGroupMessage", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 失败", it
+                        "sendGroupMessage", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()} 失败", it
                     )
                 }
             }

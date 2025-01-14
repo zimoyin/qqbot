@@ -141,14 +141,14 @@ fun HttpAPIClient.uploadMediaToFriend(id: String, token: Token, mediaBean: SendM
 
     // 使用缓存
     if (MediaManager.isEnable) {
-        val mediaMessageBean = MediaManager.instance[mediaBean.url]
+        val mediaMessageBean = MediaManager.instance[mediaBean.getFileDataMd5()]
         if (mediaMessageBean != null) {
             return Future.succeededFuture(mediaMessageBean)
         }
     }
 
     val promise = Promise.promise<MediaMessageBean>()
-    logDebug("sendFirendMessage0", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url}")
+    logDebug("sendFirendMessage0", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()}")
     API.uploadFriendMediaResource.addRestfulParam(id).putHeaders(token.getHeaders())
         .sendJsonObject(JSON.toJsonObject(mediaBean)).onSuccess {
             runCatching {
@@ -158,21 +158,26 @@ fun HttpAPIClient.uploadMediaToFriend(id: String, token: Token, mediaBean: SendM
                 } else {
                     logDebug(
                         "sendFirendMessage0",
-                        "上传富媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 成功: $json"
+                        "上传富媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()} 成功: $json"
                     )
                 }
                 json.mapTo(MediaMessageBean::class.java).apply {
-                    if (MediaManager.isEnable && mediaBean.url != null) MediaManager.instance[mediaBean.url] = this
+                    if (MediaManager.isEnable) MediaManager.instance[mediaBean.getFileDataMd5()] = this
                 }
             }.onSuccess {
                 promise.tryComplete(it)
             }.onFailure {
                 logPreError(
-                    promise, "sendFirendMessage0", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 失败", it
+                    promise,
+                    "sendFirendMessage0",
+                    "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()} 失败",
+                    it
                 ).let { isLog ->
                     if (!promise.tryFail(it)) {
                         if (!isLog) logError(
-                            "sendFirendMessage0", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 失败", it
+                            "sendFirendMessage0",
+                            "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()} 失败",
+                            it
                         )
                     }
                 }
@@ -180,11 +185,16 @@ fun HttpAPIClient.uploadMediaToFriend(id: String, token: Token, mediaBean: SendM
             }
         }.onFailure {
             logPreError(
-                promise, "sendFirendMessage0", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 失败", it
+                promise,
+                "sendFirendMessage0",
+                "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()} 失败",
+                it
             ).let { isLog ->
                 if (!promise.tryFail(it)) {
                     if (!isLog) logError(
-                        "sendFirendMessage0", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.url} 失败", it
+                        "sendFirendMessage0",
+                        "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()} 失败",
+                        it
                     )
                 }
             }

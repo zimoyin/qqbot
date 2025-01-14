@@ -195,7 +195,7 @@ object EventMapping {
                     success.add(cls.simpleName)
                 }
         }
-        logger.debug("EventMapping 初始化成功: $success")
+        logger.trace("EventMapping 初始化成功: $success")
     }
 
     fun add(str: String, mate: MateEventMapping) {

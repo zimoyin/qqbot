@@ -19,6 +19,7 @@ import io.github.zimoyin.qqbot.net.Token;
 import io.github.zimoyin.qqbot.net.http.TencentOpenApiHttpClient;
 import io.github.zimoyin.qqbot.net.http.api.API;
 import io.github.zimoyin.qqbot.utils.Async;
+import io.github.zimoyin.qqbot.utils.MediaManager;
 import io.vertx.core.Vertx;
 
 import java.io.File;
@@ -70,10 +71,17 @@ public class TMain {
             event.reply("你好");
         });
 
-        bot.onEvent(PrivateChannelMessageEvent.class, false, event -> {
-            event.reply(ImageMessage.create(new File("D:\\code\\java_kotlin\\ra3_qqbot\\data\\images\\camp_1.png")));
+        bot.onEvent(MessageEvent.class, false, event -> {
+            long start1 = System.currentTimeMillis();
+            event.reply(ImageMessage.create(new File("D:\\code\\java_kotlin\\ra3_qqbot\\data\\images\\camp_1.png"))).onComplete(a->{
+                if (a.succeeded()){
+                    System.out.println("发送图片耗时: " + (System.currentTimeMillis() - start1));
+                }
+            });
         });
 
+        MediaManager.setEnable(true);
+        MediaManager.setEnable(false);
 
         long finalStart = start2;
         long finalStart1 = start2;

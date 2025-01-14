@@ -198,6 +198,22 @@ open class LocalLogger(name: String) {
         }
     }
 
+    fun trace(message: String, vararg strs: Any?) {
+        if (SystemLogger1 != null) {
+            SystemLogger1!!.trace(message, *strs)
+        } else {
+            SystemLogger2.trace(formatMessage(message, *strs))
+        }
+    }
+
+    fun trace(throwable: Throwable) {
+        if (SystemLogger1 != null) {
+            SystemLogger1!!.trace("", throwable)
+        } else {
+            SystemLogger2.trace("", throwable)
+        }
+    }
+
     fun formatMessage(template: String, vararg args: Any?): String {
         var result = template
         var index = 0

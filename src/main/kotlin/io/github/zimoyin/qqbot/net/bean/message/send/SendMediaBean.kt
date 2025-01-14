@@ -3,6 +3,7 @@ package io.github.zimoyin.qqbot.net.bean.message.send
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import io.github.zimoyin.qqbot.utils.ex.md5
 import java.io.Serializable
 
 /**
@@ -41,6 +42,10 @@ data class SendMediaBean(
 
     override fun toString(): String {
         return "SendMediaBean(fileType=$fileType, url=$url, srv_send_msg=$srv_send_msg, file_data=${if (file_data==null) "null" else "not null"})"
+    }
+
+    fun getFileDataMd5(): String {
+        return url?.md5() ?: file_data?.md5()?:throw RuntimeException("file_data and url is null")
     }
 }
 

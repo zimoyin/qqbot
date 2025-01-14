@@ -18,6 +18,7 @@ import io.github.zimoyin.qqbot.event.supporter.GlobalEventBus.bus
 import io.github.zimoyin.qqbot.event.supporter.GlobalEventBus.debugLogger
 import io.github.zimoyin.qqbot.net.Token
 import io.github.zimoyin.qqbot.net.bean.SendMessageResultBean
+import io.github.zimoyin.qqbot.utils.ex.md5
 import io.github.zimoyin.qqbot.utils.io
 import io.github.zimoyin.qqbot.utils.vertxWorker
 import io.vertx.core.Future
@@ -31,6 +32,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.Serializable
 import java.util.*
+import kotlin.random.Random
 
 /**
  *
@@ -38,7 +40,8 @@ import java.util.*
  * @date : 2024/12/26
  */
 fun main() {
-    val logger = LocalLogger("Test")
-    logger.debug(RuntimeException())
+    val a = Random(5).nextBytes(1024*1024)
+    println(a.md5())
+    println(a.md5())
 }
 
