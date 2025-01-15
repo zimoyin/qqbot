@@ -72,13 +72,13 @@ public class TMain {
         });
 
         bot.onEvent(MessageEvent.class, false, event -> {
-            long start1 = System.currentTimeMillis();
-            event.reply(ImageMessage.create(new File("D:\\code\\java_kotlin\\ra3_qqbot\\data\\images\\camp_1.png"))).onComplete(a->{
-                if (a.succeeded()){
-                    System.out.println("发送图片耗时: " + (System.currentTimeMillis() - start1));
-                }
-            });
-            System.out.println(event.getMsgID());
+//            long start1 = System.currentTimeMillis();
+//            event.reply(ImageMessage.create(new File("D:\\code\\java_kotlin\\ra3_qqbot\\data\\images\\camp_1.png"))).onComplete(a->{
+//                if (a.succeeded()){
+//                    System.out.println("发送图片耗时: " + (System.currentTimeMillis() - start1));
+//                }
+//            });
+            event.reply(new PlainTextMessage("1"),new PlainTextMessage("2"),new PlainTextMessage("3"));
         });
 
         MediaManager.setEnable(true);
