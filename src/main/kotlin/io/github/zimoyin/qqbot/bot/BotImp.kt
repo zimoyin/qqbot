@@ -46,14 +46,12 @@ class BotImp(
         private set
     override var unionUserAccount: String = "not init"
         private set
-    override var id: String = "not init"
-        private set
+
     override val botInfo: BotInfo by lazy {
         BotInfo.create(this)
     }
 
     init {
-        id = config.token.appID
         try {
             if (token.version == 2) HttpAPIClient.accessToken(token).awaitToCompleteExceptionally {
                 updateInfo()

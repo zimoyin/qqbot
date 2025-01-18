@@ -178,6 +178,9 @@ interface Bot : Serializable, Contact {
 
     val channelBotId: String
 
+    override val id: String
+        get() = config.token.appID
+
     /**
      * 特殊关联应用的 openid
      * 需要特殊申请并配置后才会返回
