@@ -32,8 +32,8 @@ class BotImp(
     private val logger = LocalLogger(BotImp::class.java)
 
     private var websocketClient: WebsocketClient? = null
-    var webHookHttpServer: WebHookHttpServer? = null
-        private set
+    private var webHookHttpServer: WebHookHttpServer? = null
+
     private val vertx = config.vertx
 
     override var avatar: String = "not init"
