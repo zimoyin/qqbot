@@ -78,7 +78,8 @@ public class TMain {
 //                    System.out.println("发送图片耗时: " + (System.currentTimeMillis() - start1));
 //                }
 //            });
-            event.reply(new PlainTextMessage("1"),new PlainTextMessage("2"),new PlainTextMessage("3"));
+//            event.reply(new PlainTextMessage("1"),new PlainTextMessage("2"),new PlainTextMessage("3"));
+            event.reply("");
         });
 
         MediaManager.setEnable(true);

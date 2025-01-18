@@ -132,6 +132,8 @@ data class SendMessageBean(
      */
     var media: MediaMessageBean? = null,
 ) {
+    @JsonIgnore
+    private val logger = LocalLogger(javaClass)
     init {
         inferMsgType()
     }
@@ -151,7 +153,10 @@ data class SendMessageBean(
                 markdown != null || button != null -> MSG_TYPE_MARKDOWN
                 ark != null -> MSG_TYPE_ARK
                 embed != null -> MSG_TYPE_EMBED
-                else -> throw IllegalArgumentException("unknown msg type")
+                else -> {
+                    logger.warn("msgType is null. please do not send empty message")
+                    MSG_TYPE_TEXT
+                }
             }
         }
     }
