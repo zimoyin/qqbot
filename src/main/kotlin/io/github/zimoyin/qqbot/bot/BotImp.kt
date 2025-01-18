@@ -40,6 +40,8 @@ class BotImp(
         private set
     override var nick: String = "not init"
         private set
+    override var channelBotId: String = "not init"
+        private set
     override var unionOpenid: String = "not init"
         private set
     override var unionUserAccount: String = "not init"
@@ -51,6 +53,7 @@ class BotImp(
     }
 
     init {
+        id = config.token.appID
         try {
             if (token.version == 2) HttpAPIClient.accessToken(token).awaitToCompleteExceptionally {
                 updateInfo()
@@ -67,7 +70,7 @@ class BotImp(
             nick = user.username
             unionOpenid = user.unionOpenID ?: ""
             unionUserAccount = user.unionUserAccount ?: ""
-            id = user.id
+            channelBotId = user.id
         }
     }
 

@@ -176,6 +176,8 @@ interface Bot : Serializable, Contact {
      */
     val nick: String
 
+    val channelBotId: String
+
     /**
      * 特殊关联应用的 openid
      * 需要特殊申请并配置后才会返回
