@@ -21,6 +21,7 @@ fun MessageEvent.reply(vararg args: Any?) {
     val items = args.filterNotNull().map {
         when (it) {
             is MessageItem -> it
+            is StringBuilder, is StringBuffer -> PlainTextMessage(it.toString())
             is String, is Number, is Boolean, is Char -> PlainTextMessage(it.toString())
             is File -> if (it.extension.contains("png") || it.extension.contains("jpg") || it.extension.contains("jpeg")) {
                 it.toImageMessage()
@@ -34,7 +35,7 @@ fun MessageEvent.reply(vararg args: Any?) {
             is InputStream -> ImageMessage.create(it.readAllBytes())
             is ByteArray -> ImageMessage.create(it)
             is URL, is URI -> ImageMessage.create(it.toString())
-            else -> throw IllegalArgumentException("not support type ${it.javaClass.name}")
+            else ->  PlainTextMessage(it.toString().replace(".","。"))
         }
     }
     reply(*items.toTypedArray())
