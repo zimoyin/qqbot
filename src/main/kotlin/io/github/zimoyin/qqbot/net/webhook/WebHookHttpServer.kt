@@ -44,7 +44,7 @@ class WebHookHttpServer(
         private set
 
     @get:JvmName("getServerWebSockets")
-    val webSocketServerInfo = WebSocketServerInfo().apply { config = webHookConfig;debugLog = debugLog }
+    val webSocketServerInfo = WebSocketServerInfo().apply { config = webHookConfig;debugLog0 = debugLog }
 
     var isStarted = false
         private set
@@ -195,7 +195,7 @@ class WebHookHttpServer(
 
     class WebSocketServerInfo {
         lateinit var config: WebHookConfig
-        var debugLog: Boolean = false
+        var debugLog0: Boolean = false
         lateinit var server: WebHookHttpServer
         lateinit var webSocketServerHandler: WebSocketServerHandler
         val webSocketServerTcpSocketList: MutableList<ServerWebSocket> = mutableListOf<ServerWebSocket>()
@@ -215,9 +215,9 @@ class WebHookHttpServer(
         }
 
         fun sendPayloadToWsClient(payload: Payload) {
-            if (debugLog) logger.debug("WebSocketServer 准备发送消息: $payload")
+            if (debugLog0) logger.debug("WebSocketServer 准备发送消息: $payload")
             webSocketServerTcpSocketList.forEach {
-                if (debugLog) logger.debug("WebSocketServer 准备发送消息到[${it.remoteAddress()}]: $payload")
+                if (debugLog0) logger.debug("WebSocketServer 准备发送消息到[${it.remoteAddress()}]: $payload")
                 if (config.enableWebSocketForwardingIntentsVerify) {
                     val eventIntent = Intents.entries.firstOrNull {
                         transformTo((payload.eventType ?: "Not Found Event Type")).contains(it.name, true)
@@ -225,9 +225,9 @@ class WebHookHttpServer(
                     val intent = webSocketServerTcpSocketMap[it]
                     if (intent != null) {
                         val intentsSet = Intents.decodeIntents(intent)
-                        if (debugLog) logger.debug("WebSocketServer 检测[${it.remoteAddress()}]是否订阅了${eventIntent?.name}事件")
-                        if (debugLog) logger.debug("WebSocketServer [${it.remoteAddress()}]订阅的事件列表：${intentsSet.map { it.name }}")
-                        if (debugLog) logger.debug(
+                        if (debugLog0) logger.debug("WebSocketServer 检测[${it.remoteAddress()}]是否订阅了${eventIntent?.name}事件")
+                        if (debugLog0) logger.debug("WebSocketServer [${it.remoteAddress()}]订阅的事件列表：${intentsSet.map { it.name }}")
+                        if (debugLog0) logger.debug(
                             "WebSocketServer [${it.remoteAddress()}]检测结果,是否订阅了事件：${
                                 intentsSet.contains(
                                     eventIntent
@@ -235,7 +235,7 @@ class WebHookHttpServer(
                             }"
                         )
                         if (!intentsSet.contains(eventIntent)) {
-                            if (debugLog) logger.debug("WebSocketServer [${it.remoteAddress()}]未订阅事件，已忽略发送")
+                            if (debugLog0) logger.debug("WebSocketServer [${it.remoteAddress()}]未订阅事件，已忽略发送")
                             return@forEach
                         }
                     }
@@ -246,7 +246,7 @@ class WebHookHttpServer(
                     logger.debug("WebSocketServer 发送消息失败", it)
                 }
             }
-            if (debugLog) logger.debug("WebSocketServer 发送信息结束")
+            if (debugLog0) logger.debug("WebSocketServer 发送信息结束")
         }
 
         // 转换

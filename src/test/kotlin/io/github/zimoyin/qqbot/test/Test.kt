@@ -43,21 +43,10 @@ import kotlin.random.Random
  * @date : 2024/12/26
  */
 fun main() {
-    val payload = Payload(
-        eventType = "MESSAGE_CREATE",
-    )
-    val eventIntent = Intents.entries.firstOrNull {
-        transformTo((payload.eventType ?: "Not Found Event Type")).contains(it.name, true)
-    }
-    val intent = Intents.Presets.PRIVATE_GROUP_INTENTS
-    val intentsSet = Intents.decodeIntents(intent.code)
-    intentsSet.forEach {
-        println(it)
-    }
-    println(eventIntent)
-    if (!intentsSet.contains(eventIntent)) {
-        println("未能订阅")
-    }
+   listOf(1,2,3,4).forEach {
+       println(it)
+       return@forEach
+   }
 }
 
 // 转换
