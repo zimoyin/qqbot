@@ -53,6 +53,7 @@ data class WebHookConfig(
 
     /**
      * 是否启用 WebSocket 转发订阅验证，该功能是实验性的
+     * 开启后会根据 WS 客户端的 Intents 来转发被订阅的事件
      */
     val enableWebSocketForwardingIntentsVerify:Boolean = false,
 ) {
@@ -235,6 +236,7 @@ data class WebHookConfig(
 
         /**
          * 是否启用 WebSocket 转发 intents 验证
+         * 开启后会根据 WS 客户端的 Intents 来转发被订阅的事件
          */
         fun enableWebSocketForwardingIntentsVerify(value: Boolean): WebHookConfigBuilder {
             _enableWebSocketForwardingIntentsVerify = value
