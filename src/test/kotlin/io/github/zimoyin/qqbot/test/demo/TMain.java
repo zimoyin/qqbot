@@ -50,7 +50,7 @@ public class TMain {
         Token finalToken = token;
         Bot bot = Bot.createBot(config -> {
             config.setToken(finalToken);
-            config.setIntents(Intents.Presets.PUBLIC_GROUP_INTENTS);
+            config.setIntents(Intents.Presets.PRIVATE_GROUP_INTENTS);
         });
 
 

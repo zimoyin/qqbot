@@ -50,6 +50,11 @@ data class WebHookConfig(
      * 客户端与腾讯服务器鉴权流程一直，不同的是 WebHook 转发的 WebSocket 有两种鉴权方式，将根据 Token 完整度自动使用
      */
     val enableWebSocketForwardingLoginVerify: Boolean = true,
+
+    /**
+     * 是否启用 WebSocket 转发订阅验证，该功能是实验性的
+     */
+    val enableWebSocketForwardingIntentsVerify:Boolean = false,
 ) {
     companion object {
         @JvmStatic
@@ -147,6 +152,7 @@ data class WebHookConfig(
         private var _enableWebSocketForwarding: Boolean = false
         private var _webSocketPath: String = "/websocket"
         private var _enableWebSocketForwardingLoginVerify: Boolean = true
+        private var _enableWebSocketForwardingIntentsVerify: Boolean = false
 
         /**
          * SSL 文件路径
@@ -228,6 +234,14 @@ data class WebHookConfig(
         }
 
         /**
+         * 是否启用 WebSocket 转发 intents 验证
+         */
+        fun enableWebSocketForwardingIntentsVerify(value: Boolean): WebHookConfigBuilder {
+            _enableWebSocketForwardingIntentsVerify = value
+            return this
+        }
+
+        /**
          * 构建并返回 WebHookConfig 实例
          */
         fun build(): WebHookConfig = WebHookConfig(
@@ -239,7 +253,8 @@ data class WebHookConfig(
             host = _host,
             enableWebSocketForwarding = _enableWebSocketForwarding,
             webSocketPath = _webSocketPath,
-            enableWebSocketForwardingLoginVerify = _enableWebSocketForwardingLoginVerify
+            enableWebSocketForwardingLoginVerify = _enableWebSocketForwardingLoginVerify,
+            enableWebSocketForwardingIntentsVerify = _enableWebSocketForwardingIntentsVerify
         )
     }
 }

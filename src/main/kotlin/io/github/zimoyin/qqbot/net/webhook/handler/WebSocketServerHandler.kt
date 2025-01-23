@@ -25,7 +25,8 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
 
     private val logger = LocalLogger(this::class.java)
     private val webHookConfig = server.webHookConfig
-    private val wsList = server.webSocketServerTcpSocketList
+    private val wsList = server.webSocketServerInfo.webSocketServerTcpSocketList
+    private val wsMap = server.webSocketServerInfo.webSocketServerTcpSocketMap
     private var isDebug = false
     private var isMataDebug = false
 
@@ -33,6 +34,7 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
         val bot = server.bot
         isDebug = bot.context["PAYLOAD_CMD_HANDLER_DEBUG_LOG"] ?: false
         isMataDebug = bot.context["PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG"] ?: false
+        server.webSocketServerInfo.webSocketServerHandler = this
     }
 
     /**
@@ -101,6 +103,7 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
             ws.closeHandler {
                 logger.info("[WebSocketServer][$id] 断开连接")
                 wsList.remove(ws)
+                wsMap.remove(ws)
                 server.vertx.cancelTimer(timerID)
             }
 
@@ -195,6 +198,10 @@ class WebSocketServerHandler(private val server: WebHookHttpServer) {
             if (isDebug) logger.debug("[$id]客户端请求Token: $clientToken")
         }
         if (isDebug) logger.debug("[$id] 服务器鉴权结果: ${o2.toJsonString()}")
+        kotlin.runCatching {
+            val intents = payload.eventContent?.toJsonObject()?.getInteger("intents") ?: return@runCatching
+            wsMap[ws] = intents
+        }
         ws.writeTextMessage(o2.toJsonString())
     }
 }

@@ -50,6 +50,8 @@ fun main() {
     val host = config.getProperty("host") ?: "0.0.0.0"
     val enableWebSocketForwardingLoginVerify =
         config.getProperty("enableWebSocketForwardingLoginVerify")?.toBoolean() ?: true
+    val enableWebSocketForwardingIntentsVerify =
+        config.getProperty("enableWebSocketForwardingIntentsVerify")?.toBoolean() ?: false
     val isSandBox = config.getProperty("isSandBox")?.toBoolean() ?: true
     val debugLog = config.getProperty("debugLog")?.toBoolean() ?: false
     val mataDataDebugLog = config.getProperty("mataDataDebugLog")?.toBoolean() ?: false
@@ -79,7 +81,8 @@ fun main() {
         host = host,
         enableWebSocketForwarding = enableWebSocketForwarding,
         webSocketPath = webSocketPath,
-        enableWebSocketForwardingLoginVerify = enableWebSocketForwardingLoginVerify
+        enableWebSocketForwardingLoginVerify = enableWebSocketForwardingLoginVerify,
+        enableWebSocketForwardingIntentsVerify = enableWebSocketForwardingIntentsVerify
     )
 
     GlobalEventBus.onEvent<Event> {
@@ -128,6 +131,7 @@ private fun loadConfig(): Properties {
         webSocketPath=/websocket
         host=0.0.0.0
         enableWebSocketForwardingLoginVerify=true
+        enableWebSocketForwardingIntentsVerify=false
         isSandBox=true
         debugLog=false
         mataDataDebugLog=false
