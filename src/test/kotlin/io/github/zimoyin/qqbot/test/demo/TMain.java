@@ -50,7 +50,7 @@ public class TMain {
         Token finalToken = token;
         Bot bot = Bot.createBot(config -> {
             config.setToken(finalToken);
-            config.setIntents(Intents.Presets.PRIVATE_GROUP_INTENTS);
+            config.setIntents(Intents.Presets.PUBLIC_GROUP_INTENTS);
         });
 
 
@@ -72,14 +72,14 @@ public class TMain {
         });
 
         bot.onEvent(MessageEvent.class, false, event -> {
-//            long start1 = System.currentTimeMillis();
-//            event.reply(ImageMessage.create(new File("D:\\code\\java_kotlin\\ra3_qqbot\\data\\images\\camp_1.png"))).onComplete(a->{
-//                if (a.succeeded()){
-//                    System.out.println("发送图片耗时: " + (System.currentTimeMillis() - start1));
-//                }
-//            });
-//            event.reply(new PlainTextMessage("1"),new PlainTextMessage("2"),new PlainTextMessage("3"));
-            event.reply("");
+            MessageChain messageChain = MarkdownMessage.create("102077167_1706091638")
+                .appendParam("date", "123")
+                .appendParam("rw", event.getMessageChain().content())
+                .setSrvSendMsg(true) // 设置被动信息方式发送
+                .build()
+                .toMessageChain();
+
+            event.reply(messageChain);
         });
 
         MediaManager.setEnable(true);

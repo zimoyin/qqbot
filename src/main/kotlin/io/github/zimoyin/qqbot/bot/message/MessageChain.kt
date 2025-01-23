@@ -311,7 +311,7 @@ class MessageChain(
         }
 
         return SendMessageBean(
-            id = if (md != null) null else this.id,
+            id = if (md != null && md._isSrvSendMsg) null else this.id,
             messageReference = reference,
             content = if (sb.isEmpty()) null else sb.toString(),
             button = button,

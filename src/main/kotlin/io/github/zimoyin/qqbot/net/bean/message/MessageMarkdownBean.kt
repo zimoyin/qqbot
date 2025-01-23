@@ -51,6 +51,19 @@ data class MessageMarkdownBean(
         return params.apply { addAll(value) }.let { this }
     }
 
+    /**
+     * 是否是主动信息
+     * 默认是主动信息，对于机器人 dua 小于2000的不能使用被动信息
+     */
+    @JsonIgnore
+    var _isSrvSendMsg: Boolean = true
+
+    @JsonIgnore
+    fun setSrvSendMsg(isSrvSendMsg: Boolean): MessageMarkdownBean {
+        this._isSrvSendMsg = isSrvSendMsg
+        return this
+    }
+
     @Deprecated("please use build()")
     @JsonIgnore
     fun toMessage(): MarkdownMessage {

@@ -16,6 +16,7 @@ data class MarkdownMessage(
     val markdown: MessageMarkdownBean,
     val content: String = JSON.toJsonString(markdown),
 ) : MessageItem {
+
     init {
         require(!(markdown.templateId == null && markdown.content == null)) { "templateId and content is null" }
     }
