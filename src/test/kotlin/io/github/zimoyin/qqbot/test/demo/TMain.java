@@ -72,7 +72,7 @@ public class TMain {
         });
 
         bot.onEvent(MessageEvent.class, false, event -> {
-            event.reply(AudioMessage.create("./out/test.mp3"));
+            event.reply(AudioMessage.create(new File("./out/output.ogg")));
         });
 
         long finalStart = start2;

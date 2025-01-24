@@ -34,6 +34,7 @@ data class AudioMessage(val name: String?, val attachment: MessageAttachment) : 
          */
         @JvmStatic
         fun create(uri: String): AudioMessage {
+            if (File(uri).exists()) throw IllegalArgumentException("Parameter (string) URI cannot be a file")
             val create = URI.create(uri)
             return AudioMessage(uri, MessageAttachment( protocol = create.scheme ?: "https",uri = "${create.host?:""}${create.path?:""}${create.query?.let { "?$it" }?:""}"))
         }

@@ -79,6 +79,7 @@ data class ImageMessage(val name: String?, val attachment: MessageAttachment) : 
          */
         @JvmStatic
         fun create(uri: String): ImageMessage {
+            if (File(uri).exists()) throw IllegalArgumentException("Parameter (string) URI cannot be a file")
             val create = URI.create(uri)
             return ImageMessage(
                 uri,

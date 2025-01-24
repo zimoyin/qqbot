@@ -34,6 +34,7 @@ data class VideoMessage(val name: String?, val attachment: MessageAttachment) : 
          */
         @JvmStatic
         fun create(uri: String): VideoMessage {
+            if (File(uri).exists()) throw IllegalArgumentException("Parameter (string) URI cannot be a file")
             val create = URI.create(uri)
             return VideoMessage(
                 uri,
