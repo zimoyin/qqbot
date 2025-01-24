@@ -23,9 +23,9 @@ data class AudioMessage(val name: String?, val attachment: MessageAttachment) : 
     @JsonIgnore
     var localFileBytes: ByteArray? = null
 
-    @get:JsonIgnore
-    val bytes:ByteArray? by lazy {
-        localFileBytes?:localFile?.readBytes()?:attachment.getURL()?.toUrl()?.readBytes()
+    @JsonIgnore
+    fun bytes(): ByteArray? {
+        return localFileBytes?:localFile?.readBytes()?:attachment.getURL()?.toUrl()?.readBytes()
     }
 
     companion object {
