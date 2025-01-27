@@ -11,6 +11,8 @@ class At(
     val unionOpenID: String? = null,
     val unionUserAccount: String? = null,
 ) : MessageItem {
+    constructor(id: String) : this(id, "", false, "", null, null)
+
     override fun toContent(): String {
         return "@$id"
     }
