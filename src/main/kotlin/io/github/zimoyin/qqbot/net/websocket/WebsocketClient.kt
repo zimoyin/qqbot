@@ -53,6 +53,7 @@ class WebsocketClient(
 
 
     override suspend fun start() {
+        val useSSL = bot.context["client_use_ssl"]?:true
         val headerCycleValue: Long? = bot.context[headerCycleKey]
         if (headerCycleValue != null) {
             headerCycle = headerCycleValue
@@ -61,7 +62,7 @@ class WebsocketClient(
         //配置 ws
         val options = WebSocketClientOptions()
             .setConnectTimeout(6000)
-            .setSsl(true)
+            .setSsl(useSSL)
             .setTrustAll(true)
             .setVerifyHost(isVerifyHost)
             .apply {
