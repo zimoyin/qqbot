@@ -7,18 +7,22 @@
 </dependency>
 ```
 
-
-~~# 如何添加依赖（废弃）~~
-- [Maven](#maven)
-- [Gradle](#gradle)
-- [GradleKts](#gradleKt)
-- [Version](https://jitpack.io/com/github/zimoyin/qqbot/) 列表: 请查看该列表并选择一个新的版本
-- [Version](https://github.com/zimoyin/qqbot/releases) 列表: 请查看该列表并选择一个新的版本 （Github）
 ---
 
-~~#### <a name="maven"></a>Maven~~
+---
 
-```xml
+
+# ~~如何添加依赖（废弃）~~
+- [~~Maven~~](#maven)
+- [~~Gradle~~](#gradle)
+- [~~GradleKts~~](#gradleKt)
+- [~~Version~~](https://jitpack.io/com/github/zimoyin/qqbot/) ~~列表: 请查看该列表并选择一个新的版本~~
+- [~~Version~~](https://github.com/zimoyin/qqbot/releases) ~~列表: 请查看该列表并选择一个新的版本 （Github）~~
+---
+
+#### ~~<a name="maven"></a>Maven~~
+
+```
 <!--添加该库的仓库地址-->
 <repositories>
     <!-- Maven 中央仓库 ： 如果需要使用国内镜像仓库也可以添加，该仓库是为了兼容低版本 idea-->
@@ -44,8 +48,8 @@
 
 ---
 
-#### <a name="tab2"></a>Gradle
-```groovy
+#### ~~<a name="tab2"></a>Gradle~~
+```
 // 添加jitpack仓库
 //dependencyResolutionManagement {
 //  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
@@ -66,8 +70,8 @@ implementation 'io.github.zimoyin:qqbot:$VERSION'
 
 ---
 
-#### <a name="tab2"></a>Kotlin Gradle
-```kotlin
+#### ~~<a name="tab2"></a>Kotlin Gradle~~
+```
 // 添加jitpack仓库
 repositories {
     mavenCentral()
