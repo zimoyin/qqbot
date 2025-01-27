@@ -5,8 +5,10 @@ import io.github.zimoyin.qqbot.annotation.UntestedApi
 import io.github.zimoyin.qqbot.bot.Bot
 import io.github.zimoyin.qqbot.event.events.Event
 import io.github.zimoyin.qqbot.event.supporter.GlobalEventBus
+import io.github.zimoyin.qqbot.net.Intents
 import io.github.zimoyin.qqbot.net.http.TencentOpenApiHttpClient
 import io.github.zimoyin.qqbot.net.http.api.API.isDebug
+import io.github.zimoyin.qqbot.net.plus
 import io.github.zimoyin.qqbot.net.webhook.WebHookConfig
 import openDebug
 import org.slf4j.LoggerFactory
@@ -26,6 +28,8 @@ suspend fun main() {
     }
 
     TencentOpenApiHttpClient.isSandBox = true
+
+
     Bot.createBot(token).apply {
         println(this)
         isDebug = true
@@ -35,6 +39,7 @@ suspend fun main() {
         context.set("PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG", true)
         context.set("PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT", false)
 
+        start()
         start(WebHookConfig("127.0.0.1", enableWebSocketForwarding = true)).onSuccess {
             logger.info("WebServer 启动成功 ${it.webHookConfig.port}")
         }.onFailure {

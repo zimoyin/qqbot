@@ -3,26 +3,15 @@ package io.github.zimoyin.qqbot.test.demo;
 import io.github.zimoyin.qqbot.Config;
 import io.github.zimoyin.qqbot.LocalLogger;
 import io.github.zimoyin.qqbot.bot.Bot;
-import io.github.zimoyin.qqbot.bot.message.EmojiType;
-import io.github.zimoyin.qqbot.bot.message.MessageChain;
-import io.github.zimoyin.qqbot.bot.message.MessageChainBuilder;
 import io.github.zimoyin.qqbot.bot.message.type.*;
 import io.github.zimoyin.qqbot.event.events.Event;
-import io.github.zimoyin.qqbot.event.events.group.GroupEvent;
 import io.github.zimoyin.qqbot.event.events.group.operation.OpenGroupBotEvent;
-import io.github.zimoyin.qqbot.event.events.message.ChannelMessageEvent;
 import io.github.zimoyin.qqbot.event.events.message.MessageEvent;
-import io.github.zimoyin.qqbot.event.events.message.PrivateChannelMessageEvent;
 import io.github.zimoyin.qqbot.event.supporter.GlobalEventBus;
 import io.github.zimoyin.qqbot.net.Intents;
 import io.github.zimoyin.qqbot.net.Token;
 import io.github.zimoyin.qqbot.net.http.TencentOpenApiHttpClient;
 import io.github.zimoyin.qqbot.net.http.api.API;
-import io.github.zimoyin.qqbot.utils.Async;
-import io.github.zimoyin.qqbot.utils.MediaManager;
-import io.vertx.core.Vertx;
-
-import java.io.File;
 
 /**
  * @author : zimo

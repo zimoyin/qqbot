@@ -60,6 +60,8 @@ public class TMain2 {
             .builder()
             .sslPath("./127.0.0.1")
             .isSSL(true)
+            .port(8080)
+            .password("")
             .enableWebSocketForwarding(true)
             .enableWebSocketForwardingLoginVerify(true)
             .build();
