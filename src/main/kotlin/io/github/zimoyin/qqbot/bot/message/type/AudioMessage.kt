@@ -14,24 +14,30 @@ import java.util.*
 /**
  * 主动音频消息，只能发不能收
  */
-data class AudioMessage(val name: String?, val attachment: MessageAttachment) : MessageItem {
+data class AudioMessage( val name: String?,  val attachment: MessageAttachment) : MessageItem {
     override fun toStringType(): String {
         return "[ProactiveAudioMessage:${name?.replace("\n", "\\n")}]"
     }
 
+
     @JsonIgnore
+    @get:JvmSynthetic
+    @set:JvmSynthetic
     var localFile: File? = null
 
     @JsonIgnore
+    @get:JvmSynthetic
+    @set:JvmSynthetic
     var localFileBytes: ByteArray? = null
 
     @JsonIgnore
     fun bytes(): ByteArray? {
-        return localFileBytes?:localFile?.readBytes()?:attachment.getURL()?.toUrl()?.readBytes()
+        return localFileBytes ?: localFile?.readBytes() ?: attachment.getURL()?.toUrl()?.readBytes()
     }
 
     companion object {
         private val logger = LocalLogger(AudioMessage::class.java)
+
         /**
          * 构建网络视频信息
          */
@@ -39,7 +45,13 @@ data class AudioMessage(val name: String?, val attachment: MessageAttachment) : 
         fun create(uri: String): AudioMessage {
             if (File(uri).exists()) throw IllegalArgumentException("Parameter (string) URI cannot be a file")
             val create = URI.create(uri)
-            return AudioMessage(uri, MessageAttachment( protocol = create.scheme ?: "https",uri = "${create.host?:""}${create.path?:""}${create.query?.let { "?$it" }?:""}"))
+            return AudioMessage(
+                uri,
+                MessageAttachment(
+                    protocol = create.scheme ?: "https",
+                    uri = "${create.host ?: ""}${create.path ?: ""}${create.query?.let { "?$it" } ?: ""}"
+                )
+            )
         }
 
         /**

@@ -19,10 +19,15 @@ data class VideoMessage(val name: String?, val attachment: MessageAttachment) : 
         return "[ProactiveVideoMessage:${name?.replace("\n", "\\n")}]"
     }
 
+
     @JsonIgnore
+    @get:JvmSynthetic
+    @set:JvmSynthetic
     var localFile: File? = null
 
     @JsonIgnore
+    @get:JvmSynthetic
+    @set:JvmSynthetic
     var localFileBytes: ByteArray? = null
 
     @JsonIgnore

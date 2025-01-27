@@ -17,7 +17,6 @@ data class ImageMessage(val name: String?, val attachment: MessageAttachment) : 
         return "[Image:${name?.replace("\n", "\\n")}]"
     }
 
-
     /**
      * 将图片信息转换为发送图片的Bean
      */
@@ -29,9 +28,13 @@ data class ImageMessage(val name: String?, val attachment: MessageAttachment) : 
 
 
     @JsonIgnore
+    @get:JvmSynthetic
+    @set:JvmSynthetic
     var localFile: File? = null
 
     @JsonIgnore
+    @get:JvmSynthetic
+    @set:JvmSynthetic
     var localFileBytes: ByteArray? = null
 
     @JsonIgnore
