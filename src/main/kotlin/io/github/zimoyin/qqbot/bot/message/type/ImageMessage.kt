@@ -12,7 +12,7 @@ import java.io.InputStream
 import java.net.URI
 import java.util.*
 
-data class ImageMessage(val name: String?, val attachment: MessageAttachment) : MessageItem {
+class ImageMessage(override val name: String?, override val attachment: MessageAttachment) : FileMessage(name, attachment) {
     override fun toStringType(): String {
         return "[Image:${name?.replace("\n", "\\n")}]"
     }

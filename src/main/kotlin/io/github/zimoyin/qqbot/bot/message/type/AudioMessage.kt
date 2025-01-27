@@ -14,7 +14,7 @@ import java.util.*
 /**
  * 主动音频消息，只能发不能收
  */
-data class AudioMessage( val name: String?,  val attachment: MessageAttachment) : MessageItem {
+class AudioMessage(override val name: String?, override val attachment: MessageAttachment) : FileMessage(name, attachment) {
     override fun toStringType(): String {
         return "[ProactiveAudioMessage:${name?.replace("\n", "\\n")}]"
     }

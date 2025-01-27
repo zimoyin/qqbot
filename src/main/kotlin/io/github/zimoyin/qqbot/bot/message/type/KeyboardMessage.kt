@@ -13,7 +13,7 @@ import org.intellij.lang.annotations.Language
  *
  * TODO 后续支持 keyboard 对象
  */
-data class KeyboardMessage(
+class KeyboardMessage(
     @Language("json") val keyboard: String,
 ) : MessageItem {
 

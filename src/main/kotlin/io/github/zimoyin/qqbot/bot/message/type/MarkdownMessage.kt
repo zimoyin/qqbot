@@ -12,7 +12,7 @@ import org.intellij.lang.annotations.Language
 /**
  * MD 类型的信息，如果你需要构建他，推荐使用 MessageMarkdown.toMessage() 方法
  */
-data class MarkdownMessage(
+class MarkdownMessage(
     val markdown: MessageMarkdownBean,
     val content: String = JSON.toJsonString(markdown),
 ) : MessageItem {

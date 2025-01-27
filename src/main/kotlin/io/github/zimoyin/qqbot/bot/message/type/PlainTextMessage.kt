@@ -1,6 +1,6 @@
 package io.github.zimoyin.qqbot.bot.message.type
 
-data class PlainTextMessage(val content: String) : MessageItem {
+class PlainTextMessage(val content: String) : MessageItem {
     override fun toContent(): String {
         return content
     }

@@ -3,7 +3,7 @@ package io.github.zimoyin.qqbot.bot.message.type
 /**
  * 字段属性作用见 @see [github.zimoyin.net.websocket.bean.User]
  */
-data class At(
+class At(
     val id: String,
     val avatar: String = "",
     val isBot: Boolean = false,
@@ -24,7 +24,7 @@ data class At(
     }
 }
 
-data class AtALL(val id: String) : MessageItem {
+class AtALL(val id: String) : MessageItem {
     override fun toContent(): String {
         return "@$id"
     }
@@ -38,7 +38,7 @@ data class AtALL(val id: String) : MessageItem {
     }
 }
 
-data class AtChannelOwnerAll(val id: String) : MessageItem {
+class AtChannelOwnerAll(val id: String) : MessageItem {
     override fun toContent(): String {
         return "@$id"
     }
@@ -52,7 +52,7 @@ data class AtChannelOwnerAll(val id: String) : MessageItem {
     }
 }
 
-data class AtOnlineAll(val id: String) : MessageItem {
+class AtOnlineAll(val id: String) : MessageItem {
     override fun toContent(): String {
         return "@$id"
     }
