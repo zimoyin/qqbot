@@ -3,6 +3,8 @@ package io.github.zimoyin.qqbot.net.bean.message.send
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import io.github.zimoyin.qqbot.LocalLogger
+import io.github.zimoyin.qqbot.net.http.api.API
 import io.github.zimoyin.qqbot.utils.ex.md5
 import java.io.Serializable
 
@@ -34,6 +36,17 @@ data class SendMediaBean(
      */
     val file_data: String? = null,
 ) {
+    @JsonIgnore
+    private val logger = LocalLogger(javaClass)
+
+    @get:JsonIgnore
+    private val _md5: String? by lazy {
+        val start = System.currentTimeMillis()
+        (url?.md5() ?: file_data?.md5()).apply {
+           if (API.isDebug) logger.debug("md5: $this, cost: ${System.currentTimeMillis() - start} ms")
+        }
+    }
+
     companion object {
         const val FILE_TYPE_IMAGE = 1
         const val FILE_TYPE_VIDEO = 2
@@ -41,11 +54,11 @@ data class SendMediaBean(
     }
 
     override fun toString(): String {
-        return "SendMediaBean(fileType=$fileType, url=$url, srv_send_msg=$srv_send_msg, file_data=${if (file_data==null) "null" else "not null"})"
+        return "SendMediaBean(fileType=$fileType, url=$url, srv_send_msg=$srv_send_msg, file_data=${if (file_data == null) "null" else "not null"})"
     }
 
     fun getFileDataMd5(): String {
-        return url?.md5() ?: file_data?.md5()?:throw RuntimeException("file_data and url is null")
+        return _md5 ?: throw RuntimeException("file_data and url is null")
     }
 }
 
@@ -77,7 +90,7 @@ data class MediaMessageBean(
      */
     @JsonProperty("id")
     val id: String? = null,
-):Serializable {
+) : Serializable {
 
     /**
      * 创建时间戳,单位是 S
