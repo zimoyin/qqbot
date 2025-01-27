@@ -85,24 +85,14 @@ Java:
 
 ```java
 GlobalEventBus.INSTANCE.onBotEvent(bot, Event .class, event ->{
-    System.out.
-
-println("BOT全局事件监听"+event.getMetadataType());
-    });
-    GlobalEventBus.INSTANCE.
-
-onBotEvent(token.appID, Event .class, event ->{
-    System.out.
-
-println("BOT全局事件监听"+event.getMetadataType());
-    });
+    System.out.println("BOT全局事件监听"+event.getMetadataType());
+});
+GlobalEventBus.INSTANCE.onBotEvent(token.appID, Event .class, event ->{
+    System.out.println("BOT全局事件监听"+event.getMetadataType());
+});
 // 机器人事件监听，只监听和该机器人有关的事件
-    bot.
-
-onEvent(Event .class, event ->{
-    System.out.
-
-println("收到机器人事件");
+bot.onEvent(Event .class, event ->{
+    System.out.println("收到机器人事件");
 });
 //省略其他
 ```
@@ -150,60 +140,17 @@ context.getRecord("key")
 
 ```java
 BotConfig config = bot.getConfig();
-config.
-
-setRetry(99);
-
-bot.
-
-getContext().
-
-set("SESSION_ID","60a176e1-2790-4bf0-85cd-c123763981ea"); // 设置Session ID 用于复用已经存在的会话。注意：适用于沙盒环境，正式环境请谨慎使用
-bot.
-
-getContext().
-
-set("SESSION_ID_Failure_Reconnection",true); // 会话ID失效则废弃 Session id 重新连接服务器
-bot.
-
-getContext().
-
-set("gatewayURL","wss://sandbox.api.sgroup.qq.com/websocket/"); // 硬编码设置wss接入点同时shards设置为1.不推荐使用(// config.shards = 1)
-bot.
-
-getContext().
-
-set("PAYLOAD_CMD_HANDLER_DEBUG_LOG",true);    // 命令处理器日志
-bot.
-
-getContext().
-
-set("PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG",false); // 命令元数据日志
-bot.
-
-getContext().
-
-set("PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT",false);// 心跳日志,不能单独开启应该与上面两个其中一个一并开启
-bot.
-
-getContext().
-
-set("internal.isAbnormalCardiacArrest",true); //如果心跳在 心跳周期 + 30s 内没有发送出去就抛出异常
-bot.
-
-getContext().
-
-set("internal.headerCycle",5*1000); // 修改心跳周期
-bot.
-
-getContext().
-
-set("client_use_ssl",false); // WebSocket 禁用 ssl
-bot.
-
-getContext().
-
-set("newconnecting",true); // 断线是否重连
+config.setRetry(99);
+bot.getContext().set("SESSION_ID","60a176e1-2790-4bf0-85cd-c123763981ea"); // 设置Session ID 用于复用已经存在的会话。注意：适用于沙盒环境，正式环境请谨慎使用
+bot.getContext().set("SESSION_ID_Failure_Reconnection",true); // 会话ID失效则废弃 Session id 重新连接服务器
+bot.getContext().et("gatewayURL","wss://sandbox.api.sgroup.qq.com/websocket/"); // 硬编码设置wss接入点同时shards设置为1.不推荐使用(// config.shards = 1)
+bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_LOG",true);    // 命令处理器日志
+bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_MATA_DATA_LOG",false); // 命令元数据日志
+bot.getContext().set("PAYLOAD_CMD_HANDLER_DEBUG_HEART_BEAT",false);// 心跳日志,不能单独开启应该与上面两个其中一个一并开启
+bot.getContext().set("internal.isAbnormalCardiacArrest",true); //如果心跳在 心跳周期 + 30s 内没有发送出去就抛出异常
+bot.etContext().set("internal.headerCycle",5*1000); // 修改心跳周期
+bot.getContext().set("client_use_ssl",false); // WebSocket 禁用 ssl
+bot.getContext().set("newconnecting",true); // 断线是否重连
 
 
 // 只读上下文
