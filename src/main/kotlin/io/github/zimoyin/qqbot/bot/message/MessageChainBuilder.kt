@@ -2,8 +2,10 @@ package io.github.zimoyin.qqbot.bot.message
 
 import io.github.zimoyin.qqbot.bot.message.type.MessageItem
 import io.github.zimoyin.qqbot.bot.message.type.PlainTextMessage
+import io.github.zimoyin.qqbot.bot.message.type.ProactiveMediaMessage
 import io.github.zimoyin.qqbot.bot.message.type.ReferenceMessage
 import io.github.zimoyin.qqbot.event.events.Event
+import io.github.zimoyin.qqbot.net.bean.message.send.MediaMessageBean
 
 /**
  * 信息链构造器
@@ -56,10 +58,20 @@ class MessageChainBuilder(private var id: String? = null) {
         return this
     }
 
+    fun append(m: MediaMessageBean): MessageChainBuilder {
+        internalItems.add(ProactiveMediaMessage(m))
+        return this
+    }
+
     fun append(chain: MessageChain): MessageChainBuilder {
         chain.forEach {
             internalItems.add(it)
         }
+        return this
+    }
+
+    fun append(eventId0: Event?): MessageChainBuilder {
+        eventId = eventId0?.eventID
         return this
     }
 
