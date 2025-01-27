@@ -152,6 +152,7 @@ fun HttpAPIClient.uploadMediaToFriend(id: String, token: Token, mediaBean: SendM
     API.uploadFriendMediaResource.addRestfulParam(id).putHeaders(token.getHeaders())
         .sendJsonObject(JSON.toJsonObject(mediaBean)).onSuccess {
             runCatching {
+                if (it.statusCode() == 413) throw HttpClientException("Upload media resource failed(statusCode:413): \n${it.bodyAsString()}")
                 val json = it.bodyAsJsonObject()
                 if (json.getInteger("code") != null) {
                     promise.fail(HttpClientException("Upload media resource failed: $json"))
@@ -167,21 +168,7 @@ fun HttpAPIClient.uploadMediaToFriend(id: String, token: Token, mediaBean: SendM
             }.onSuccess {
                 promise.tryComplete(it)
             }.onFailure {
-                logPreError(
-                    promise,
-                    "sendFirendMessage0",
-                    "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()} 失败",
-                    it
-                ).let { isLog ->
-                    if (!promise.tryFail(it)) {
-                        if (!isLog) logError(
-                            "sendFirendMessage0",
-                            "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()} 失败",
-                            it
-                        )
-                    }
-                }
-
+                promise.tryFail(it)
             }
         }.onFailure {
             logPreError(
@@ -215,7 +202,7 @@ private fun HttpAPIClient.httpSuccess(
         parseJsonSuccess(it, friend, message, promise)
     }.onFailure {
         logPreError(
-            promise, "sendFirendMessage0", "API does not meet expectations; resp:[${resp.bodyAsString()}]", it
+            promise, "sendFriendMessage0", "API does not meet expectations; resp:[${resp.bodyAsString()}]", it
         ).let { isLog ->
             if (!promise.tryFail(
                     HttpHandlerException(
@@ -225,7 +212,7 @@ private fun HttpAPIClient.httpSuccess(
                 )
             ) {
                 if (!isLog) logError(
-                    "sendChannelMessage", "API does not meet expectations; resp:[${resp.bodyAsString()}]", it
+                    "sendFriendMessage0", "API does not meet expectations; resp:[${resp.bodyAsString()}]", it
                 )
             }
         }
@@ -248,16 +235,16 @@ private fun HttpAPIClient.parseJsonSuccess(
         304023, 304024 -> {
             //信息审核事件推送
             broadcastChannelMessageAuditEvent(it, friend.botInfo)
-            logDebug("sendChannelMessage", "信息审核事件中: $it")
+            logDebug("sendFriendMessage0", "信息审核事件中: $it")
         }
 
         else -> {
             logPreError(
-                promise, "sendFirendMessage0", "API does not meet expectations; resp:[$it]"
+                promise, "sendFriendMessage0", "API does not meet expectations; resp:[$it]"
             ).let { isLog ->
                 promise.tryFail(HttpClientException("The server does not receive this value: $it")).apply {
                     if (!this && !isLog) logError(
-                        "sendChannelMessage", "result -> [${it.getInteger("code")}] ${it.getString("message")}"
+                        "sendFriendMessage0", "result -> [${it.getInteger("code")}] ${it.getString("message")}"
                     )
                 }
             }

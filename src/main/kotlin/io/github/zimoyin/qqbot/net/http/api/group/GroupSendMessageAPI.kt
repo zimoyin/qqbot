@@ -20,12 +20,15 @@ import io.github.zimoyin.qqbot.net.http.api.API
 import io.github.zimoyin.qqbot.net.http.api.HttpAPIClient
 import io.github.zimoyin.qqbot.utils.JSON
 import io.github.zimoyin.qqbot.utils.MediaManager
+import io.github.zimoyin.qqbot.utils.ex.toJsonObject
+import io.github.zimoyin.qqbot.utils.ex.writeToText
 import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.buffer.Buffer
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.client.HttpRequest
 import io.vertx.ext.web.client.HttpResponse
+import java.awt.SystemColor.text
 
 
 /**
@@ -150,11 +153,15 @@ fun HttpAPIClient.uploadMediaToGroup(id: String, token: Token, mediaBean: SendMe
     API.uploadGroupMediaResource.addRestfulParam(id).putHeaders(token.getHeaders())
         .sendJsonObject(JSON.toJsonObject(mediaBean)).onSuccess {
             runCatching {
+                if (it.statusCode() == 413) throw HttpClientException("Upload media resource failed(statusCode:413): \n${it.bodyAsString()}")
                 val json = it.bodyAsJsonObject()
                 if (json.getInteger("code") != null) {
                     promise.fail(HttpClientException("Upload media resource failed: $json"))
                 } else {
-                    logDebug("sendGroupMessage", "上传富媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()} 成功: $json")
+                    logDebug(
+                        "sendGroupMessage",
+                        "上传富媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()} 成功: $json"
+                    )
                 }
                 json.mapTo(MediaMessageBean::class.java).apply {
                     if (MediaManager.isEnable) MediaManager.instance[mediaBean.getFileDataMd5()] = this
@@ -162,24 +169,20 @@ fun HttpAPIClient.uploadMediaToGroup(id: String, token: Token, mediaBean: SendMe
             }.onSuccess {
                 promise.tryComplete(it)
             }.onFailure {
-                logPreError(
-                    promise, "sendGroupMessage", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()} 失败", it
-                ).let { isLog ->
-                    if (!promise.tryFail(it)) {
-                        if (!isLog) logError(
-                            "sendGroupMessage", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()} 失败", it
-                        )
-                    }
-                }
-
+                promise.tryFail(it)
             }
         }.onFailure {
             logPreError(
-                promise, "sendGroupMessage", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()} 失败", it
+                promise,
+                "sendGroupMessage",
+                "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()} 失败",
+                it
             ).let { isLog ->
                 if (!promise.tryFail(it)) {
                     if (!isLog) logError(
-                        "sendGroupMessage", "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()} 失败", it
+                        "sendGroupMessage",
+                        "上传媒体资源[${mediaBean.fileType}]: ${mediaBean.getFileDataMd5()} 失败",
+                        it
                     )
                 }
             }
@@ -200,11 +203,11 @@ private fun HttpAPIClient.httpSuccess(
         parseJsonSuccess(it, group, message, promise)
     }.onFailure {
         logPreError(
-            promise, "sendGroupMessage", "API does not meet expectations; resp:[${resp.bodyAsString()}]"
+            promise, "sendGroupMessage0", "API does not meet expectations; resp:[${resp.bodyAsString()}]"
         ).let { isLog0 ->
             promise.tryFail(it).apply {
                 if (!this && !isLog0) logError(
-                    "sendGroupMessage", "API does not meet expectations; resp:[${resp.bodyAsString()}]", it
+                    "sendGroupMessage0", "API does not meet expectations; resp:[${resp.bodyAsString()}]", it
                 )
             }
         }
@@ -229,16 +232,16 @@ private fun HttpAPIClient.parseJsonSuccess(
         304023, 304024 -> {
             //信息审核事件推送
             broadcastChannelMessageAuditEvent(it, group.botInfo)
-            logDebug("sendGroupMessage", "信息审核事件中: $it")
+            logDebug("sendGroupMessage0", "信息审核事件中: $it")
         }
 
         else -> {
             logPreError(
-                promise, "sendGroupMessage", "result -> [${it.getInteger("code")}] ${it.getString("message")}"
+                promise, "sendGroupMessage0", "result -> [${it.getInteger("code")}] ${it.getString("message")}"
             ).let { isLog ->
                 promise.tryFail(HttpClientException("The server does not receive this value: $it")).apply {
                     if (!this && !isLog) logError(
-                        "sendGroupMessage", "result -> [${it.getInteger("code")}] ${it.getString("message")}"
+                        "sendGroupMessage0", "result -> [${it.getInteger("code")}] ${it.getString("message")}"
                     )
                 }
             }
