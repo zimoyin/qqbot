@@ -57,10 +57,8 @@ Java:
 
 ```java
 GlobalEventBus.INSTANCE.onEvent(Event .class, event ->{
-    System.out.
-
-println(event.getMetadataType());
-    });
+    System.out.println(event.getMetadataType());
+});
 //省略 bot 方式
 ```
 
