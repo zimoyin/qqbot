@@ -72,7 +72,9 @@ public class TMain {
         });
 
         bot.onEvent(MessageEvent.class, false, event -> {
-            event.reply(AudioMessage.create(new File("./out/output.ogg")));
+//            event.reply(AudioMessage.create(new File("./out/your_audio.silk")));
+//            event.reply(ImageMessage.create(new File("./out/E]5DVT{`HRO)Y6}3L)5]D{X_x4_Av.jpg")));
+            event.reply(VideoMessage.create(new File("./out/redpandacompress_美爆！为你在嘉应学院下的第一场雪.mp4")));
         });
 
         long finalStart = start2;
