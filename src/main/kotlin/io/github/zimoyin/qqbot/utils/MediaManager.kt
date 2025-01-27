@@ -4,6 +4,7 @@ import io.github.zimoyin.qqbot.GLOBAL_VERTX_INSTANCE
 import io.github.zimoyin.qqbot.LocalLogger
 import io.github.zimoyin.qqbot.SystemLogger
 import io.github.zimoyin.qqbot.net.bean.message.send.MediaMessageBean
+import io.github.zimoyin.qqbot.net.http.api.API
 import java.io.Serializable
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
@@ -62,9 +63,15 @@ class MediaManager : ConcurrentHashMap<String, MediaMessageBean>(), Serializable
         var instance = MediaManager()
     }
 
+    operator fun set(key: String, value: MediaMessageBean): MediaMessageBean? {
+        if (API.isDebug) logger.debug("将文件缓存 : $key")
+        return super.put(key, value)
+    }
+
     override fun get(key: String): MediaMessageBean? {
         val media = super.get(key) ?: return null
         if (media.isExpired()) {
+            if (API.isDebug) logger.debug("文件缓存已过期 : $key")
             remove(key)
             return null
         }

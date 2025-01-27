@@ -48,8 +48,9 @@ data class ImageMessage(val name: String?, val attachment: MessageAttachment) : 
         fun create(file: File): ImageMessage {
             return ImageMessage(file.name, MessageAttachment()).apply {
                 if (!file.exists()) throw IllegalArgumentException("Not found file: $file")
-                if (file.length() > 4 * 1024 * 1024) {
-                    LoggerFactory.getLogger(ImageMessage::class.java).warn("图片大小超过4mb，可能会导致发送失败")
+                val limit = 8 * 1024 * 1024
+                if (file.length() > limit) {
+                    LoggerFactory.getLogger(ImageMessage::class.java).warn("文件大小超过${limit}mb，可能会因为网络问题导致发送失败: ${file.length() / 1024 / 1024} mb")
                 }
                 localFile = file
             }
