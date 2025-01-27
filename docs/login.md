@@ -8,8 +8,8 @@
 * WebHook: 通过 Http 协议被动登录，只有部署在服务器上，并在QQ机器人平台配置，WebHook 的服务器地址才能让腾讯访问 WebHook
   服务器，进行登录
 
-1. [参阅 WebSocket 登录方式]((websocket.md))
-2. [参阅 WebHook   登录方式]((webhook.md))
+1. [参阅 WebSocket 登录方式](websocket.md)
+2. [参阅 WebHook   登录方式](webhook.md)
 
 #### 1.1 退出登录
 
