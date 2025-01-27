@@ -63,7 +63,7 @@ enableWebSocketForwarding 开启后，将会在服务器启动后，在 `webSock
 // 配置服务器地址
 String host = "zimoyin.xyz:8080";
 TencentOpenApiHttpClient.setHost(host);
-// 配置使用自定义服务器地址
+// 配置使用自定义服务器地址(设置 Host 后默认为 true)
 TencentOpenApiHttpClient.setUseCustomHost(true);
 // 配置使用默认 websocket 处理路径。如果不配置则是访问 /websocket
 //    TencentOpenApiHttpClient.webSocketForwardingAddress = "wss://"+host+"/ws"
