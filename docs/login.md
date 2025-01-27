@@ -14,8 +14,8 @@
 #### 1.1 退出登录
 
 1. 退出登录
-   通关 `login()` 获取到的 `WebSocketClient` 实例，调用 `close()` 方法关闭连接
-   通关 `start()` 获取到的 实例，调用 `close()` 方法关闭连接
+   * 通过 `login()` 获取到的 `WebSocketClient` 实例，调用 `close()` 方法关闭连接
+   * 通过 `start()` 获取到的 实例，调用 `close()` 方法关闭连接
 2. 退出程序
    如果没有自己创建 Vertx 的话，使用 `GLOBAL_VERTX_INSTANCE.close()` 即可关闭
 
