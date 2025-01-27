@@ -40,7 +40,7 @@ class BotConfigBuilder(token0: Token? = null) {
 
     @Deprecated("The official has abandoned the WebSocket method")
     fun setIntents(vararg intents0: Intents): BotConfigBuilder {
-        intents = Intents.START.and(*intents0)
+        intents = Intents.START.plus(*intents0)
         return this
     }
 

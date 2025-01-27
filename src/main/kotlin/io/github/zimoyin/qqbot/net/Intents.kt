@@ -159,7 +159,7 @@ enum class Intents(val code: Int) {
         PRIVATE_GROUP_INTENTS(1007162883 or GROUP_INTENTS.code or INTERACTION.code);
 
         operator fun plus(messageAudit: Intents): Int {
-            return messageAudit.and(this.code)
+            return messageAudit.plus(this.code)
         }
     }
 
@@ -172,7 +172,7 @@ enum class Intents(val code: Int) {
      * @param intents 要使用按位或运算组合的 [Intents]。
      * @return 表示组合 [Intents] 的整数代码。
      */
-    fun and(vararg intents: Intents): Int {
+    fun plus(vararg intents: Intents): Int {
         var code0 = code
         for (intent in intents) {
             code0 = code0 or intent.code
@@ -180,7 +180,7 @@ enum class Intents(val code: Int) {
         return code0
     }
 
-    fun and(vararg intents: Int): Int {
+    fun plus(vararg intents: Int): Int {
         var code0 = code
         for (intent in intents) {
             code0 = code0 or intent
@@ -194,11 +194,11 @@ enum class Intents(val code: Int) {
      *
      * 该操作符会将多个 [Intents] 组合成一个整数代码，作为订阅事件的起始点。在这种形式下，可以直观地使用加法运算符来组合多个 [Intents]。
      *
-     * @param messageAudit 要与其他 [Intents] 组合的 [Intents] 对象。
+     * @param intents 要与其他 [Intents] 组合的 [Intents] 对象。
      * @return 表示组合 [Intents] 的整数代码，作为订阅事件的起始点。
      */
-    operator fun plus(messageAudit: Intents): Int {
-        return and(messageAudit)
+    operator fun plus(intents: Intents): Int {
+        return plus(intents.code)
     }
 
     companion object {
@@ -213,12 +213,12 @@ enum class Intents(val code: Int) {
          */
         @JvmStatic
         fun create(vararg intents: Intents): Int {
-            return START.and(*intents)
+            return START.plus(*intents)
         }
 
         @JvmStatic
         fun create(vararg intents: Int): Int {
-            return START.and(*intents)
+            return START.plus(*intents)
         }
 
         /**

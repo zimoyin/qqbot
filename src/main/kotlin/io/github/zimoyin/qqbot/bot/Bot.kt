@@ -37,6 +37,39 @@ interface Bot : Serializable, Contact {
     companion object INSTANCE {
         private val map = HashMap<String, Bot>()
 
+
+        @JvmStatic
+        fun createBot(token: Token): Bot {
+            val config = BotConfigBuilder().setToken(token).build()
+            val botImp = BotImp(config.token, config = config)
+            map[config.token.appID] = botImp
+            return botImp
+        }
+
+        @JvmStatic
+        fun createBot(appid: String, secret: String): Bot {
+            val config = BotConfigBuilder().setToken(Token.createByAppSecret(appid, secret)).build()
+            val botImp = BotImp(config.token, config = config)
+            map[config.token.appID] = botImp
+            return botImp
+        }
+
+        @JvmStatic
+        fun createBot(appid: String, token: String, secret: String): Bot {
+            val config = BotConfigBuilder().setToken(Token.create(appid, token, secret)).build()
+            val botImp = BotImp(config.token, config = config)
+            map[config.token.appID] = botImp
+            return botImp
+        }
+
+        @JvmStatic
+        fun createBot(callback: Consumer<BotConfigBuilder>): Bot {
+            val config = BotConfigBuilder().apply { callback.accept(this) }.build()
+            val botImp = BotImp(config.token, config = config)
+            map[config.token.appID] = botImp
+            return botImp
+        }
+
         /**
          * 创建BOT
          * @param token Token
@@ -65,30 +98,6 @@ interface Bot : Serializable, Contact {
             return botImp
         }
 
-        @JvmStatic
-        fun createBot(token: Token): Bot {
-            val config = BotConfigBuilder().setToken(token).build()
-            val botImp = BotImp(config.token, config = config)
-            map[config.token.appID] = botImp
-            return botImp
-        }
-
-        @JvmStatic
-        fun createBot(appid: String, secret: String): Bot {
-            val config = BotConfigBuilder().setToken(Token.createByAppSecret(appid, secret)).build()
-            val botImp = BotImp(config.token, config = config)
-            map[config.token.appID] = botImp
-            return botImp
-        }
-
-        @JvmStatic
-        fun createBot(appid: String, token: String, secret: String): Bot {
-            val config = BotConfigBuilder().setToken(Token.create(appid, token, secret)).build()
-            val botImp = BotImp(config.token, config = config)
-            map[config.token.appID] = botImp
-            return botImp
-        }
-
         @Deprecated("The official has abandoned the WebSocket method")
         @JvmName("kotlinCreateBot")
         fun createBot(token: Token, callback: BotConfigBuilder.() -> Unit): Bot {
@@ -98,14 +107,6 @@ interface Bot : Serializable, Contact {
             return botImp
         }
 
-        @Deprecated("The official has abandoned the WebSocket method")
-        @JvmStatic
-        fun createBot(callback: Consumer<BotConfigBuilder>): Bot {
-            val config = BotConfigBuilder().apply { callback.accept(this) }.build()
-            val botImp = BotImp(config.token, config = config)
-            map[config.token.appID] = botImp
-            return botImp
-        }
 
         @Deprecated("The official has abandoned the WebSocket method")
         @JvmStatic
