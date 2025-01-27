@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import io.github.zimoyin.qqbot.annotation.UntestedApi
 import io.github.zimoyin.qqbot.net.bean.message.MessageAttachment
 import io.github.zimoyin.qqbot.utils.ex.toUrl
+import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.InputStream
 import java.net.URI
@@ -53,6 +54,10 @@ data class VideoMessage(val name: String?, val attachment: MessageAttachment) : 
         fun create(file: File): VideoMessage {
             return VideoMessage(file.name, MessageAttachment()).apply {
                 if (!file.exists()) throw IllegalArgumentException("Not found file: $file")
+                val limit = 8 * 1024 * 1024
+                if (file.length() > limit) {
+                    LoggerFactory.getLogger(ImageMessage::class.java).warn("文件大小超过${limit}mb，可能会因为网络问题导致发送失败: ${file.length() / 1024 / 1024} mb")
+                }
                 localFile = file
             }
         }
