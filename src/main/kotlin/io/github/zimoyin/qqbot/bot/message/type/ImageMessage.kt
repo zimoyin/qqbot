@@ -1,6 +1,7 @@
 package io.github.zimoyin.qqbot.bot.message.type
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import io.github.zimoyin.qqbot.LocalLogger
 import io.github.zimoyin.qqbot.annotation.UntestedApi
 import io.github.zimoyin.qqbot.net.bean.message.MessageAttachment
 import io.github.zimoyin.qqbot.net.bean.message.send.SendMediaBean
@@ -39,6 +40,8 @@ data class ImageMessage(val name: String?, val attachment: MessageAttachment) : 
     }
 
     companion object {
+        private val logger = LocalLogger(ImageMessage::class.java)
+
         /**
          * 构建本地图片信息
          * 注意： 目前仅仅支持频道通过本地发送图片
@@ -48,9 +51,14 @@ data class ImageMessage(val name: String?, val attachment: MessageAttachment) : 
         fun create(file: File): ImageMessage {
             return ImageMessage(file.name, MessageAttachment()).apply {
                 if (!file.exists()) throw IllegalArgumentException("Not found file: $file")
+
                 val limit = 8 * 1024 * 1024
                 if (file.length() > limit) {
-                    LoggerFactory.getLogger(ImageMessage::class.java).warn("文件大小超过${limit}mb，可能会因为网络问题导致发送失败: ${file.length() / 1024 / 1024} mb")
+                    logger.warn("文件大小超过${limit}mb，可能会因为网络问题导致发送失败: ${file.length() / 1024 / 1024} mb")
+                }
+                // 文件格式校验 jpg/png/jepg
+                if (!file.extension.endsWith("jpg") && !file.extension.endsWith("png") && !file.extension.endsWith("jpeg")) {
+                    logger.warn("文件格式不正确，仅支持jpg/png/jpeg格式")
                 }
                 localFile = file
             }

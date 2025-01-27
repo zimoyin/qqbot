@@ -1,6 +1,7 @@
 package io.github.zimoyin.qqbot.bot.message.type
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import io.github.zimoyin.qqbot.LocalLogger
 import io.github.zimoyin.qqbot.annotation.UntestedApi
 import io.github.zimoyin.qqbot.net.bean.message.MessageAttachment
 import io.github.zimoyin.qqbot.utils.ex.toUrl
@@ -26,10 +27,12 @@ data class VideoMessage(val name: String?, val attachment: MessageAttachment) : 
 
     @JsonIgnore
     fun bytes(): ByteArray? {
-        return localFileBytes?:localFile?.readBytes()?:attachment.getURL()?.toUrl()?.readBytes()
+        return localFileBytes ?: localFile?.readBytes() ?: attachment.getURL()?.toUrl()?.readBytes()
     }
 
     companion object {
+        private val logger = LocalLogger(VideoMessage::class.java)
+
         /**
          * 构建网络视频信息
          */
@@ -56,7 +59,11 @@ data class VideoMessage(val name: String?, val attachment: MessageAttachment) : 
                 if (!file.exists()) throw IllegalArgumentException("Not found file: $file")
                 val limit = 8 * 1024 * 1024
                 if (file.length() > limit) {
-                    LoggerFactory.getLogger(ImageMessage::class.java).warn("文件大小超过${limit}mb，可能会因为网络问题导致发送失败: ${file.length() / 1024 / 1024} mb")
+                    logger.warn("文件大小超过${limit}mb，可能会因为网络问题导致发送失败: ${file.length() / 1024 / 1024} mb")
+                }
+                // 文件格式校验 mp4
+                if (!file.extension.endsWith("mp4")) {
+                    logger.warn("文件格式不正确，请使用mp4格式的视频文件: ${file.name}")
                 }
                 localFile = file
             }

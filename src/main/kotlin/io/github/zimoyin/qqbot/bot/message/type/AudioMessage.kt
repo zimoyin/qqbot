@@ -1,6 +1,7 @@
 package io.github.zimoyin.qqbot.bot.message.type
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import io.github.zimoyin.qqbot.LocalLogger
 import io.github.zimoyin.qqbot.annotation.UntestedApi
 import io.github.zimoyin.qqbot.net.bean.message.MessageAttachment
 import io.github.zimoyin.qqbot.utils.ex.toUrl
@@ -30,6 +31,7 @@ data class AudioMessage(val name: String?, val attachment: MessageAttachment) : 
     }
 
     companion object {
+        private val logger = LocalLogger(AudioMessage::class.java)
         /**
          * 构建网络视频信息
          */
@@ -51,7 +53,11 @@ data class AudioMessage(val name: String?, val attachment: MessageAttachment) : 
                 if (!file.exists()) throw IllegalArgumentException("Not found file: $file")
                 val limit = 8 * 1024 * 1024
                 if (file.length() > limit) {
-                    LoggerFactory.getLogger(ImageMessage::class.java).warn("文件大小超过${limit}mb，可能会因为网络问题导致发送失败: ${file.length() / 1024 / 1024} mb")
+                    logger.warn("文件大小超过${limit}mb，可能会因为网络问题导致发送失败: ${file.length() / 1024 / 1024} mb")
+                }
+                // 文件格式校验 silk
+                if (!file.extension.endsWith("silk")) {
+                    logger.warn("文件格式不正确，只能发送silk格式的文件. 如果想要转发音频文件为 silk 请下载该工具: https://download.csdn.net/download/qq_44684238/90320214")
                 }
                 localFile = file
             }
