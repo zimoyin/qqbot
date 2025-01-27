@@ -9,10 +9,6 @@ import io.github.zimoyin.qqbot.net.bean.message.send.MediaMessageBean
 
 /**
  * 信息链构造器
- * 该构造器主要可以构建以下信息类型。TODO 暂时不考虑 群里与单聊
- * 1. 纯文本
- * 2. 图文混排 TODO 群里与单聊
- * 5. media 富媒体 TODO 单聊/群聊
  */
 class MessageChainBuilder(private var id: String? = null) {
     private var eventId: String? = null
