@@ -124,6 +124,13 @@ class MessageChain(
         }
     }
 
+    fun getImages(): List<ImageMessage> {
+        return internalItems.filterIsInstance<ImageMessage>()
+    }
+
+    fun getMessageItems(cls: Class<MessageItem>): List<MessageItem> {
+        return internalItems.filter { it.javaClass == cls }
+    }
 
     override fun iterator(): Iterator<MessageItem> {
         return internalItems.iterator()
@@ -158,6 +165,10 @@ class MessageChain(
 
     fun contains(item: MessageItem): Boolean {
         return internalItems.contains(item)
+    }
+
+    fun contains(cls: Class<MessageItem>): Boolean {
+        return internalItems.any { it.javaClass == cls }
     }
 
     fun toArray(): Array<MessageItem> {
