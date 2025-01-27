@@ -31,11 +31,13 @@ class ImageMessage(override val name: String?, override val attachment: MessageA
     @get:JvmSynthetic
     @set:JvmSynthetic
     var localFile: File? = null
+        private set
 
     @JsonIgnore
     @get:JvmSynthetic
     @set:JvmSynthetic
     var localFileBytes: ByteArray? = null
+        private set
 
     @JsonIgnore
     fun bytes(): ByteArray? {

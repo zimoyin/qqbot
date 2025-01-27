@@ -14,7 +14,8 @@ import java.util.*
 /**
  * 主动视频消息，只能发不能接收
  */
-class VideoMessage(override val name: String?, override val attachment: MessageAttachment) : FileMessage(name, attachment) {
+class VideoMessage(override val name: String?, override val attachment: MessageAttachment) :
+    FileMessage(name, attachment) {
     override fun toStringType(): String {
         return "[ProactiveVideoMessage:${name?.replace("\n", "\\n")}]"
     }
@@ -24,11 +25,13 @@ class VideoMessage(override val name: String?, override val attachment: MessageA
     @get:JvmSynthetic
     @set:JvmSynthetic
     var localFile: File? = null
+        private set
 
     @JsonIgnore
     @get:JvmSynthetic
     @set:JvmSynthetic
     var localFileBytes: ByteArray? = null
+        private set
 
     @JsonIgnore
     fun bytes(): ByteArray? {
