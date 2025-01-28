@@ -60,6 +60,8 @@ import io.github.zimoyin.qqbot.event.events.revoke.ChannelPrivateMessageRevokeEv
 import io.github.zimoyin.qqbot.event.events.revoke.MessageRevokeEvent
 import io.github.zimoyin.qqbot.event.handler.NoneEventHandler
 import io.github.zimoyin.qqbot.net.bean.Payload
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArraySet
 
 /**
  *
@@ -69,8 +71,8 @@ import io.github.zimoyin.qqbot.net.bean.Payload
  * 事件与事件处理器的映射关系
  */
 object EventMapping {
-    private val mapping = mutableMapOf<String, MateEventMapping>()
-    private val history: HashSet<Class<*>> = HashSet()
+    private val mapping = ConcurrentHashMap<String, MateEventMapping>()
+    private val history = CopyOnWriteArraySet<Class<*>>()
     private val logger = LocalLogger(EventMapping::class.java)
 
     init {
@@ -206,7 +208,7 @@ object EventMapping {
         if (history.contains(cls)) return
         runCatching {
             val initAdd = initAdd(cls)
-            logger.debug("EventMapping add mapping: $initAdd ", )
+            logger.debug("EventMapping add mapping: $initAdd ")
         }.onFailure {
             logger.error("EventMapping add error: class $cls", it)
             throw it

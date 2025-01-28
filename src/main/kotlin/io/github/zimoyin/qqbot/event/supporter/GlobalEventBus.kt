@@ -19,6 +19,7 @@ import io.vertx.core.eventbus.MessageConsumer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.concurrent.CopyOnWriteArraySet
 import java.util.function.Consumer
 
 /**
@@ -27,7 +28,7 @@ import java.util.function.Consumer
 open class BotEventBus(val vertx: Vertx) {
     val bus = vertx.eventBus()
     val logger by lazy { LocalLogger(BotEventBus::class.java) }
-    val consumers = HashSet<MessageConsumer<*>>()
+    val consumers = CopyOnWriteArraySet<MessageConsumer<*>>()
     var debugLogger: Boolean = false
 
 
