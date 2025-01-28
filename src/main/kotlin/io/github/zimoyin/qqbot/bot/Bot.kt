@@ -21,6 +21,8 @@ import io.vertx.core.eventbus.Message
 import io.vertx.core.eventbus.MessageConsumer
 import io.vertx.core.http.WebSocket
 import java.io.Serializable
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArraySet
 import java.util.function.Consumer
 
 
@@ -35,7 +37,7 @@ import java.util.function.Consumer
  */
 interface Bot : Serializable, Contact {
     companion object INSTANCE {
-        private val map = HashMap<String, Bot>()
+        private val map = ConcurrentHashMap<String, Bot>()
 
 
         @JvmStatic
@@ -279,7 +281,7 @@ data class BotConfig(
     val globalEventBus = GlobalEventBus
 
     @Deprecated("please use botEventBus.getConsumers()")
-    val consumers: HashSet<MessageConsumer<*>> by lazy {
+    val consumers: CopyOnWriteArraySet<MessageConsumer<*>> by lazy {
         botEventBus.consumers
     }
 
